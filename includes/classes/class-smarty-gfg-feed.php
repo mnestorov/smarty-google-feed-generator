@@ -12,29 +12,6 @@
  */
 class Smarty_Gfg_Feed {
     /**
-     * Add rewrite rules for custom endpoints.
-     * 
-     * @since    1.0.0
-     */
-    public static function feed_generator_add_rewrite_rules() {
-        add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
-        add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top'); // url: ?smarty-google-reviews-feed
-        add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
-    }
-
-    /**
-     * Register query vars for custom endpoints.
-     * 
-     * @since    1.0.0
-     */
-    public function feed_generator_query_vars($vars) {
-        $vars[] = 'smarty_google_feed';
-        $vars[] = 'smarty_google_reviews_feed';
-        $vars[] = 'smarty_csv_export';
-        return $vars;
-    }
-
-    /**
      * Handle requests to custom endpoints.
      * 
      * @since    1.0.0
@@ -137,7 +114,7 @@ class Smarty_Gfg_Feed {
                         $feed->appendChild($item);
 
                         // Add product details as child nodes
-                        addGoogleProductDetails($dom, $item, $product, $variation);
+                        self::add_google_product_details($dom, $item, $product, $variation);
                     }
                 } else {
                     // Process simple products similarly
@@ -145,7 +122,7 @@ class Smarty_Gfg_Feed {
                     $feed->appendChild($item);
 
                     // Add product details as child nodes
-                    addGoogleProductDetails($dom, $item, $product);
+                    self::add_google_product_details($dom, $item, $product);
                 }
             }
 
@@ -182,7 +159,7 @@ class Smarty_Gfg_Feed {
      * @param WC_Product $product The WooCommerce product instance.
      * @param WC_Product $variation Optional. The variation instance if the product is variable.
      */
-    public function addGoogleProductDetails($dom, $item, $product, $variation = null) {
+    public function add_google_product_details($dom, $item, $product, $variation = null) {
         $gNamespace = 'http://base.google.com/ns/1.0';
 
         if ($variation) {
@@ -229,7 +206,7 @@ class Smarty_Gfg_Feed {
         }
 
         // Add product categories
-        $google_product_category = smarty_get_cleaned_google_product_category();
+        $google_product_category = Smarty_Gfg_Admin::get_cleaned_google_product_category();
         if ($google_product_category) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
         }
@@ -431,7 +408,7 @@ class Smarty_Gfg_Feed {
 
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
-                if (smarty_convert_webp_to_png($file_path, $new_file_path)) {
+                if (Smarty_Gfg_Admin::convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -464,7 +441,7 @@ class Smarty_Gfg_Feed {
             $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
             
             // Get Google category as ID or name
-            $google_product_category = smarty_get_cleaned_google_product_category(); // Get Google category from plugin settings
+            $google_product_category = Smarty_Gfg_Admin::get_cleaned_google_product_category(); // Get Google category from plugin settings
             //error_log('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
@@ -474,11 +451,11 @@ class Smarty_Gfg_Feed {
             $brand = get_bloginfo('name');
 
             // Custom Labels
-            $custom_label_0 = smarty_get_custom_label_0($product);
-            $custom_label_1 = smarty_get_custom_label_1($product);
-            $custom_label_2 = smarty_get_custom_label_2($product);
-            $custom_label_3 = smarty_get_custom_label_3($product);
-            $custom_label_4 = smarty_get_custom_label_4($product);
+            $custom_label_0 = Smarty_Gfg_Admin::get_custom_label_0($product);
+            $custom_label_1 = Smarty_Gfg_Admin::custom_label_1($product);
+            $custom_label_2 = Smarty_Gfg_Admin::custom_label_2($product);
+            $custom_label_3 = Smarty_Gfg_Admin::custom_label_3($product);
+            $custom_label_4 = Smarty_Gfg_Admin::custom_label_4($product);
 
             // Check if the product has the "bundle" tag
             $is_bundle = 'no';
@@ -571,7 +548,7 @@ class Smarty_Gfg_Feed {
             // Invalidate cache
 			delete_transient('smarty_google_feed');
 			// Regenerate the feed
-			regenerate_feed();
+			self::regenerate_feed();
         }
     }
 
@@ -593,7 +570,7 @@ class Smarty_Gfg_Feed {
             
             // Regenerate the feed immediately to update the feed file
             // This step is optional but recommended to keep the feed up to date
-            regenerate_feed();
+            self::regenerate_feed();
         }
     }
 
@@ -753,7 +730,7 @@ class Smarty_Gfg_Feed {
      */
     public function handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
-            regenerate_feed(); // Regenerate the feed
+            self::regenerate_feed(); // Regenerate the feed
 	    }
     }
 
@@ -770,15 +747,15 @@ class Smarty_Gfg_Feed {
         $action = sanitize_text_field($_POST['feed_action']);
         switch ($action) {
             case 'generate_product_feed':
-                generate_google_feed();
+                self::generate_google_feed();
                 wp_send_json_success('Product feed generated successfully.');
                 break;
             case 'generate_reviews_feed':
-                generate_google_reviews_feed();
+                self::generate_google_reviews_feed();
                 wp_send_json_success('Reviews feed generated successfully.');
                 break;
             case 'generate_csv_export':
-                generate_csv_export();
+                self::generate_csv_export();
                 wp_send_json_success('CSV export generated successfully.');
                 break;
             default:

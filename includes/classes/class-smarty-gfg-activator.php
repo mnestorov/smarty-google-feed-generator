@@ -28,7 +28,7 @@ class Smarty_Gfg_Activator {
         }
 
         // Add rewrite rules
-        Smarty_Gfg_Feed::feed_generator_add_rewrite_rules();
+        Smarty_Gfg_Admin::feed_generator_add_rewrite_rules();
 
         // Flush rewrite rules to ensure custom endpoints are registered
         flush_rewrite_rules();
@@ -48,7 +48,7 @@ class Smarty_Gfg_Activator {
         }
 
         // Add rewrite rules
-        Smarty_Gfg_Feed::feed_generator_add_rewrite_rules();
+        Smarty_Gfg_Admin::feed_generator_add_rewrite_rules();
 
         // Flush rewrite rules to ensure custom endpoints are registered
         flush_rewrite_rules();

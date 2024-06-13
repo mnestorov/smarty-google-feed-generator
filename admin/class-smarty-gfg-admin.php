@@ -152,6 +152,29 @@ class Smarty_Gfg_Admin {
 	}
 
     /**
+     * Add rewrite rules for custom endpoints.
+     * 
+     * @since    1.0.0
+     */
+    public static function feed_generator_add_rewrite_rules() {
+        add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
+        add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top'); // url: ?smarty-google-reviews-feed
+        add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
+    }
+
+    /**
+     * Register query vars for custom endpoints.
+     * 
+     * @since    1.0.0
+     */
+    public function feed_generator_query_vars($vars) {
+        $vars[] = 'smarty_google_feed';
+        $vars[] = 'smarty_google_reviews_feed';
+        $vars[] = 'smarty_csv_export';
+        return $vars;
+    }
+
+    /**
      * Converts an image from WEBP to PNG, updates the product image, and regenerates the feed.
      * @param WC_Product $product Product object.
      */
@@ -164,7 +187,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
                 
-                if (convert_webp_to_png($file_path, $new_file_path)) {
+                if (self::convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -214,7 +237,7 @@ class Smarty_Gfg_Admin {
             wp_send_json_error('You do not have sufficient permissions to access this page.');
         }
 
-        convert_first_webp_image_to_png();
+        self::convert_first_webp_image_to_png();
 
         wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
     }
@@ -235,7 +258,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 
-                if (convert_webp_to_png($file_path, $new_file_path)) {
+                if (self::convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -785,7 +808,7 @@ class Smarty_Gfg_Admin {
         }
 
         $search = sanitize_text_field($_GET['q']);
-        $google_categories = get_google_product_categories();
+        $google_categories = self::get_google_product_categories();
 
         $results = array();
         foreach ($google_categories as $category) {
