@@ -146,9 +146,6 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_admin_menu');
 		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
         $this->loader->add_action('wp_ajax_load_google_categories', $plugin_admin, 'load_google_categories');
-		$this->loader->add_action('init', $plugin_admin, 'feed_generator_add_rewrite_rules');
-		$this->loader->add_filter('query_vars', $plugin_admin, 'feed_generator_query_vars');
-		$this->loader->add_action('template_redirect', $plugin_admin, 'feed_generator_template_redirect');
 		$this->loader->add_action('smarty_generate_google_feed', $plugin_admin, 'generate_google_feed');
 		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_admin, 'generate_google_reviews_feed');
 		$this->loader->add_action('woocommerce_new_product', $plugin_admin, 'invalidate_feed_cache');
@@ -163,12 +160,8 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);
 		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
 		$this->loader->add_action('wp_ajax_smarty_generate_feed', $plugin_admin, 'handle_ajax_generate_feed');
-
-
-
 		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'admin_notice');
-		//$this->loader->add_action('smarty_dcf_auto_updater', $plugin_admin, 'update_dcf_event');
 		$this->loader->add_action('updated_option', $plugin_admin, 'handle_license_status_check', 10, 3);
 	}
 
@@ -181,6 +174,10 @@ class Smarty_Gfg_Locator {
 	 */
 	private function define_public_hooks() {
 		$plugin_public = new Smarty_Gfg_Public($this->get_plugin_name(), $this->get_version());
+
+		$this->loader->add_action('init', $plugin_public, 'feed_generator_add_rewrite_rules');
+		$this->loader->add_filter('query_vars', $plugin_public, 'feed_generator_query_vars');
+		$this->loader->add_action('template_redirect', $plugin_public, 'feed_generator_template_redirect');
 	}
 
 	/**
