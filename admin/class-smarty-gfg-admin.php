@@ -261,7 +261,7 @@ class Smarty_Gfg_Admin {
             __('Google Feed Generator'),             // Menu title
             'manage_options',                        // Capability required to access this page
             'smarty-feed-generator-settings',        // Menu slug
-            array($this, 'display_settings_page');   // Callback function to display the page content
+            array($this, 'display_settings_page')    // Callback function to display the page content
         );
     }
 

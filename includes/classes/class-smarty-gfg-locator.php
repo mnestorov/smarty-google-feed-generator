@@ -98,6 +98,11 @@ class Smarty_Gfg_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-i18n.php';
 
 		/**
+		 * The class responsible for interacting with the API.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-api.php';
+
+		/**
 		 * The class responsible for creating the XML and CSV feed.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-feed.php';
