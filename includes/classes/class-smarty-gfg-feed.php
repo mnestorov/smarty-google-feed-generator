@@ -16,7 +16,7 @@ class Smarty_Gfg_Feed {
      * 
      * @since    1.0.0
      */
-    public function feed_generator_add_rewrite_rules() {
+    public static function feed_generator_add_rewrite_rules() {
         add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
         add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top'); // url: ?smarty-google-reviews-feed
         add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
@@ -41,17 +41,17 @@ class Smarty_Gfg_Feed {
      */
     public function feed_generator_template_redirect() {
         if (get_query_var('smarty_google_feed')) {
-            generate_google_feed();
+            self::generate_google_feed();
             exit;
         }
 
         if (get_query_var('smarty_google_reviews_feed')) {
-            generate_google_reviews_feed();
+            self::generate_google_reviews_feed();
             exit;
         }
 
         if (get_query_var('smarty_csv_export')) {
-            generate_csv_export();
+            self::generate_csv_export();
             exit;
         }
     }
