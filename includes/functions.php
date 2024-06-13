@@ -15,16 +15,6 @@
  * @author     Smarty Studio | Martin Nestorov
  */
 
-if (!function_exists('get_the_product_sku')) {
-    /**
-     * Helper function to get the product SKU.
-     * Adjust if your SKU is stored differently.
-     */
-    function get_the_product_sku($product_id) {
-        return get_post_meta($product_id, '_sku', true);
-    }
-}
-
 if (!function_exists('smarty_check_compatibility')) {
     function smarty_check_compatibility() {
         $min_wp_version = MIN_WP_VER; // Minimum WordPress version required
