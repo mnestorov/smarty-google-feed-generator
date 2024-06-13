@@ -1805,12 +1805,12 @@ if (!function_exists('smarty_get_custom_label_4')) {
         $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
 
         // Log debug information
-        error_log('Product ID: ' . $product->get_id());
-        error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
-        error_log('Product sale price: ' . $product->get_sale_price());
-        error_log('Excluded categories: ' . print_r($excluded_categories, true));
-        error_log('Product categories: ' . print_r($product_categories, true));
-        error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
+        //error_log('Product ID: ' . $product->get_id());
+        //error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
+        //error_log('Product sale price: ' . $product->get_sale_price());
+        //error_log('Excluded categories: ' . print_r($excluded_categories, true));
+        //error_log('Product categories: ' . print_r($product_categories, true));
+        //error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
 
         if ($is_excluded) {
             return '';
@@ -1829,7 +1829,7 @@ if (!function_exists('smarty_get_custom_label_4')) {
             if (!empty($variations)) {
                 $first_variation_id = $variations[0]; // Check only the first variation
                 $variation = wc_get_product($first_variation_id);
-                error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
+                //error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
                 if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
                     return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
                 }
