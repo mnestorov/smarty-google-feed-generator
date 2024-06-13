@@ -209,7 +209,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
                 
-                if (self::convert_webp_to_png($file_path, $new_file_path)) {
+                if ($this->convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -259,7 +259,7 @@ class Smarty_Gfg_Admin {
             wp_send_json_error('You do not have sufficient permissions to access this page.');
         }
 
-        self::convert_first_webp_image_to_png();
+        $this->convert_first_webp_image_to_png();
 
         wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
     }
@@ -280,7 +280,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 
-                if (self::convert_webp_to_png($file_path, $new_file_path)) {
+                if ($this->convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -332,7 +332,7 @@ class Smarty_Gfg_Admin {
 		}
 
 		$current_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
-		$tabs = self::get_settings_tabs();
+		$tabs = $this->get_settings_tabs();
 
 		// Check if settings have been submitted
 		if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
@@ -830,7 +830,7 @@ class Smarty_Gfg_Admin {
         }
 
         $search = sanitize_text_field($_GET['q']);
-        $google_categories = self::get_google_product_categories();
+        $google_categories = $this->get_google_product_categories();
 
         $results = array();
         foreach ($google_categories as $category) {
@@ -1203,7 +1203,7 @@ class Smarty_Gfg_Admin {
                         $feed->appendChild($item);
 
                         // Add product details as child nodes
-                        self::add_google_product_details($dom, $item, $product, $variation);
+                        $this->add_google_product_details($dom, $item, $product, $variation);
                     }
                 } else {
                     // Process simple products similarly
@@ -1211,7 +1211,7 @@ class Smarty_Gfg_Admin {
                     $feed->appendChild($item);
 
                     // Add product details as child nodes
-                    self::add_google_product_details($dom, $item, $product);
+                    $this->add_google_product_details($dom, $item, $product);
                 }
             }
 
@@ -1497,7 +1497,7 @@ class Smarty_Gfg_Admin {
 
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
-                if (Smarty_Gfg_Admin::convert_webp_to_png($file_path, $new_file_path)) {
+                if ($this->convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -1637,7 +1637,7 @@ class Smarty_Gfg_Admin {
             // Invalidate cache
 			delete_transient('smarty_google_feed');
 			// Regenerate the feed
-			self::regenerate_feed();
+			$this->regenerate_feed();
         }
     }
 
@@ -1659,7 +1659,7 @@ class Smarty_Gfg_Admin {
             
             // Regenerate the feed immediately to update the feed file
             // This step is optional but recommended to keep the feed up to date
-            self::regenerate_feed();
+            $this->regenerate_feed();
         }
     }
 
@@ -1677,7 +1677,7 @@ class Smarty_Gfg_Admin {
             // Invalidate cache
             delete_transient('smarty_google_reviews_feed');
             // Optionally, regenerate the feed file
-            self::regenerate_google_reviews_feed();
+            //$this->regenerate_google_reviews_feed(); // TODO: method not exists
         }
     }
 
@@ -1819,7 +1819,7 @@ class Smarty_Gfg_Admin {
      */
     public function handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
-            self::regenerate_feed(); // Regenerate the feed
+            $this->regenerate_feed(); // Regenerate the feed
 	    }
     }
 
