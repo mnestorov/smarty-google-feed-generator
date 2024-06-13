@@ -1,3 +1,7 @@
+/**
+ * All of the CSS for plugin admin functionality should be included in this file.
+ */
+
 /* Change width of the Exclude Patterns textarea */
 textarea[name="smarty_exclude_patterns"].large-text {
     width: 50% !important;
