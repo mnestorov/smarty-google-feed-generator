@@ -103,11 +103,6 @@ class Smarty_Gfg_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-api.php';
 
 		/**
-		 * The class responsible for creating the XML and CSV feed.
-		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-feed.php';
-
-		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-admin.php';
@@ -148,7 +143,7 @@ class Smarty_Gfg_Locator {
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'add_admin_menu');
 		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
         $this->loader->add_action('wp_ajax_load_google_categories', $plugin_admin, 'load_google_categories');
 		$this->loader->add_action('init', $plugin_admin, 'feed_generator_add_rewrite_rules');
@@ -171,11 +166,9 @@ class Smarty_Gfg_Locator {
 
 
 
-		$this->loader->add_action('admin_init', $plugin_admin, 'schedule_updates');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'admin_notice');
-		$this->loader->add_action('smarty_dcf_auto_updater', $plugin_admin, 'update_dcf_event');
-		$this->loader->add_action('wp_head', $plugin_admin, 'enqueue_custom_css');
+		//$this->loader->add_action('smarty_dcf_auto_updater', $plugin_admin, 'update_dcf_event');
 		$this->loader->add_action('updated_option', $plugin_admin, 'handle_license_status_check', 10, 3);
 	}
 
