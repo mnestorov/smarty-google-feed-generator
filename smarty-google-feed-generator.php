@@ -73,11 +73,11 @@ if (!defined('MIN_PHP_VER')) {
 }
 
 if (!defined('CK_KEY')) {
-    define('CK_KEY', '');
+    define('CK_KEY', 'ck_f13cfd6c4317a8df1a7a76930a811f7f332b4827');
 }
 
 if (!defined('CS_KEY')) {
-    define('CS_KEY', '');
+    define('CS_KEY', 'cs_0390e3ec9a9ca787056e28f3db176aeff5f8e29c');
 }
 
 /**

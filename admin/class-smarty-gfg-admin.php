@@ -126,7 +126,8 @@ class Smarty_Gfg_Admin {
 	private function get_settings_tabs() {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
-			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
+			'mapping'       => __('CSV Mapping', 'smarty-google-feed-generator'),
+			'compatibility' => __('Plugin Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
 	}
@@ -410,6 +411,34 @@ class Smarty_Gfg_Admin {
 			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_settings'                                   // Section to which this field belongs
 		);
+
+		// Mapping Settings
+		register_setting('smarty_gfg_options_mapping', 'smarty_gfg_settings_mapping', array($this, 'sanitize_mapping_settings'));
+		add_settings_section(
+			'smarty_gfg_section_mapping',									// ID of the section
+			__('CSV Mapping', 'smarty-google-feed-generator'),				// Title of the section  
+			array($this, 'section_mapping_cb'),								// Callback function that fills the section with the desired content
+			'smarty_gfg_options_mapping'									// Page on which to add the section
+		);
+
+		$csv_columns = array(
+			'ID', 'ID2', 'Final URL', 'Final Mobile URL', 'Image URL', 'Item Title', 
+			'Item Description', 'Item Category', 'Price', 'Sale Price', 
+			'Google Product Category', 'Is Bundle', 'MPN', 'Availability', 
+			'Condition', 'Brand', 'Custom Label 0', 'Custom Label 1', 
+			'Custom Label 2', 'Custom Label 3', 'Custom Label 4'
+		);
+	
+		foreach ($csv_columns as $column) {
+			add_settings_field(
+				'smarty_gfg_mapping_' . $column,
+				__($column, 'smarty-google-feed-generator'),
+				array($this, 'csv_mapping_fields_cb'),
+				'smarty_gfg_options_mapping',
+				'smarty_gfg_section_mapping',
+				array('column' => $column)
+			);
+		}
 
 		// Compatibility Settings
 		register_setting('smarty_gfg_options_compatibility', 'smarty_gfg_settings_compatibility', array($this, 'sanitize_compatibility_settings'));
@@ -754,6 +783,20 @@ class Smarty_Gfg_Admin {
 			}
 		}
 	}
+
+	/**
+     * Sanitize mapping settings.
+     * 
+     * @param array $input The input array.
+     * @return array Sanitized array.
+     */
+    public function sanitize_mapping_settings($input) {
+        $new_input = array();
+        foreach ($input as $key => $value) {
+            $new_input[$key] = sanitize_text_field($value);
+        }
+        return $new_input;
+    }
 
     /**
      * Sanitizes the plugin Compatibility settings.
@@ -1121,6 +1164,29 @@ class Smarty_Gfg_Admin {
 			<?php
 		}
 	}
+
+	/**
+	 * Callback function for the Mapping section field.
+	 *
+	 * @since    1.0.0
+	 */
+	public function section_mapping_cb() {
+		echo '<p>' . __('Configure the mapping of CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
+	}
+
+	/**
+     * Callback function for rendering the CSV mapping fields.
+     * 
+     * @since 1.0.0
+     */
+    public function csv_mapping_fields_cb($args) {
+        $column = $args['column'];
+        $options = get_option('smarty_gfg_settings_mapping', array());
+        $new_value = isset($options[$column]) ? $options[$column] : '';
+
+        echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
+        echo '<p class="description">' . sprintf(__('Default: %s', 'smarty-google-feed-generator'), $column) . '</p>';
+    }
 
 	/**
 	 * Callback function for the Compatibility section field.

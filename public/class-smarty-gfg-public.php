@@ -429,8 +429,11 @@ class Smarty_Gfg_Public {
             wp_die('Failed to open output stream for CSV export'); // Kill the script and display message if handle is invalid
         }
     
-        // Define the header row of the CSV file
-        $headers = array(
+        // Fetch user-defined column mappings
+        $mappings = get_option('smarty_gfg_settings_mapping', array());
+
+        // Define the columns and map headers based on user settings
+        $csv_columns = array(
             'ID',                       // WooCommerce product ID
             'ID2',                      // SKU, often used as an alternate identifier
             'Final URL',                // URL to the product page
@@ -453,6 +456,11 @@ class Smarty_Gfg_Public {
             'Custom Label 3',           // Custom label 3
             'Custom Label 4',           // Custom label 4
         );
+
+        $headers = array();
+        foreach ($csv_columns as $column) {
+            $headers[] = isset($mappings[$column]) && !empty($mappings[$column]) ? $mappings[$column] : $column;
+        }
     
         // Write the header row to the CSV file
         fputcsv($handle, $headers);
