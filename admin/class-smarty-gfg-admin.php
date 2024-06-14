@@ -115,93 +115,120 @@ class Smarty_Gfg_Admin {
 			'Google Feed Generator | Settings',         // Page title
 			'Google Feed Generator',                    // Menu title
 			'manage_options',                           // Capability required to access this page
-			'smarty-feed-generator-settings',           // Menu slug
-			array($this, 'settings_page_html')  		// Callback function to display the page content
+			'smarty-gfg-settings',           			// Menu slug
+			array($this, 'display_settings_page')  		// Callback function to display the page content
 		);
 	}
 
 	/**
-	 * Register plugin settings.
+	 * @since    1.0.0
+	 */
+	private function get_settings_tabs() {
+		return array(
+			'general' 		=> __('General', 'smarty-google-feed-generator'),
+			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
+			'license' 		=> __('License', 'smarty-google-feed-generator')
+		);
+	}
+
+	/**
+	 * Outputs the HTML for the settings page.
 	 * 
 	 * @since    1.0.0
 	 */
-	public function register_settings() {
-		// General Settings
-		register_setting('smarty_feed_generator_settings', 'smarty_google_product_category');
-		register_setting('smarty_feed_generator_settings', 'smarty_google_category_as_id', 'sanitize_checkbox');
-		register_setting('smarty_feed_generator_settings', 'smarty_exclude_patterns', 'sanitize_textarea_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_excluded_categories');
-			
-		// Custom Label Settings
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_days', 'sanitize_number_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_days', 'sanitize_number_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_value', 'sanitize_text_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_days', 'sanitize_number_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_value', 'sanitize_text_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_2_high_rating_value', 'sanitize_text_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_3_category');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_3_category_value', 'sanitize_category_values');
-		register_setting('smarty_feed_generator_settings', 'smarty_custom_label_4_sale_price_value', 'sanitize_text_field');
+	public function display_settings_page() {
+		// Check user capabilities
+		if (!current_user_can('manage_options')) {
+			return;
+		}
 
-		register_setting('smarty_settings', 'smarty_custom_label_3_category_value', [
-            'sanitize_cb' => 'sanitize_category_values'
-        ]);
+		$current_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
+		$tabs = $this->get_settings_tabs();
 	
-		// Meta Fields
-		register_setting('smarty_feed_generator_settings', 'smarty_meta_title_field', 'sanitize_text_field');
-		register_setting('smarty_feed_generator_settings', 'smarty_meta_description_field', 'sanitize_text_field');
+		// Define the path to the external file
+		$partial_file = plugin_dir_path(__FILE__) . 'partials/smarty-gfg-admin-display.php';
+
+		if (file_exists($partial_file) && is_readable($partial_file)) {
+			include_once $partial_file;
+		} else {
+			smarty_write_logs("Unable to include: '$partial_file'");
+		}
+	}
+
+	/**
+	 * Initializes the plugin settings by registering the settings, sections, and fields.
+	 *
+	 * @since    1.0.0
+	 */
+	public function settings_init() {
+		// General Settings
+		register_setting('smarty_gfg_options_general', 'smarty_google_product_category');
+		register_setting('smarty_gfg_options_general', 'smarty_google_category_as_id', array($this,'sanitize_checkbox'));
+		register_setting('smarty_gfg_options_general', 'smarty_exclude_patterns', 'sanitize_textarea_field');
+		register_setting('smarty_gfg_options_general', 'smarty_excluded_categories');
 			
-		// Cache Settings
-		register_setting('smarty_feed_generator_settings', 'smarty_clear_cache', 'sanitize_checkbox');
-		register_setting('smarty_feed_generator_settings', 'smarty_cache_duration', 'sanitize_number_field');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_days', array($this,'sanitize_number_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_not_older_than_days', array($this,'sanitize_number_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_not_older_than_value', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_1_most_ordered_days', array($this,'sanitize_number_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_1_most_ordered_value', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_2_high_rating_value', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_3_category');
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_3_category_value', array($this,'sanitize_category_values'));
+		register_setting('smarty_gfg_options_general', 'smarty_custom_label_4_sale_price_value', 'sanitize_text_field');
+
+		//register_setting('smarty_settings', 'smarty_custom_label_3_category_value', [
+            //'sanitize_cb' => 'sanitize_category_values'
+        //]);
 	
+		register_setting('smarty_gfg_options_general', 'smarty_meta_title_field', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_meta_description_field', 'sanitize_text_field');
+			
+		register_setting('smarty_gfg_options_general', 'smarty_clear_cache', array($this,'sanitize_checkbox'));
+		register_setting('smarty_gfg_options_general', 'smarty_cache_duration', array($this,'sanitize_number_field'));
+
 		// Add General section
 		add_settings_section(
 			'smarty_gfg_section_general',                                   // ID of the section
 			__('General', 'smarty-google-feed-generator'),                  // Title of the section
 			array($this,'section_general_cb'),                          	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
-	
-		// Add Custom Labels section
+
 		add_settings_section(
 			'smarty_gfg_section_custom_labels',                             // ID of the section
 			__('Custom Labels', 'smarty-google-feed-generator'),            // Title of the section
 			array($this,'section_custom_labels_cb'),                    	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
 	
-		// Add Convert Images section
 		add_settings_section(
 			'smarty_gfg_section_convert_images',                            // ID of the section
 			__('Convert Images', 'smarty-google-feed-generator'),           // Title of the section
 			array($this,'section_convert_images_cb'),                   	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
 	
-		// Add Generate Feeds section
 		add_settings_section(
 			'smarty_gfg_section_generate_feeds',                            // ID of the section
 			__('Generate Feeds', 'smarty-google-feed-generator'),           // Title of the section
 			array($this,'section_generate_feeds_cb'),                   	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
 	
-		// Add Meta Fields section
 		add_settings_section(
 			'smarty_gfg_section_meta_fields',                               // ID of the section
 			__('Meta Fields', 'smarty-google-feed-generator'),              // Title of the section
 			array($this,'section_meta_fields_cb'),                      	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
 	
-		// Add Settings section
 		add_settings_section(
 			'smarty_gfg_section_settings',                                  // ID of the section
 			__('Cache', 'smarty-google-feed-generator'),                    // Title of the section
 			array($this,'section_settings_cb'),                         	// Callback function that fills the section with the desired content
-			'smarty_feed_generator_settings'                                // Page on which to add the section
+			'smarty_gfg_options_general'                                	// Page on which to add the section
 		);
 	
 		// Add settings fields
@@ -209,7 +236,7 @@ class Smarty_Gfg_Admin {
 			'smarty_google_product_category',                               // ID of the field
 			__('Google Product Category', 'smarty-google-feed-generator'),  // Title of the field
 			array($this,'google_product_category_cb'),                      // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_general'                                    // Section to which this field belongs
 		);
 	
@@ -217,7 +244,7 @@ class Smarty_Gfg_Admin {
 			'smarty_google_category_as_id',                                 // ID of the field
 			__('Use Google Category ID', 'smarty-google-feed-generator'),   // Title of the field
 			array($this,'google_category_as_id_cb'),                        // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_general'                                    // Section to which this field belongs
 		);
 	
@@ -225,7 +252,7 @@ class Smarty_Gfg_Admin {
 			'smarty_exclude_patterns',                                      // ID of the field
 			__('Exclude Patterns', 'smarty-google-feed-generator'),         // Title of the field
 			array($this,'exclude_patterns_cb'),                            	// Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_general'                                    // Section to which this field belongs
 		);
 	
@@ -233,16 +260,15 @@ class Smarty_Gfg_Admin {
 			'smarty_excluded_categories',                                   // ID of the field
 			__('Excluded Categories', 'smarty-google-feed-generator'),      // Title of the field
 			array($this,'excluded_categories_cb'),                          // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_general'                                    // Section to which this field belongs
 		);
 			
-		// Add settings fields for each criteria
 		add_settings_field(
 			'smarty_custom_label_0_older_than_days',                        // ID of the field
 			__('Older Than (Days)', 'smarty-google-feed-generator'),        // Title of the field
 			array($this,'custom_label_days_cb'),                            // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_0_older_than_days']
 		);
@@ -251,7 +277,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_0_older_than_value',                       // ID of the field
 			__('Older Than Value', 'smarty-google-feed-generator'),         // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_0_older_than_value']
 		);
@@ -260,7 +286,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_0_not_older_than_days',                    // ID of the field
 			__('Not Older Than (Days)', 'smarty-google-feed-generator'),    // Title of the field
 			array($this,'custom_label_days_cb'),                            // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_0_not_older_than_days']
 		);
@@ -269,7 +295,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_0_not_older_than_value',                   // ID of the field
 			__('Not Older Than Value', 'smarty-google-feed-generator'),     // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_0_not_older_than_value']
 		);
@@ -278,7 +304,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_1_most_ordered_days',                          // ID of the field
 			__('Most Ordered in Last (Days)', 'smarty-google-feed-generator'),  // Title of the field
 			array($this,'custom_label_days_cb'),                                // Callback function to display the field
-			'smarty_feed_generator_settings',                                   // Page on which to add the field
+			'smarty_gfg_options_general',                                   	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                                 // Section to which this field belongs
 			['label' => 'smarty_custom_label_1_most_ordered_days']
 		);
@@ -287,7 +313,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_1_most_ordered_value',                     // ID of the field
 			__('Most Ordered Value', 'smarty-google-feed-generator'),       // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_1_most_ordered_value']
 		);
@@ -296,7 +322,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_2_high_rating_value',                      // ID of the field
 			__('High Rating Value', 'smarty-google-feed-generator'),        // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_2_high_rating_value']
 		);
@@ -305,7 +331,7 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_3_category',                               // ID of the field
 			__('Category', 'smarty-google-feed-generator'),                 // Title of the field
 			array($this,'custom_label_category_cb'),                        // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_3_category']
 		);
@@ -314,24 +340,24 @@ class Smarty_Gfg_Admin {
 			'smarty_custom_label_3_category_value',                         // ID of the field
 			__('Category Value', 'smarty-google-feed-generator'),           // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_3_category_value']
 		);
 
-		add_settings_field(
-            'smarty_custom_label_3_category_value',
-            __('Category Value', 'smarty'),
-            array($this,'display_category_values_field'),
-            'smarty-settings-page',
-            'smarty_settings_section'
-        );
+		//add_settings_field(
+        //    'smarty_custom_label_3_category_value',
+        //    __('Category Value', 'smarty'),
+        //    array($this,'display_category_values_field'),
+        //    'smarty-settings-page',
+        //    'smarty_settings_section'
+        //);
 	
 		add_settings_field(
 			'smarty_custom_label_4_sale_price_value',                       // ID of the field
 			__('Sale Price Value', 'smarty-google-feed-generator'),         // Title of the field
 			array($this,'custom_label_value_cb'),                           // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_4_sale_price_value']
 		);
@@ -340,7 +366,7 @@ class Smarty_Gfg_Admin {
 			'smarty_convert_images',                                        // ID of the field
 			__('Convert', 'smarty-google-feed-generator'),                  // Title of the field
 			array($this,'convert_images_button_cb'),                        // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_convert_images'                             // Section to which this field belongs
 		);
 	
@@ -348,7 +374,7 @@ class Smarty_Gfg_Admin {
 			'smarty_generate_feed_now',                                     // ID of the field
 			__('Generate', 'smarty-google-feed-generator'),                 // Title of the field
 			array($this,'generate_feed_buttons_cb'),                        // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_generate_feeds'                             // Section to which this field belongs
 		);
 	
@@ -357,7 +383,7 @@ class Smarty_Gfg_Admin {
 			'smarty_meta_title_field',                                      // ID of the field
 			__('Meta Title', 'smarty-google-feed-generator'),               // Title of the field
 			array($this,'meta_title_field_cb'),                             // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_meta_fields'                                // Section to which this field belongs
 		);
 	
@@ -365,26 +391,50 @@ class Smarty_Gfg_Admin {
 			'smarty_meta_description_field',                                // ID of the field
 			__('Meta Description', 'smarty-google-feed-generator'),         // Title of the field
 			array($this,'meta_description_field_cb'),                       // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_meta_fields'                                // Section to which this field belongs
 		);
 	
-		// Add settings field to Cache section
 		add_settings_field(
 			'smarty_clear_cache',                                           // ID of the field
 			__('Clear Cache', 'smarty-google-feed-generator'),              // Title of the field
 			array($this,'clear_cache_cb'),                                  // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_settings'                                   // Section to which this field belongs
 		);
 	
-		// Add settings field for cache duration
 		add_settings_field(
 			'smarty_cache_duration',                                        // ID of the field
 			__('Cache Duration (hours)', 'smarty-google-feed-generator'),   // Title of the field
 			array($this,'cache_duration_cb'),                               // Callback function to display the field
-			'smarty_feed_generator_settings',                               // Page on which to add the field
+			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_settings'                                   // Section to which this field belongs
+		);
+
+		// Compatibility Settings
+		register_setting('smarty_gfg_options_compatibility', 'smarty_gfg_settings_compatibility', array($this, 'sanitize_compatibility_settings'));
+		add_settings_section(
+			'smarty_gfg_section_compatibility',                         	
+			__('Compatibility', 'smarty-google-feed-generator'),      		
+			array($this, 'section_compatibility_cb'),                		
+			'smarty_gfg_options_compatibility'                      		
+		);
+	
+		// License Settings
+		register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'sanitize_license_settings'));
+		add_settings_section(
+			'smarty_gfg_section_license',								
+			__('License', 'smarty-google-feed-generator'),					
+			array($this, 'section_license_cb'),								
+			'smarty_gfg_options_license'									
+		);
+
+		add_settings_field(
+			'smarty_api_key',
+			__('API Key', 'smarty-google-feed-generator'),
+			array($this, 'field_api_key_cb'),
+			'smarty_gfg_options_license',
+			'smarty_gfg_section_license'
 		);
 	}
 	
@@ -498,30 +548,6 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
-	 * Settings page HTML.
-	 * 
-	 * @since    1.0.0
-	 */
-	public function settings_page_html() {
-		// Check user capabilities
-		if (!current_user_can('manage_options')) {
-			return;
-		}
-	
-		// HTML
-		?>
-		<div class="wrap">
-			<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
-			<form action="options.php" method="post">
-				<?php settings_fields('smarty_feed_generator_settings'); ?>
-				<?php do_settings_sections('smarty_feed_generator_settings'); ?>
-				<?php submit_button(__('Save Settings', 'smarty-google-feed-generator')); ?>
-			</form>
-		</div>
-		<?php
-	}
-
-	/**
      * Fetch Google product categories from the taxonomy file and return them as an associative array with IDs.
      * 
      * @since    1.0.0
@@ -607,7 +633,7 @@ class Smarty_Gfg_Admin {
      */
     public function convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
-            //error_log('GD Library is not installed or does not support WEBP.');
+            //smarty_write_logs('GD Library is not installed or does not support WEBP.');
             return false;
         }
 
@@ -1032,6 +1058,15 @@ class Smarty_Gfg_Admin {
         echo '<p class="description"><strong>Important:</strong> Ensure these values are in the same order as the selected categories.</p>';
     }
 
+	/**
+	 * Callback function for the Compatibility section field.
+	 *
+	 * @since    1.0.0
+	 */
+	public static function section_compatibility_cb() {
+		return smarty_check_compatibility();
+	}
+
     /**
      * Callback function for the License section.
      * 
@@ -1055,20 +1090,11 @@ class Smarty_Gfg_Admin {
 	public function field_api_key_cb($args) {
 		$options = get_option('smarty_gfg_settings_license');
 		?>
-		<input type="text" id="smarty_gfg_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
+		<input type="text" id="smarty_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
 		<p class="description">
 			<?php echo esc_html__('Enter a valid API key.', 'smarty-google-feed-generator'); ?>
 		</p>
 		<?php
-	}
-
-    /**
-	 * Callback function for the Compatibility section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function section_compatibility_cb() {
-		return smarty_check_compatibility();
 	}
 
     /**

@@ -166,7 +166,7 @@ class Smarty_Gfg_Public {
         if (class_exists('WooCommerce')) {
             // Get excluded categories from settings
             $excluded_categories = get_option('smarty_excluded_categories', array());
-            //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+            smarty_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Set up arguments for querying products, excluding certain categories
             $args = array(
@@ -188,8 +188,8 @@ class Smarty_Gfg_Public {
 
             // Fetch products using WooCommerce function
             $products = wc_get_products($args);
-            //error_log('Product Query Args: ' . print_r($args, true));
-            //error_log('Products: ' . print_r($products, true));
+            smarty_write_logs('Product Query Args: ' . print_r($args, true));
+            smarty_write_logs('Products: ' . print_r($products, true));
 
             // Initialize the XML structure
             $dom = new DOMDocument('1.0', 'UTF-8');
@@ -203,7 +203,7 @@ class Smarty_Gfg_Public {
 
             // Loop through each product to add details to the feed
             foreach ($products as $product) {
-                //error_log('Processing Product: ' . print_r($product->get_data(), true));
+                smarty_write_logs('Processing Product: ' . print_r($product->get_data(), true));
                 if ($product->is_type('variable')) {
                     // Get all variations if product is variable
                     $variations = $product->get_children();
@@ -229,7 +229,7 @@ class Smarty_Gfg_Public {
 
             // Save and output the XML
             $feed_content = $dom->saveXML();
-            //error_log('Feed Content: ' . $feed_content);
+            smarty_write_logs('Feed Content: ' . $feed_content);
 
             if ($feed_content) {
                 $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
@@ -240,7 +240,7 @@ class Smarty_Gfg_Public {
                 exit; // Ensure the script stops here to prevent further output that could corrupt the feed
             } else {
                 ob_end_clean();
-                //error_log('Failed to generate feed content.');
+                smarty_write_logs('Failed to generate feed content.');
                 echo '<error>Failed to generate feed content.</error>';
                 exit;
             }
@@ -459,7 +459,7 @@ class Smarty_Gfg_Public {
 
         // Get excluded categories from settings
         $excluded_categories = get_option('smarty_excluded_categories', array());
-        //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+        smarty_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Prepare arguments for querying products excluding specific categories
         $args = array(
@@ -481,8 +481,8 @@ class Smarty_Gfg_Public {
         
         // Retrieve products using the defined arguments
         $products = wc_get_products($args);
-        //error_log('Product Query Args: ' . print_r($args, true));
-        //error_log('Products: ' . print_r($products, true));
+        smarty_write_logs('Product Query Args: ' . print_r($args, true));
+        smarty_write_logs('Products: ' . print_r($products, true));
 
         // Get exclude patterns from settings and split into array
         $exclude_patterns = preg_split('/\r\n|\r|\n/', get_option('smarty_exclude_patterns'));
@@ -543,10 +543,10 @@ class Smarty_Gfg_Public {
             
             // Get Google category as ID or name
             $google_product_category = $this->get_cleaned_google_product_category(); // Get Google category from plugin settings
-            //error_log('Google Product Category: ' . $google_product_category); // Debugging line
+            smarty_write_logs('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
-                //error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
+                smarty_write_logs('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
 
             $brand = get_bloginfo('name');
@@ -1012,12 +1012,12 @@ class Smarty_Gfg_Public {
         $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
 
         // Log debug information
-        //error_log('Product ID: ' . $product->get_id());
-        //error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
-        //error_log('Product sale price: ' . $product->get_sale_price());
-        //error_log('Excluded categories: ' . print_r($excluded_categories, true));
-        //error_log('Product categories: ' . print_r($product_categories, true));
-        //error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
+        smarty_write_logs('Product ID: ' . $product->get_id());
+        smarty_write_logs('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
+        smarty_write_logs('Product sale price: ' . $product->get_sale_price());
+        smarty_write_logs('Excluded categories: ' . print_r($excluded_categories, true));
+        smarty_write_logs('Product categories: ' . print_r($product_categories, true));
+        smarty_write_logs('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
 
         if ($is_excluded) {
             return '';
@@ -1036,7 +1036,7 @@ class Smarty_Gfg_Public {
             if (!empty($variations)) {
                 $first_variation_id = $variations[0]; // Check only the first variation
                 $variation = wc_get_product($first_variation_id);
-                //error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
+                smarty_write_logs('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
                 if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
                     return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
                 }

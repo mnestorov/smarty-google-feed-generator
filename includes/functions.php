@@ -71,7 +71,7 @@ if (!function_exists('smarty_write_logs')) {
             $log_entry .= ' - ' . print_r($data, true);
         }
 
-        $logs_file = fopen(DCF_BASE_DIR . DIRECTORY_SEPARATOR . "logs.txt", "a+");
+        $logs_file = fopen(GFG_BASE_DIR . DIRECTORY_SEPARATOR . "logs.txt", "a+");
         fwrite($logs_file, $log_entry . "\n");
         fclose($logs_file);
     }

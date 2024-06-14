@@ -144,7 +144,7 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
-		$this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
+		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
 		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
 		$this->loader->add_action('wp_ajax_smarty_generate_feed', $plugin_admin, 'handle_ajax_generate_feed');
 		$this->loader->add_action('wp_ajax_smarty_load_google_categories', $plugin_admin, 'handle_ajax_load_google_categories');

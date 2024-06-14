@@ -22,3 +22,53 @@ textarea[name="smarty_exclude_patterns"].large-text {
     background-color: #E4E4E4;
     cursor: default;
 }
+
+.form-table,
+ .flex-container { 
+     border-bottom: 1px solid #ccc;
+     margin-bottom: 30px;
+ }
+ 
+  .flex-container {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 10px;
+ }
+ 
+ .flex-item {
+     flex-basis: 30%;
+     text-align: left;
+ }
+ 
+ .flex-item strong {
+     display: block;
+     margin-bottom: 5px;
+     color: #333;
+ }
+ 
+ .smarty-compatibility-status.smarty-compatibility-yes {
+     background: #E6F8B2;
+     color: #333;
+     padding: 2px 5px;
+     border-radius: 5px;
+     border: 1px solid #b8c68e;
+ }
+ 
+ .smarty-compatibility-status.smarty-compatibility-no {
+     background: #F4CCCC;
+     color: #333;
+     padding: 2px 5px;
+     border-radius: 5px;
+     border: 1px solid #c3a3a3;
+ }
+ 
+ .form-table td p.description.smarty-error {
+     padding: 2px 5px;
+ }
+ 
+ /* Helper classes */
+ .smarty-error {
+     background: #fff0f4 !important;
+     color: #c51244 !important;
+ }
