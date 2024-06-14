@@ -163,7 +163,7 @@ if (!function_exists('smarty_generate_google_feed')) {
                         $feed->appendChild($item);
 
                         // Add product details as child nodes
-                        addGoogleProductDetails($dom, $item, $product, $variation);
+                        add_google_product_details($dom, $item, $product, $variation);
                     }
                 } else {
                     // Process simple products similarly
@@ -171,7 +171,7 @@ if (!function_exists('smarty_generate_google_feed')) {
                     $feed->appendChild($item);
 
                     // Add product details as child nodes
-                    addGoogleProductDetails($dom, $item, $product);
+                    add_google_product_details($dom, $item, $product);
                 }
             }
 
@@ -201,98 +201,100 @@ if (!function_exists('smarty_generate_google_feed')) {
     add_action('smarty_generate_google_feed', 'smarty_generate_google_feed');
 }
 
-/**
- * Adds Google product details to the XML item node.
- *
- * @param DOMDocument $dom The DOMDocument instance.
- * @param DOMElement $item The item element to which details are added.
- * @param WC_Product $product The WooCommerce product instance.
- * @param WC_Product $variation Optional. The variation instance if the product is variable.
- */
-function addGoogleProductDetails($dom, $item, $product, $variation = null) {
-    $gNamespace = 'http://base.google.com/ns/1.0';
+if (!function_exists('add_google_product_details')) {
+    /**
+     * Adds Google product details to the XML item node.
+     *
+     * @param DOMDocument $dom The DOMDocument instance.
+     * @param DOMElement $item The item element to which details are added.
+     * @param WC_Product $product The WooCommerce product instance.
+     * @param WC_Product $variation Optional. The variation instance if the product is variable.
+     */
+    function add_google_product_details($dom, $item, $product, $variation = null) {
+        $gNamespace = 'http://base.google.com/ns/1.0';
 
-    if ($variation) {
-        $id = $variation->get_id();
-        $sku = $variation->get_sku();
-        $price = $variation->get_regular_price();
-        $sale_price = $variation->get_sale_price();
-        $image_id = $variation->get_image_id() ? $variation->get_image_id() : $product->get_image_id();
-        $is_on_sale = $variation->is_on_sale();
-        $is_in_stock = $variation->is_in_stock();
-    } else {
-        $id = $product->get_id();
-        $sku = $product->get_sku();
-        $price = $product->get_price();
-        $sale_price = $product->get_sale_price();
-        $image_id = $product->get_image_id();
-        $is_on_sale = $product->is_on_sale();
-        $is_in_stock = $product->is_in_stock();
+        if ($variation) {
+            $id = $variation->get_id();
+            $sku = $variation->get_sku();
+            $price = $variation->get_regular_price();
+            $sale_price = $variation->get_sale_price();
+            $image_id = $variation->get_image_id() ? $variation->get_image_id() : $product->get_image_id();
+            $is_on_sale = $variation->is_on_sale();
+            $is_in_stock = $variation->is_in_stock();
+        } else {
+            $id = $product->get_id();
+            $sku = $product->get_sku();
+            $price = $product->get_price();
+            $sale_price = $product->get_sale_price();
+            $image_id = $product->get_image_id();
+            $is_on_sale = $product->is_on_sale();
+            $is_in_stock = $product->is_in_stock();
+        }
+
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:sku', $sku));
+        $item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
+        $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
+
+        // Add description, using meta description if available or fallback to short description
+        $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
+        $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
+        $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
+
+        // Add image links
+        $item->appendChild($dom->createElementNS($gNamespace, 'image_link', wp_get_attachment_url($image_id)));
+
+        // Add additional images
+        $gallery_ids = $product->get_gallery_image_ids();
+        foreach ($gallery_ids as $gallery_id) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'additional_image_link', wp_get_attachment_url($gallery_id)));
+        }
+
+        // Add price details
+        $item->appendChild($dom->createElementNS($gNamespace, 'price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
+        if ($is_on_sale) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
+        }
+
+        // Add product categories
+        $google_product_category = smarty_get_cleaned_google_product_category();
+        if ($google_product_category) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
+        }
+
+        // Add product categories
+        $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+        if (!empty($categories) && !is_wp_error($categories)) {
+            $category_names = array_map(function($term) { return $term->name; }, $categories);
+            $item->appendChild($dom->createElementNS($gNamespace, 'product_type', htmlspecialchars(join(' > ', $category_names))));
+        }
+
+        // Check if the product has the "bundle" tag
+        $is_bundle = 'no';
+        $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
+        if (in_array('bundle', $product_tags)) {
+            $is_bundle = 'yes';
+        }
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
+
+        // Add availability
+        $availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
+
+        // Add condition
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', 'new'));
+
+        // Add brand
+        $brand = get_bloginfo('name'); // Use the site name as the brand
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
+
+        // Custom Labels
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', smarty_get_custom_label_0($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', smarty_get_custom_label_1($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', smarty_get_custom_label_2($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', smarty_get_custom_label_3($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', smarty_get_custom_label_4($product)));
     }
-
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:sku', $sku));
-    $item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
-    $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
-
-    // Add description, using meta description if available or fallback to short description
-    $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
-    $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
-    $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
-
-    // Add image links
-    $item->appendChild($dom->createElementNS($gNamespace, 'image_link', wp_get_attachment_url($image_id)));
-
-    // Add additional images
-    $gallery_ids = $product->get_gallery_image_ids();
-    foreach ($gallery_ids as $gallery_id) {
-        $item->appendChild($dom->createElementNS($gNamespace, 'additional_image_link', wp_get_attachment_url($gallery_id)));
-    }
-
-    // Add price details
-    $item->appendChild($dom->createElementNS($gNamespace, 'price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
-    if ($is_on_sale) {
-        $item->appendChild($dom->createElementNS($gNamespace, 'sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
-    }
-
-    // Add product categories
-    $google_product_category = smarty_get_cleaned_google_product_category();
-    if ($google_product_category) {
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
-    }
-
-    // Add product categories
-    $categories = wp_get_post_terms($product->get_id(), 'product_cat');
-    if (!empty($categories) && !is_wp_error($categories)) {
-        $category_names = array_map(function($term) { return $term->name; }, $categories);
-        $item->appendChild($dom->createElementNS($gNamespace, 'product_type', htmlspecialchars(join(' > ', $category_names))));
-    }
-
-    // Check if the product has the "bundle" tag
-    $is_bundle = 'no';
-    $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
-    if (in_array('bundle', $product_tags)) {
-        $is_bundle = 'yes';
-    }
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
-
-    // Add availability
-    $availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
-
-    // Add condition
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', 'new'));
-
-    // Add brand
-    $brand = get_bloginfo('name'); // Use the site name as the brand
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
-
-    // Custom Labels
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', smarty_get_custom_label_0($product)));
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', smarty_get_custom_label_1($product)));
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', smarty_get_custom_label_2($product)));
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', smarty_get_custom_label_3($product)));
-    $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', smarty_get_custom_label_4($product)));
 }
 
 if (!function_exists('smarty_generate_google_reviews_feed')) {
@@ -1274,16 +1276,14 @@ if (!function_exists('smarty_gfg_section_general_callback')) {
 }
 
 if (!function_exists('smarty_google_product_category_callback')) {
-    if (!function_exists('smarty_google_product_category_callback')) {
-        function smarty_google_product_category_callback() {
-            $option = get_option('smarty_google_product_category');
-            echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
-            if ($option) {
-                echo '<option value="' . esc_attr($option) . '" selected>' . esc_html($option) . '</option>';
-            }
-            echo '</select>';
+    function smarty_google_product_category_callback() {
+        $option = get_option('smarty_google_product_category');
+        echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
+        if ($option) {
+            echo '<option value="' . esc_attr($option) . '" selected>' . esc_html($option) . '</option>';
         }
-    }    
+        echo '</select>';
+    }
 }
 
 if (!function_exists('smarty_load_google_categories')) {
@@ -1840,26 +1840,28 @@ if (!function_exists('smarty_get_custom_label_4')) {
     }
 }
 
-function smarty_evaluate_criteria($product, $criteria) {
-    if (empty($criteria)) {
-        return '';
-    }
+if (!function_exists('smarty_evaluate_criteria')) {
+    function smarty_evaluate_criteria($product, $criteria) {
+        if (empty($criteria)) {
+            return '';
+        }
 
-    $criteria = json_decode($criteria, true);
+        $criteria = json_decode($criteria, true);
 
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return '';
-    }
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return '';
+        }
 
-    foreach ($criteria as $criterion) {
-        if (isset($criterion['attribute']) && isset($criterion['value']) && isset($criterion['label'])) {
-            $attribute_value = get_post_meta($product->get_id(), $criterion['attribute'], true);
+        foreach ($criteria as $criterion) {
+            if (isset($criterion['attribute']) && isset($criterion['value']) && isset($criterion['label'])) {
+                $attribute_value = get_post_meta($product->get_id(), $criterion['attribute'], true);
 
-            if ($attribute_value == $criterion['value']) {
-                return $criterion['label'];
+                if ($attribute_value == $criterion['value']) {
+                    return $criterion['label'];
+                }
             }
         }
-    }
 
-    return '';
+        return '';
+    }
 }
