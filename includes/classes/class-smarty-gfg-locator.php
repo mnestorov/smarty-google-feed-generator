@@ -143,7 +143,12 @@ class Smarty_Gfg_Locator {
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-
+		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
+		$this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
+		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
+		$this->loader->add_action('wp_ajax_smarty_generate_feed', $plugin_admin, 'handle_ajax_generate_feed');
+		$this->loader->add_action('wp_ajax_smarty_load_google_categories', $plugin_admin, 'handle_ajax_load_google_categories');
+		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);
 		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'admin_notice');
 		$this->loader->add_action('updated_option', $plugin_admin, 'handle_license_status_check', 10, 3);
@@ -158,7 +163,21 @@ class Smarty_Gfg_Locator {
 	 */
 	private function define_public_hooks() {
 		$plugin_public = new Smarty_Gfg_Public($this->get_plugin_name(), $this->get_version());
-
+		
+		$this->loader->add_action('template_redirect', $plugin_public, 'handle_template_redirect');
+		$this->loader->add_action('init', $plugin_public, 'add_rewrite_rules');
+		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
+		$this->loader->add_action('smarty_generate_google_feed', $plugin_public, 'generate_google_feed');
+		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_public, 'generate_google_reviews_feed');
+		$this->loader->add_action('woocommerce_new_product', $plugin_public, 'invalidate_feed_cache');
+    	$this->loader->add_action('woocommerce_update_product', $plugin_public, 'invalidate_feed_cache');
+		$this->loader->add_action('before_delete_post', $plugin_public, 'invalidate_feed_cache_on_delete');
+		$this->loader->add_action('comment_post', $plugin_public, 'invalidate_review_feed_cache', 10, 2);
+		$this->loader->add_action('edit_comment', $plugin_public, 'invalidate_review_feed_cache');
+		$this->loader->add_action('deleted_comment', $plugin_public, 'invalidate_review_feed_cache');
+		$this->loader->add_action('wp_set_comment_status', $plugin_public, 'invalidate_review_feed_cache');
+		$this->loader->add_action('save_post_product', $plugin_public, 'handle_product_change');
+		$this->loader->add_action('deleted_post', $plugin_public, 'handle_product_change');
 	}
 
 	/**
