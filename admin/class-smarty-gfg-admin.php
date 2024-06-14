@@ -414,27 +414,27 @@ class Smarty_Gfg_Admin {
 		// Compatibility Settings
 		register_setting('smarty_gfg_options_compatibility', 'smarty_gfg_settings_compatibility', array($this, 'sanitize_compatibility_settings'));
 		add_settings_section(
-			'smarty_gfg_section_compatibility',                         	
-			__('Compatibility', 'smarty-google-feed-generator'),      		
-			array($this, 'section_compatibility_cb'),                		
-			'smarty_gfg_options_compatibility'                      		
-		);
+			'smarty_gfg_section_compatibility',								// ID of the section
+			__('Compatibility', 'smarty-google-feed-generator'),    		// Title of the section  		
+			array($this, 'section_compatibility_cb'),                		// Callback function that fills the section with the desired content	
+			'smarty_gfg_options_compatibility'                   			// Page on which to add the section   		
+		);                            	
 	
 		// License Settings
 		register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'sanitize_license_settings'));
 		add_settings_section(
-			'smarty_gfg_section_license',								
-			__('License', 'smarty-google-feed-generator'),					
-			array($this, 'section_license_cb'),								
-			'smarty_gfg_options_license'									
+			'smarty_gfg_section_license',									// ID of the section
+			__('License', 'smarty-google-feed-generator'),					// Title of the section  
+			array($this, 'section_license_cb'),								// Callback function that fills the section with the desired content
+			'smarty_gfg_options_license'									// Page on which to add the section
 		);
 
 		add_settings_field(
-			'smarty_api_key',
-			__('API Key', 'smarty-google-feed-generator'),
-			array($this, 'field_api_key_cb'),
-			'smarty_gfg_options_license',
-			'smarty_gfg_section_license'
+			'smarty_api_key',												// ID of the field
+			__('API Key', 'smarty-google-feed-generator'),					// Title of the field
+			array($this, 'field_api_key_cb'),								// Callback function to display the field
+			'smarty_gfg_options_license',									// Page on which to add the field
+			'smarty_gfg_section_license'									// Section to which this field belongs
 		);
 	}
 	
