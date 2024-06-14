@@ -27,12 +27,16 @@
 	 * single DOM-ready or window-load handler for a particular page.
 	 */
 
-    $(document).ready(function($) {
+    $(document).ready(function ($) {
+        //console.log('Document is ready');
+
         $('.smarty-convert-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
+            //console.log('Convert Images button clicked');
 
             var button = $(this);
             button.attr('disabled', true);
+            //console.log('Button disabled');
 
             $.ajax({
                 url: smartyFeedGenerator.ajaxUrl,
@@ -42,6 +46,7 @@
                     nonce: smartyFeedGenerator.nonce
                 },
                 success: function (response) {
+                    //console.log('AJAX success:', response);
                     if (response.success) {
                         alert(response.data);
                     } else {
@@ -49,20 +54,22 @@
                     }
                 },
                 error: function (xhr, status, error) {
+                    //console.log('AJAX error:', error);
                     alert('AJAX Error: ' + error);
                 },
                 complete: function () {
                     button.attr('disabled', false);
+                    //console.log('Button re-enabled');
                 }
             });
         });
-    });
 
-    $(document).ready(function($) {
-        $('.smarty-generate-feed-button').on('click', function(e) {
+        $('.smarty-generate-feed-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
+            //console.log('Generate Feed button clicked');
 
             var action = $(this).data('feed-action');
+            //console.log('Feed action:', action);
             var redirectUrl = '';
 
             switch (action) {
@@ -77,34 +84,35 @@
                     break;
                 default:
                     alert('Invalid action.');
+                    //console.log('Invalid action:', action);
                     return;
             }
 
+            //console.log('Opening URL:', redirectUrl);
             window.open(redirectUrl, '_blank');
         });
-    });
 
-    $(document).ready(function($) {
+        //console.log('Initializing Select2 for .smarty-excluded-categories');
         $('.smarty-excluded-categories').select2({
             width: '100%' // need to override the changed default
         });
-    });
 
-    // Initialize Select2 with AJAX for the Google Product Category select element
-    $(document).ready(function($) {
+        //console.log('Initializing Select2 for .smarty-select2-ajax');
         $('.smarty-select2-ajax').select2({
             ajax: {
                 url: smartyFeedGenerator.ajaxUrl,
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
+                    //console.log('Select2 AJAX request params:', params);
                     return {
                         q: params.term, // search term
-                        action: 'load_google_categories',
+                        action: 'smarty_load_google_categories',
                         nonce: smartyFeedGenerator.nonce
                     };
                 },
                 processResults: function (data) {
+                    //console.log('Select2 AJAX response data:', data);
                     return {
                         results: data.data
                     };
@@ -114,14 +122,13 @@
             minimumInputLength: 1,
             width: 'resolve'
         });
-    });
 
-    // Auto-hide the admin notices
-	$(document).ready(function($) {
-		setTimeout(function() {
-			$(".smarty-auto-hide-notice").fadeTo(500, 0).slideUp(500, function(){
-				$(this).remove(); 
-			});
-		}, 3000);
-	});
-});
+        //console.log('Setting up auto-hide for admin notices');
+        setTimeout(function () {
+            $(".smarty-auto-hide-notice").fadeTo(500, 0).slideUp(500, function () {
+                $(this).remove();
+                //console.log('Admin notice auto-hidden');
+            });
+        }, 3000);
+    });
+})(jQuery);

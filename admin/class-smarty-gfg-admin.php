@@ -92,9 +92,9 @@ class Smarty_Gfg_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-        wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery'), $this->version, false);
-        wp_localize_script(
+		wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery', 'select2'), $this->version, true);
+		wp_localize_script(
             $this->plugin_name,
             'smartyFeedGenerator',
             array(
@@ -107,6 +107,8 @@ class Smarty_Gfg_Admin {
 
 	/**
 	 * Add settings page to the WordPress admin menu.
+	 * 
+	 * @since    1.0.0
 	 */
 	public function add_settings_page() {
 		add_options_page(
@@ -114,12 +116,14 @@ class Smarty_Gfg_Admin {
 			'Google Feed Generator',                    // Menu title
 			'manage_options',                           // Capability required to access this page
 			'smarty-feed-generator-settings',           // Menu slug
-			'smarty_feed_generator_settings_page_html'  // Callback function to display the page content
+			array($this, 'settings_page_html')  		// Callback function to display the page content
 		);
 	}
 
 	/**
 	 * Register plugin settings.
+	 * 
+	 * @since    1.0.0
 	 */
 	public function register_settings() {
 		// General Settings
@@ -384,18 +388,29 @@ class Smarty_Gfg_Admin {
 		);
 	}
 	
+	/**
+     * Function to sanitize the plugin settings on save.
+     * 
+     * @since    1.0.0
+     */
 	public function sanitize_checkbox($input) {
 		return $input == 1 ? 1 : 0;
 	}
 
-	
+	/**
+     * Function to sanitize number fields on save.
+     * 
+     * @since    1.0.0
+     */
 	public function sanitize_number_field($input) {
 		return absint($input);
 	}
 
 	/**
-	 * Function to sanitize the plugin settings on save.
-	 */
+     * Function to sanitize category values on save.
+     * 
+     * @since    1.0.0
+     */
 	public function sanitize_category_values($input) {
 		// Check if the input is an array
 		if (is_array($input)) {
@@ -408,6 +423,11 @@ class Smarty_Gfg_Admin {
 		}
 	}
 
+	/**
+     * Handle AJAX request to convert images.
+     * 
+     * @since    1.0.0
+     */
 	public function handle_ajax_convert_images() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
@@ -420,6 +440,11 @@ class Smarty_Gfg_Admin {
 		wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
 	}
 
+	/**
+     * Handle AJAX request to generate feed.
+     * 
+     * @since    1.0.0
+     */
 	public function handle_ajax_generate_feed() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
@@ -449,6 +474,8 @@ class Smarty_Gfg_Admin {
 
 	/**
 	 * AJAX handler to load Google Product Categories.
+	 * 
+	 * @since    1.0.0
 	 */
 	public function handle_ajax_load_google_categories() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
@@ -472,6 +499,8 @@ class Smarty_Gfg_Admin {
 
 	/**
 	 * Settings page HTML.
+	 * 
+	 * @since    1.0.0
 	 */
 	public function settings_page_html() {
 		// Check user capabilities
@@ -480,14 +509,24 @@ class Smarty_Gfg_Admin {
 		}
 	
 		// HTML
-		include_once('partials/smarty-gfg-admin-dipslay.php');
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
+			<form action="options.php" method="post">
+				<?php settings_fields('smarty_feed_generator_settings'); ?>
+				<?php do_settings_sections('smarty_feed_generator_settings'); ?>
+				<?php submit_button(__('Save Settings', 'smarty-google-feed-generator')); ?>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
-	 * Fetch Google product categories from the taxonomy file and return them as an associative array with IDs.
-	 * 
-	 * @return array Associative array of category IDs and names.
-	 */
+     * Fetch Google product categories from the taxonomy file and return them as an associative array with IDs.
+     * 
+     * @since    1.0.0
+     * @return array Associative array of category IDs and names.
+     */
 	public function get_google_product_categories() {
 		// Check if the categories are already cached
 		$categories = get_transient('smarty_google_product_categories');
@@ -525,9 +564,11 @@ class Smarty_Gfg_Admin {
 
 	/**
      * Converts an image from WEBP to PNG, updates the product image, and regenerates the feed.
+	 * 
+	 * @since    1.0.0
      * @param WC_Product $product Product object.
      */
-    public function convert_and_update_product_image($product) {
+    public static function convert_and_update_product_image($product) {
         $image_id = $product->get_image_id();
 
         if ($image_id) {
@@ -559,6 +600,7 @@ class Smarty_Gfg_Admin {
 	/**
      * Converts a WEBP image file to PNG.
      * 
+	 * @since    1.0.0
      * @param string $source The source file path.
      * @param string $destination The destination file path.
      * @return bool True on success, false on failure.
@@ -581,6 +623,8 @@ class Smarty_Gfg_Admin {
 
 	/**
      * Convert the first WebP image of each product to PNG.
+	 * 
+	 * @since    1.0.0
      */
 	public function convert_first_webp_image_to_png() {
 		$offset = 0;
@@ -624,6 +668,13 @@ class Smarty_Gfg_Admin {
 		}
 	}
 
+	/**
+     * Check if the API key is valid.
+     * 
+     * @since    1.0.0
+     * @param string $api_key The API key to validate.
+     * @return bool True if the API key is valid, false otherwise.
+     */
     private function is_valid_api_key($api_key) {
 		$response = $this->api_instance->validate_license($api_key);
 	
@@ -647,6 +698,14 @@ class Smarty_Gfg_Admin {
 		return false;
 	}
 
+	/**
+     * Handle license status check.
+     * 
+     * @since    1.0.0
+     * @param string $option_name The name of the option.
+     * @param mixed $old_value The old value of the option.
+     * @param mixed $value The new value of the option.
+     */
 	public function handle_license_status_check($option_name, $old_value, $value) {
 		if (!$this->api_instance) {
 			// Handle the error
@@ -704,10 +763,20 @@ class Smarty_Gfg_Admin {
 		return $new_input;
 	}
 
+	/**
+     * Callback function for the General section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_general_cb() {
 		echo '<p>' . __('General settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Google Product Category field.
+     * 
+     * @since    1.0.0
+     */
 	public function google_product_category_cb() {
 		$option = get_option('smarty_google_product_category');
 		echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
@@ -717,33 +786,67 @@ class Smarty_Gfg_Admin {
 		echo '</select>';
 	}
 
+	/**
+     * Callback function for the Use Google Category ID field.
+     * 
+     * @since    1.0.0
+     */
 	public function google_category_as_id_cb() {
 		$option = get_option('smarty_google_category_as_id');
 		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
 		echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Custom Labels section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_custom_labels_cb() {
 		echo '<p>' . __('Define default values for custom labels.', 'smarty-google-feed-generator') . '</p>';
 	}
 
-	
+	/**
+     * Callback function for the Convert Images section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_convert_images_cb() {
 		echo '<p>' . __('Use the button below to manually convert the first WebP image of each products in to the feed to PNG.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Generate Feeds section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_generate_feeds_cb() {
 		echo '<p>' . __('Use the buttons below to manually generate the feeds.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Meta Fields section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_meta_fields_cb() {
 		echo '<p>' . __('Meta fields settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Cache section.
+     * 
+     * @since    1.0.0
+     */
 	public function section_settings_cb() {
 		echo '<p>' . __('Cache settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Exclude Patterns field.
+     * 
+     * @since    1.0.0
+     */
 	public function exclude_patterns_cb() {
 		$option = get_option('smarty_exclude_patterns');
 		echo '<textarea name="smarty_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
@@ -752,6 +855,8 @@ class Smarty_Gfg_Admin {
 	
 	/**
 	 * Callback function to display the excluded categories field.
+	 * 
+	 * @since    1.0.0
 	 */
 	public function excluded_categories_cb() {
 		$option = get_option('smarty_excluded_categories', array());
@@ -768,6 +873,12 @@ class Smarty_Gfg_Admin {
 		echo '<p class="description">' . __('Select categories to exclude from the feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for custom label days field.
+     * 
+     * @since    1.0.0
+     * @param array $args Arguments for the callback.
+     */
 	public function custom_label_days_cb($args) {
 		$option = get_option($args['label'], 30);
 		$days = [10, 20, 30, 60, 90, 120];
@@ -778,6 +889,12 @@ class Smarty_Gfg_Admin {
 		echo '</select>';
 	}
 	
+	/**
+     * Callback function for custom label value field.
+     * 
+     * @since    1.0.0
+     * @param array $args Arguments for the callback.
+     */
 	public function custom_label_value_cb($args) {
 		$option = get_option($args['label'], '');
 		echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
@@ -807,7 +924,13 @@ class Smarty_Gfg_Admin {
 				break;
 		}
 	}
-	
+
+	/**
+     * Callback function for custom label category field.
+     * 
+     * @since    1.0.0
+     * @param array $args Arguments for the callback.
+     */
 	public function custom_label_category_cb($args) {
 		$option = get_option($args['label'], []);
 		$categories = get_terms([
@@ -827,34 +950,64 @@ class Smarty_Gfg_Admin {
 		}
 	}
 	
+	/**
+     * Callback function for the convert images button.
+     * 
+     * @since    1.0.0
+     */
 	public function convert_images_button_cb() {
 		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
 	}
 	
+	/**
+     * Callback function for the generate feed buttons.
+     * 
+     * @since    1.0.0
+     */
 	public function generate_feed_buttons_cb() {
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
 	}
 	
+	/**
+     * Callback function for the Meta Title field.
+     * 
+     * @since    1.0.0
+     */
 	public function meta_title_field_cb() {
 		$option = get_option('smarty_meta_title_field', 'meta-title');
 		echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
 		echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Meta Description field.
+     * 
+     * @since    1.0.0
+     */
 	public function meta_description_field_cb() {
 		$option = get_option('smarty_meta_description_field', 'meta-description');
 		echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
 		echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Clear Cache field.
+     * 
+     * @since    1.0.0
+     */
 	public function clear_cache_cb() {
 		$option = get_option('smarty_clear_cache');
 		echo '<input type="checkbox" name="smarty_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
 		echo '<p class="description">' . __('Check to clear the cache each time the feed is generated. <br><small><em><b>Important:</b> <span style="color: #c51244;">Remove this in production to utilize caching.</span></em></small>', 'smarty-google-feed-generator') . '</p>';
 	}
 	
+	/**
+     * Callback function for the Cache Duration field.
+     * 
+     * @since    1.0.0
+     */
 	public function cache_duration_cb() {
 		$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
 		echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
@@ -863,6 +1016,8 @@ class Smarty_Gfg_Admin {
 
 	/**
      * Display the settings field with the values properly trimmed.
+	 * 
+	 * @since    1.0.0
      */
     public function display_category_values_field() {
         $category_values = get_option('smarty_custom_label_3_category_value', '');
@@ -878,10 +1033,11 @@ class Smarty_Gfg_Admin {
     }
 
     /**
-	 * Callback function for the section.
-	 * 
-	 * @since    1.0.0
-	 */
+     * Callback function for the License section.
+     * 
+     * @since    1.0.0
+     * @param array $args Arguments for the callback.
+     */
 	public function section_license_cb($args) {
 		?>
 		<p id="<?php echo esc_attr($args['id']); ?>">
@@ -891,10 +1047,11 @@ class Smarty_Gfg_Admin {
 	}
 
     /**
-	 * Callback function for the API key field.
-	 *
-	 * @since    1.0.0
-	 */
+     * Callback function for the API key field.
+     * 
+     * @since    1.0.0
+     * @param array $args Arguments for the callback.
+     */
 	public function field_api_key_cb($args) {
 		$options = get_option('smarty_gfg_settings_license');
 		?>
@@ -938,13 +1095,6 @@ class Smarty_Gfg_Admin {
      */
     public function admin_notice() {
         $options = get_option('smarty_gfg_settings_general');
-        if (isset($options['schedule']) && smarty_check_coupon_schedule()) { 
-			?>
-            <div class="notice notice-info smarty-auto-hide-notice">
-				<p><?php echo esc_html__('Coupon field is currently disabled based on the schedule.', 'smarty-google-feed-generator'); ?></p>
-			</div>
-			<?php
-        }
 		
 		if (isset($_GET['license-activated']) && $_GET['license-activated'] == 'true') {
 			?>

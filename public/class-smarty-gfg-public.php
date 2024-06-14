@@ -69,7 +69,7 @@ class Smarty_Gfg_Public {
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
-	 * @since    1.7.1
+	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
 		/**
@@ -89,6 +89,8 @@ class Smarty_Gfg_Public {
 
 	/**
 	 * Handle requests to custom endpoints.
+     * 
+     * @since    1.0.0
 	 */
 	public function handle_template_redirect() {
 		if (get_query_var('smarty_google_feed')) {
@@ -109,6 +111,8 @@ class Smarty_Gfg_Public {
 
 	/**
 	 * Add rewrite rules for custom endpoints.
+     * 
+     * @since    1.0.0
 	 */
 	public static function add_rewrite_rules() {
 		add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
@@ -117,8 +121,12 @@ class Smarty_Gfg_Public {
 	}
 	
 	/**
-	 * Register query vars for custom endpoints.
-	 */
+     * Register query vars for custom endpoints.
+     * 
+     * @since    1.0.0
+     * @param    array    $vars    An array of query variables.
+     * @return   array    $vars    The modified array of query variables.
+     */
 	public function add_query_vars($vars) {
 		$vars[] = 'smarty_google_feed';
 		$vars[] = 'smarty_google_reviews_feed';
@@ -131,6 +139,8 @@ class Smarty_Gfg_Public {
      * 
      * This function is designed to generate a custom Google product feed for WooCommerce products. 
      * It uses WordPress and WooCommerce functions to build an XML feed that conforms to Google's specifications for product feeds.
+     * 
+     * @since    1.0.0
      */
     public function generate_google_feed() {
         // Start output buffering to prevent any unwanted output
@@ -244,6 +254,7 @@ class Smarty_Gfg_Public {
 	/**
 	 * Adds Google product details to the XML item node.
 	 *
+     * @since    1.0.0
 	 * @param DOMDocument $dom The DOMDocument instance.
 	 * @param DOMElement $item The item element to which details are added.
 	 * @param WC_Product $product The WooCommerce product instance.
@@ -328,11 +339,11 @@ class Smarty_Gfg_Public {
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
 
 		// Custom Labels
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', get_custom_label_0($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', get_custom_label_1($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', get_custom_label_2($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', get_custom_label_3($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', get_custom_label_4($product)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label_0($product)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label_1($product)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
 	}
 
 	/**
@@ -340,6 +351,8 @@ class Smarty_Gfg_Public {
      * 
      * This function retrieves all the products and their reviews from a WooCommerce store and constructs
      * an XML feed that adheres to Google's specifications for review feeds.
+     * 
+     * @since    1.0.0
      */
     public function generate_google_reviews_feed() {
         // Set the content type to XML for the output
@@ -400,6 +413,8 @@ class Smarty_Gfg_Public {
      * 
      * This function handles generating a downloadable CSV file that includes details about products
      * filtered based on certain criteria such as stock status and product category.
+     * 
+     * @since    1.0.0
      */
     public function generate_csv_export() {
         // Set headers to force download and define the file name
@@ -494,7 +509,7 @@ class Smarty_Gfg_Public {
 
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
-                if (smarty_convert_webp_to_png($file_path, $new_file_path)) {
+                if (Smarty_Gfg_Admin::convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -537,11 +552,11 @@ class Smarty_Gfg_Public {
             $brand = get_bloginfo('name');
 
             // Custom Labels
-            $custom_label_0 = get_custom_label_0($product);
-            $custom_label_1 = get_custom_label_1($product);
-            $custom_label_2 = get_custom_label_2($product);
-            $custom_label_3 = get_custom_label_3($product);
-            $custom_label_4 = get_custom_label_4($product);
+            $custom_label_0 = $this->get_custom_label_0($product);
+            $custom_label_1 = $this->get_custom_label_1($product);
+            $custom_label_2 = $this->get_custom_label_2($product);
+            $custom_label_3 = $this->get_custom_label_3($product);
+            $custom_label_4 = $this->get_custom_label_4($product);
 
             // Check if the product has the "bundle" tag
             $is_bundle = 'no';
@@ -625,8 +640,11 @@ class Smarty_Gfg_Public {
         exit;
     }
 
-	/**
+	 /**
      * Invalidate cache or regenerate feed when a product is created, updated, or deleted.
+     * 
+     * @since    1.0.0
+     * @param int $product_id The ID of the product that has been created, updated, or deleted.
      */
     public function invalidate_feed_cache($product_id) {
         // Check if the post is a 'product'
@@ -644,6 +662,7 @@ class Smarty_Gfg_Public {
      * This function ensures that when a product is deleted from WooCommerce, any cached version of the feed
      * does not continue to include data related to the deleted product.
      *
+     * @since    1.0.0
      * @param int $post_id The ID of the post (product) being deleted.
      */
     public function invalidate_feed_cache_on_delete($post_id) {
@@ -661,6 +680,10 @@ class Smarty_Gfg_Public {
 
 	/**
      * Invalidate cache or regenerate review feed when reviews are added, updated, or deleted.
+     * 
+     * @since    1.0.0
+     * @param int $comment_id The ID of the comment being updated.
+     * @param string $comment_approved The approval status of the comment.
      */
     public function invalidate_review_feed_cache($comment_id, $comment_approved = '') {
         $comment = get_comment($comment_id);
@@ -680,6 +703,8 @@ class Smarty_Gfg_Public {
      * 
      * This function is designed to refresh the product feed by querying the latest product data from WooCommerce,
      * constructing an XML feed, and saving it either to a transient for fast access or directly to a file.
+     * 
+     * @since    1.0.0
      */
 	public function regenerate_feed() {
         // Fetch products from WooCommerce that are published and in stock
@@ -806,6 +831,9 @@ class Smarty_Gfg_Public {
 
 	/**
      * Hook into product changes.
+     * 
+     * @since    1.0.0
+     * @param int $post_id The ID of the post being changed.
      */
     public function handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
@@ -820,6 +848,7 @@ class Smarty_Gfg_Public {
      * If the "Use Google Category ID" option is checked, it returns the category ID.
      * Otherwise, it returns the category name, removing any preceding ID and hyphen.
      *
+     * @since    1.0.0
      * @return string The cleaned Google Product Category name or ID.
      */
     public function get_cleaned_google_product_category() {
@@ -843,7 +872,11 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 0: Older Than X Days & Not Older Than Y Days
+     * Custom Label 0: Older Than X Days & Not Older Than Y Days.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @return string The custom label 0 value.
      */ 
     public function get_custom_label_0($product) {
         $date_created = $product->get_date_created();
@@ -867,7 +900,11 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 1: Most Ordered in Last Z Days 
+     * Custom Label 1: Most Ordered in Last Z Days.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @return string The custom label 1 value.
      */ 
     public function get_custom_label_1($product) {
         $most_ordered_days = get_option('smarty_custom_label_1_most_ordered_days', 30);
@@ -897,7 +934,11 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 2: High Rating
+     * Custom Label 2: High Rating.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @return string The custom label 2 value.
      */
     public function get_custom_label_2($product) {
         $average_rating = $product->get_average_rating();
@@ -909,7 +950,11 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 3: In Selected Category
+     * Custom Label 3: In Selected Category.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @return string The custom label 3 value.
      */
     public function get_custom_label_3($product) {
         // Retrieve selected categories and their values from options
@@ -953,7 +998,11 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 4: Has Sale Price
+     * Custom Label 4: Has Sale Price.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @return string The custom label 4 value.
      */
     public function get_custom_label_4($product) {
         $excluded_categories = get_option('smarty_excluded_categories', array()); // Get excluded categories from settings
@@ -997,6 +1046,14 @@ class Smarty_Gfg_Public {
         return '';
     }
 
+    /**
+     * Evaluates the criteria for custom labels.
+     * 
+     * @since    1.0.0
+     * @param WC_Product $product The WooCommerce product instance.
+     * @param string $criteria The JSON encoded criteria.
+     * @return string The evaluated label.
+     */
 	public function evaluate_criteria($product, $criteria) {
 		if (empty($criteria)) {
 			return '';
