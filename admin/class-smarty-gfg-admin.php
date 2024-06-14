@@ -818,9 +818,17 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function google_category_as_id_cb() {
-		$option = get_option('smarty_google_category_as_id');
-		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
-		echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option('smarty_google_category_as_id');
+			echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
+			echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-wp-disable-coupon-field'); ?></p>
+			<?php
+		}
 	}
 	
 	/**
@@ -975,6 +983,24 @@ class Smarty_Gfg_Admin {
 			echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
 		}
 	}
+
+	/**
+     * Display the settings field with the values properly trimmed.
+	 * 
+	 * @since    1.0.0
+     */
+    public function display_category_values_field() {
+        $category_values = get_option('smarty_custom_label_3_category_value', '');
+        if (!is_array($category_values)) {
+            $category_values = explode(',', $category_values);
+        }
+        $category_values = array_map('trim', $category_values);
+        $category_values = implode(', ', $category_values);
+
+        echo '<input type="text" id="smarty_custom_label_3_category_value" name="smarty_custom_label_3_category_value" value="' . esc_attr($category_values) . '" class="regular-text" />';
+        echo '<p class="description">Enter custom values for the categories separated by commas. <strong>Example:</strong> Tech, Apparel, Literature</p>';
+        echo '<p class="description"><strong>Important:</strong> Ensure these values are in the same order as the selected categories.</p>';
+    }
 	
 	/**
      * Callback function for the convert images button.
@@ -982,7 +1008,15 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function convert_images_button_cb() {
-		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
+		}
 	}
 	
 	/**
@@ -991,9 +1025,17 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
+			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
+			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
+		}
 	}
 	
 	/**
@@ -1035,28 +1077,18 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function cache_duration_cb() {
-		$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-		echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
-		echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+			echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
+			echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
+		}
 	}
-
-	/**
-     * Display the settings field with the values properly trimmed.
-	 * 
-	 * @since    1.0.0
-     */
-    public function display_category_values_field() {
-        $category_values = get_option('smarty_custom_label_3_category_value', '');
-        if (!is_array($category_values)) {
-            $category_values = explode(',', $category_values);
-        }
-        $category_values = array_map('trim', $category_values);
-        $category_values = implode(', ', $category_values);
-
-        echo '<input type="text" id="smarty_custom_label_3_category_value" name="smarty_custom_label_3_category_value" value="' . esc_attr($category_values) . '" class="regular-text" />';
-        echo '<p class="description">Enter custom values for the categories separated by commas. <strong>Example:</strong> Tech, Apparel, Literature</p>';
-        echo '<p class="description"><strong>Important:</strong> Ensure these values are in the same order as the selected categories.</p>';
-    }
 
 	/**
 	 * Callback function for the Compatibility section field.
