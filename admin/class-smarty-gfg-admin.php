@@ -818,17 +818,9 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function google_category_as_id_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option('smarty_google_category_as_id');
-			echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
-			echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-wp-disable-coupon-field'); ?></p>
-			<?php
-		}
+		$option = get_option('smarty_google_category_as_id');
+		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
+		echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -914,13 +906,21 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_days_cb($args) {
-		$option = get_option($args['label'], 30);
-		$days = [10, 20, 30, 60, 90, 120];
-		echo '<select name="' . esc_attr($args['label']) . '">';
-		foreach ($days as $day) {
-			echo '<option value="' . esc_attr($day) . '" ' . selected($option, $day, false) . '>' . esc_html($day) . '</option>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option($args['label'], 30);
+			$days = [10, 20, 30, 60, 90, 120];
+			echo '<select name="' . esc_attr($args['label']) . '">';
+			foreach ($days as $day) {
+				echo '<option value="' . esc_attr($day) . '" ' . selected($option, $day, false) . '>' . esc_html($day) . '</option>';
+			}
+			echo '</select>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
 		}
-		echo '</select>';
 	}
 	
 	/**
@@ -930,32 +930,40 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_value_cb($args) {
-		$option = get_option($args['label'], '');
-		echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
-	
-		// Add custom descriptions based on the label
-		switch ($args['label']) {
-			case 'smarty_custom_label_0_older_than_value':
-				echo '<p class="description">Enter the value to label products older than the specified number of days.</p>';
-				break;
-			case 'smarty_custom_label_0_not_older_than_value':
-				echo '<p class="description">Enter the value to label products not older than the specified number of days.</p>';
-				break;
-			case 'smarty_custom_label_1_most_ordered_value':
-				echo '<p class="description">Enter the value to label the most ordered products in the last specified days.</p>';
-				break;
-			case 'smarty_custom_label_2_high_rating_value':
-				echo '<p class="description">Enter the value to label products with high ratings.</p>';
-				break;
-			case 'smarty_custom_label_3_category_value':
-				echo '<p class="description">Enter custom values for the categories separated by commas. <b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
-				break;
-			case 'smarty_custom_label_4_sale_price_value':
-				echo '<p class="description">Enter the value to label products with a sale price.</p>';
-				break;
-			default:
-				echo '<p class="description">Enter a custom value for this label.</p>';
-				break;
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option($args['label'], '');
+			echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
+		
+			// Add custom descriptions based on the label
+			switch ($args['label']) {
+				case 'smarty_custom_label_0_older_than_value':
+					echo '<p class="description">Enter the value to label products older than the specified number of days.</p>';
+					break;
+				case 'smarty_custom_label_0_not_older_than_value':
+					echo '<p class="description">Enter the value to label products not older than the specified number of days.</p>';
+					break;
+				case 'smarty_custom_label_1_most_ordered_value':
+					echo '<p class="description">Enter the value to label the most ordered products in the last specified days.</p>';
+					break;
+				case 'smarty_custom_label_2_high_rating_value':
+					echo '<p class="description">Enter the value to label products with high ratings.</p>';
+					break;
+				case 'smarty_custom_label_3_category_value':
+					echo '<p class="description">Enter custom values for the categories separated by commas. <b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
+					break;
+				case 'smarty_custom_label_4_sale_price_value':
+					echo '<p class="description">Enter the value to label products with a sale price.</p>';
+					break;
+				default:
+					echo '<p class="description">Enter a custom value for this label.</p>';
+					break;
+			}
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
 		}
 	}
 
@@ -966,21 +974,29 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_category_cb($args) {
-		$option = get_option($args['label'], []);
-		$categories = get_terms([
-			'taxonomy' => 'product_cat',
-			'hide_empty' => false,
-		]);
-	
-		echo '<select name="' . esc_attr($args['label']) . '[]" multiple="multiple" class="smarty-excluded-categories">';
-		foreach ($categories as $category) {
-			echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array) $option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
-		}
-		echo '</select>';
-	
-		// Add description for the category selection
-		if ($args['label'] === 'smarty_custom_label_3_category') {
-			echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option($args['label'], []);
+			$categories = get_terms([
+				'taxonomy' => 'product_cat',
+				'hide_empty' => false,
+			]);
+		
+			echo '<select name="' . esc_attr($args['label']) . '[]" multiple="multiple" class="smarty-excluded-categories">';
+			foreach ($categories as $category) {
+				echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array) $option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
+			}
+			echo '</select>';
+		
+			// Add description for the category selection
+			if ($args['label'] === 'smarty_custom_label_3_category') {
+				echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
+			}
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
 		}
 	}
 
@@ -1044,9 +1060,17 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function meta_title_field_cb() {
-		$option = get_option('smarty_meta_title_field', 'meta-title');
-		echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
-		echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option('smarty_meta_title_field', 'meta-title');
+			echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
+			echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
+		}
 	}
 	
 	/**
@@ -1055,9 +1079,17 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function meta_description_field_cb() {
-		$option = get_option('smarty_meta_description_field', 'meta-description');
-		echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
-		echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
+		$license_options = get_option('smarty_gfg_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+		if ($this->is_valid_api_key($api_key)) {
+			$option = get_option('smarty_meta_description_field', 'meta-description');
+			echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
+			echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
+		} else {
+			?>
+			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+			<?php
+		}
 	}
 	
 	/**
