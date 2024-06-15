@@ -126,7 +126,7 @@ class Smarty_Gfg_Admin {
 	private function get_settings_tabs() {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
-			'mapping'       => __('CSV Mapping', 'smarty-google-feed-generator'),
+			'mapping'       => __('CSV Column Mapping', 'smarty-google-feed-generator'),
 			'compatibility' => __('Plugin Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -152,7 +152,7 @@ class Smarty_Gfg_Admin {
 		if (file_exists($partial_file) && is_readable($partial_file)) {
 			include_once $partial_file;
 		} else {
-			smarty_write_logs("Unable to include: '$partial_file'");
+			error_log("Unable to include: '$partial_file'");
 		}
 	}
 
@@ -416,7 +416,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_mapping', 'smarty_gfg_settings_mapping', array($this, 'sanitize_mapping_settings'));
 		add_settings_section(
 			'smarty_gfg_section_mapping',									// ID of the section
-			__('CSV Mapping', 'smarty-google-feed-generator'),				// Title of the section  
+			__('CSV Column Mapping', 'smarty-google-feed-generator'),		// Title of the section  
 			array($this, 'section_mapping_cb'),								// Callback function that fills the section with the desired content
 			'smarty_gfg_options_mapping'									// Page on which to add the section
 		);
@@ -425,8 +425,7 @@ class Smarty_Gfg_Admin {
 			'ID', 'ID2', 'Final URL', 'Final Mobile URL', 'Image URL', 'Item Title', 
 			'Item Description', 'Item Category', 'Price', 'Sale Price', 
 			'Google Product Category', 'Is Bundle', 'MPN', 'Availability', 
-			'Condition', 'Brand', 'Custom Label 0', 'Custom Label 1', 
-			'Custom Label 2', 'Custom Label 3', 'Custom Label 4'
+			'Condition', 'Brand'
 		);
 	
 		foreach ($csv_columns as $column) {
@@ -514,40 +513,35 @@ class Smarty_Gfg_Admin {
 			wp_send_json_error('You do not have sufficient permissions to access this page.');
 		}
 	
-		$this->convert_first_webp_image_to_png();
-	
-		wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
+		try {
+			// Attempt to convert images
+			$this->convert_first_webp_image_to_png();
+			wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
+		} catch (Exception $e) {
+			// Handle exceptions by sending a descriptive error message
+			wp_send_json_error('Error converting images: ' . $e->getMessage());
+		}
 	}
 
 	/**
-     * Handle AJAX request to generate feed.
+     * Handle AJAX request to convert all images.
      * 
      * @since    1.0.0
      */
-	public function handle_ajax_generate_feed() {
+	public function handle_ajax_convert_all_images() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
-	
+
 		if (!current_user_can('manage_options')) {
 			wp_send_json_error('You do not have sufficient permissions to access this page.');
 		}
 	
-		$action = sanitize_text_field($_POST['feed_action']);
-		switch ($action) {
-			case 'generate_product_feed':
-				smarty_generate_google_feed();
-				wp_send_json_success('Product feed generated successfully.');
-				break;
-			case 'generate_reviews_feed':
-				smarty_generate_google_reviews_feed();
-				wp_send_json_success('Reviews feed generated successfully.');
-				break;
-			case 'generate_csv_export':
-				smarty_generate_csv_export();
-				wp_send_json_success('CSV export generated successfully.');
-				break;
-			default:
-				wp_send_json_error('Invalid action.');
-				break;
+		try {
+			// Attempt to convert images
+			$this->convert_all_webp_images_to_png();
+			wp_send_json_success(__('All images have been converted to PNG.', 'smarty-google-feed-generator'));
+		} catch (Exception $e) {
+			// Handle exceptions by sending a descriptive error message
+			wp_send_json_error('Error converting images: ' . $e->getMessage());
 		}
 	}
 
@@ -623,7 +617,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
      * @param WC_Product $product Product object.
      */
-    public static function convert_and_update_product_image($product) {
+    public function convert_and_update_product_image($product) {
         $image_id = $product->get_image_id();
 
         if ($image_id) {
@@ -646,7 +640,7 @@ class Smarty_Gfg_Admin {
                     @unlink($file_path);
 
                     // Invalidate feed cache and regenerate
-                    smarty_invalidate_feed_cache($product->get_id());
+                    Smarty_Gfg_Public::invalidate_feed_cache($product->get_id());
                 }
             }
         }
@@ -662,7 +656,7 @@ class Smarty_Gfg_Admin {
      */
     public function convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
-            //smarty_write_logs('GD Library is not installed or does not support WEBP.');
+            //error_log('GD Library is not installed or does not support WEBP.');
             return false;
         }
 
@@ -681,7 +675,7 @@ class Smarty_Gfg_Admin {
 	 * 
 	 * @since    1.0.0
      */
-	public function convert_first_webp_image_to_png() {
+	public static function convert_first_webp_image_to_png() {
 		$offset = 0;
 		$limit = 50; // Process 50 products at a time
 	
@@ -724,6 +718,72 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
+     * Convert all WEBP images (main and gallery) for each product to PNG.
+     * 
+     * @since    1.0.0
+     */
+    public function convert_all_webp_images_to_png() {
+        $offset = 0;
+        $limit = 50; // Number of products to process at a time
+
+        while (true) {
+            $products = wc_get_products(array(
+                'status' => 'publish',
+                'limit'  => $limit,
+                'offset' => $offset,
+            ));
+
+            if (empty($products)) {
+                break; // Exit the loop if no more products are found
+            }
+
+            foreach ($products as $product) {
+                // Convert the main product image
+                $this->convert_product_image($product->get_image_id());
+
+                // Convert all gallery images
+                $gallery_ids = $product->get_gallery_image_ids();
+                foreach ($gallery_ids as $gallery_id) {
+                    $this->convert_product_image($gallery_id);
+                }
+            }
+
+            $offset += $limit; // Increment the offset for the next batch
+        }
+    }
+
+	/**
+	 * Converts a single product image from WEBP to PNG format.
+	 *
+	 * @param int $image_id The ID of the image to convert.
+	 */
+	private function convert_product_image($image_id) {
+		$file_path = get_attached_file($image_id);
+
+		if ($file_path && preg_match('/\.webp$/', $file_path)) {
+			$new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
+			
+			if ($this->convert_webp_to_png($file_path, $new_file_path)) {
+				// Update the attachment file type post meta
+				wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
+				update_post_meta($image_id, '_wp_attached_file', $new_file_path);
+
+				// Regenerate thumbnails if the function exists
+				if (function_exists('wp_update_attachment_metadata')) {
+					wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
+				}
+
+				// Optionally, delete the original WEBP file
+				@unlink($file_path);
+
+				return true; // Return true on success
+			}
+		}
+
+		return false; // Return false if conversion did not take place
+	}
+
+	/**
      * Check if the API key is valid.
      * 
      * @since    1.0.0
@@ -744,9 +804,9 @@ class Smarty_Gfg_Admin {
 				}
 			}
 	
-			smarty_write_logs('Checking API key validity: ' . $api_key);
-			smarty_write_logs('API Response: ' . print_r($response, true));
-			smarty_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
+			//error_log('Checking API key validity: ' . $api_key);
+			//error_log('API Response: ' . print_r($response, true));
+			//error_log('License is ' . ($isActive ? 'active' : 'inactive'));
 			return $isActive;
 		}
 	
@@ -881,7 +941,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_convert_images_cb() {
-		echo '<p>' . __('Use the button below to manually convert the first WebP image of each products in to the feed to PNG.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Use the button below to manually convert the first or all WebP image(s) of each products in to the feed to PNG.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -949,21 +1009,13 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_days_cb($args) {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option($args['label'], 30);
-			$days = [10, 20, 30, 60, 90, 120];
-			echo '<select name="' . esc_attr($args['label']) . '">';
-			foreach ($days as $day) {
-				echo '<option value="' . esc_attr($day) . '" ' . selected($option, $day, false) . '>' . esc_html($day) . '</option>';
-			}
-			echo '</select>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
+		$option = get_option($args['label'], 30);
+		$days = [10, 20, 30, 60, 90, 120];
+		echo '<select name="' . esc_attr($args['label']) . '">';
+		foreach ($days as $day) {
+			echo '<option value="' . esc_attr($day) . '" ' . selected($option, $day, false) . '>' . esc_html($day) . '</option>';
 		}
+		echo '</select>';
 	}
 	
 	/**
@@ -973,40 +1025,32 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_value_cb($args) {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option($args['label'], '');
-			echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
+		$option = get_option($args['label'], '');
+		echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
 		
-			// Add custom descriptions based on the label
-			switch ($args['label']) {
-				case 'smarty_custom_label_0_older_than_value':
-					echo '<p class="description">Enter the value to label products older than the specified number of days.</p>';
-					break;
-				case 'smarty_custom_label_0_not_older_than_value':
-					echo '<p class="description">Enter the value to label products not older than the specified number of days.</p>';
-					break;
-				case 'smarty_custom_label_1_most_ordered_value':
-					echo '<p class="description">Enter the value to label the most ordered products in the last specified days.</p>';
-					break;
-				case 'smarty_custom_label_2_high_rating_value':
-					echo '<p class="description">Enter the value to label products with high ratings.</p>';
-					break;
-				case 'smarty_custom_label_3_category_value':
-					echo '<p class="description">Enter custom values for the categories separated by commas. <b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
-					break;
-				case 'smarty_custom_label_4_sale_price_value':
-					echo '<p class="description">Enter the value to label products with a sale price.</p>';
-					break;
-				default:
-					echo '<p class="description">Enter a custom value for this label.</p>';
-					break;
-			}
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
+		// Add custom descriptions based on the label
+		switch ($args['label']) {
+			case 'smarty_custom_label_0_older_than_value':
+				echo '<p class="description">Enter the value to label products older than the specified number of days.</p>';
+				break;
+			case 'smarty_custom_label_0_not_older_than_value':
+				echo '<p class="description">Enter the value to label products not older than the specified number of days.</p>';
+				break;
+			case 'smarty_custom_label_1_most_ordered_value':
+				echo '<p class="description">Enter the value to label the most ordered products in the last specified days.</p>';
+				break;
+			case 'smarty_custom_label_2_high_rating_value':
+				echo '<p class="description">Enter the value to label products with high ratings.</p>';
+				break;
+			case 'smarty_custom_label_3_category_value':
+				echo '<p class="description">Enter custom values for the categories separated by commas. <b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
+				break;
+			case 'smarty_custom_label_4_sale_price_value':
+				echo '<p class="description">Enter the value to label products with a sale price.</p>';
+				break;
+			default:
+				echo '<p class="description">Enter a custom value for this label.</p>';
+				break;
 		}
 	}
 
@@ -1017,29 +1061,21 @@ class Smarty_Gfg_Admin {
      * @param array $args Arguments for the callback.
      */
 	public function custom_label_category_cb($args) {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option($args['label'], []);
-			$categories = get_terms([
-				'taxonomy' => 'product_cat',
-				'hide_empty' => false,
-			]);
+		$option = get_option($args['label'], []);
+		$categories = get_terms([
+			'taxonomy' => 'product_cat',
+			'hide_empty' => false,
+		]);
 		
-			echo '<select name="' . esc_attr($args['label']) . '[]" multiple="multiple" class="smarty-excluded-categories">';
-			foreach ($categories as $category) {
-				echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array) $option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
-			}
-			echo '</select>';
+		echo '<select name="' . esc_attr($args['label']) . '[]" multiple="multiple" class="smarty-excluded-categories">';
+		foreach ($categories as $category) {
+			echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array) $option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
+		}
+		echo '</select>';
 		
-			// Add description for the category selection
-			if ($args['label'] === 'smarty_custom_label_3_category') {
-				echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
-			}
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
+		// Add description for the category selection
+		if ($args['label'] === 'smarty_custom_label_3_category') {
+			echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
 		}
 	}
 
@@ -1067,15 +1103,8 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function convert_images_button_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
-		}
+		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block;">' . __('Convert First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('Convert All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
 	}
 	
 	/**
@@ -1084,17 +1113,9 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
-			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
-			echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
-		}
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
 	}
 	
 	/**
@@ -1103,17 +1124,9 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function meta_title_field_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option('smarty_meta_title_field', 'meta-title');
-			echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
-			echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
-		}
+		$option = get_option('smarty_meta_title_field', 'meta-title');
+		echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
+		echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1122,17 +1135,9 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function meta_description_field_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option('smarty_meta_description_field', 'meta-description');
-			echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
-			echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
-		}
+		$option = get_option('smarty_meta_description_field', 'meta-description');
+		echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
+		echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1152,17 +1157,10 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function cache_duration_cb() {
-		$license_options = get_option('smarty_gfg_settings_license');
-		$api_key = $license_options['api_key'] ?? '';
-		if ($this->is_valid_api_key($api_key)) {
-			$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-			echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
-			echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
-		} else {
-			?>
-			<p class="description smarty-error"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
-			<?php
-		}
+		$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+		echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
+		echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
+		
 	}
 
 	/**
@@ -1185,7 +1183,7 @@ class Smarty_Gfg_Admin {
         $new_value = isset($options[$column]) ? $options[$column] : '';
 
         echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
-        echo '<p class="description">' . sprintf(__('Default: %s', 'smarty-google-feed-generator'), $column) . '</p>';
+        echo '<p class="description"><small><em><b>Default:</b> <span style="color: #c51244;">' . sprintf(__('%s', 'smarty-google-feed-generator'), $column) . '</span></em></small></p>';
     }
 
 	/**

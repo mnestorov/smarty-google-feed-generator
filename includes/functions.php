@@ -15,11 +15,11 @@
  * @author     Smarty Studio | Martin Nestorov
  */
 
- if (!function_exists('get_the_product_sku')) {
+ if (!function_exists('smarty_get_the_product_sku')) {
     /**
      * Helper function to get the product SKU.
      */
-    function get_the_product_sku($product_id) {
+    function smarty_get_the_product_sku($product_id) {
         return get_post_meta($product_id, '_sku', true);
     }
 }

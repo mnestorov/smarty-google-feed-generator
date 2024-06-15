@@ -146,6 +146,7 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
 		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
 		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
+		$this->loader->add_action('wp_ajax_smarty_convert_all_webp_images_to_png', $plugin_admin, 'handle_ajax_convert_all_images');
 		$this->loader->add_action('wp_ajax_smarty_generate_feed', $plugin_admin, 'handle_ajax_generate_feed');
 		$this->loader->add_action('wp_ajax_smarty_load_google_categories', $plugin_admin, 'handle_ajax_load_google_categories');
 		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);

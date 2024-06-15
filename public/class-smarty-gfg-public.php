@@ -166,7 +166,7 @@ class Smarty_Gfg_Public {
         if (class_exists('WooCommerce')) {
             // Get excluded categories from settings
             $excluded_categories = get_option('smarty_excluded_categories', array());
-            smarty_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
+            //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Set up arguments for querying products, excluding certain categories
             $args = array(
@@ -188,8 +188,8 @@ class Smarty_Gfg_Public {
 
             // Fetch products using WooCommerce function
             $products = wc_get_products($args);
-            smarty_write_logs('Product Query Args: ' . print_r($args, true));
-            smarty_write_logs('Products: ' . print_r($products, true));
+            //error_log('Product Query Args: ' . print_r($args, true));
+            //error_log('Products: ' . print_r($products, true));
 
             // Initialize the XML structure
             $dom = new DOMDocument('1.0', 'UTF-8');
@@ -203,7 +203,7 @@ class Smarty_Gfg_Public {
 
             // Loop through each product to add details to the feed
             foreach ($products as $product) {
-                smarty_write_logs('Processing Product: ' . print_r($product->get_data(), true));
+                //error_log('Processing Product: ' . print_r($product->get_data(), true));
                 if ($product->is_type('variable')) {
                     // Get all variations if product is variable
                     $variations = $product->get_children();
@@ -214,6 +214,9 @@ class Smarty_Gfg_Public {
                         $item = $dom->createElement('item'); // Add item node for each product
                         $feed->appendChild($item);
 
+                        // Convert the first WebP image to PNG if needed
+                        Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+
                         // Add product details as child nodes
                         $this->add_google_product_details($dom, $item, $product, $variation);
                     }
@@ -222,6 +225,9 @@ class Smarty_Gfg_Public {
                     $item = $dom->createElement('item');
                     $feed->appendChild($item);
 
+                    // Convert the first WebP image to PNG if needed
+                    Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+
                     // Add product details as child nodes
                     $this->add_google_product_details($dom, $item, $product);
                 }
@@ -229,7 +235,7 @@ class Smarty_Gfg_Public {
 
             // Save and output the XML
             $feed_content = $dom->saveXML();
-            smarty_write_logs('Feed Content: ' . $feed_content);
+            //error_log('Feed Content: ' . $feed_content);
 
             if ($feed_content) {
                 $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
@@ -240,7 +246,7 @@ class Smarty_Gfg_Public {
                 exit; // Ensure the script stops here to prevent further output that could corrupt the feed
             } else {
                 ob_end_clean();
-                smarty_write_logs('Failed to generate feed content.');
+                //error_log('Failed to generate feed content.');
                 echo '<error>Failed to generate feed content.</error>';
                 exit;
             }
@@ -392,7 +398,7 @@ class Smarty_Gfg_Public {
                     $feed->appendChild($entry);
 
                     // Add various child elements required by Google, ensuring data is properly escaped to avoid XML errors
-                    $entry->appendChild($dom->createElementNS($gNamespace, 'g:id', htmlspecialchars(get_the_product_sku($product->ID))));
+                    $entry->appendChild($dom->createElementNS($gNamespace, 'g:id', htmlspecialchars(smarty_get_the_product_sku($product->ID))));
                     $entry->appendChild($dom->createElementNS($gNamespace, 'g:title', htmlspecialchars($product->post_title)));
                     $entry->appendChild($dom->createElementNS($gNamespace, 'g:content', htmlspecialchars($review->comment_content)));
                     $entry->appendChild($dom->createElementNS($gNamespace, 'g:reviewer', htmlspecialchars($review->comment_author)));
@@ -467,7 +473,7 @@ class Smarty_Gfg_Public {
 
         // Get excluded categories from settings
         $excluded_categories = get_option('smarty_excluded_categories', array());
-        smarty_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
+        //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Prepare arguments for querying products excluding specific categories
         $args = array(
@@ -489,8 +495,8 @@ class Smarty_Gfg_Public {
         
         // Retrieve products using the defined arguments
         $products = wc_get_products($args);
-        smarty_write_logs('Product Query Args: ' . print_r($args, true));
-        smarty_write_logs('Products: ' . print_r($products, true));
+        //error_log('Product Query Args: ' . print_r($args, true));
+        //error_log('Products: ' . print_r($products, true));
 
         // Get exclude patterns from settings and split into array
         $exclude_patterns = preg_split('/\r\n|\r|\n/', get_option('smarty_exclude_patterns'));
@@ -511,26 +517,7 @@ class Smarty_Gfg_Public {
             }
             
             // Convert the first WebP image to PNG if needed
-            $image_id = $product->get_image_id();
-            $image_url = wp_get_attachment_url($image_id);
-            $file_path = get_attached_file($image_id);
-
-            if ($file_path && preg_match('/\.webp$/', $file_path)) {
-                $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
-                if (Smarty_Gfg_Admin::convert_webp_to_png($file_path, $new_file_path)) {
-                    // Update the attachment file type post meta
-                    wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
-                    update_post_meta($image_id, '_wp_attached_file', $new_file_path);
-                    // Regenerate thumbnails
-                    if (function_exists('wp_update_attachment_metadata')) {
-                        wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
-                    }
-                    // Update image URL
-                    $image_url = wp_get_attachment_url($image_id);
-                    // Optionally, delete the original WEBP file
-                    @unlink($file_path);
-                }
-            }
+            Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
 
             // Prepare product data for the CSV
             $id = $product->get_id();
@@ -551,10 +538,10 @@ class Smarty_Gfg_Public {
             
             // Get Google category as ID or name
             $google_product_category = $this->get_cleaned_google_product_category(); // Get Google category from plugin settings
-            smarty_write_logs('Google Product Category: ' . $google_product_category); // Debugging line
+            //error_log('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
-                smarty_write_logs('Google Product Category ID: ' . $google_product_category); // Debugging line
+                //error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
 
             $brand = get_bloginfo('name');
@@ -648,13 +635,45 @@ class Smarty_Gfg_Public {
         exit;
     }
 
-	 /**
+    /**
+     * Handle AJAX request to generate feed.
+     * 
+     * @since    1.0.0
+     */
+	public function handle_ajax_generate_feed() {
+		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
+	
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('You do not have sufficient permissions to access this page.');
+		}
+	
+		$action = sanitize_text_field($_POST['feed_action']);
+		switch ($action) {
+			case 'generate_product_feed':
+				$this->generate_google_feed();
+				wp_send_json_success('Product feed generated successfully.');
+				break;
+			case 'generate_reviews_feed':
+				$this->generate_google_reviews_feed();
+				wp_send_json_success('Reviews feed generated successfully.');
+				break;
+			case 'generate_csv_export':
+				$this->generate_csv_export();
+				wp_send_json_success('CSV export generated successfully.');
+				break;
+			default:
+				wp_send_json_error('Invalid action.');
+				break;
+		}
+	}
+
+	/**
      * Invalidate cache or regenerate feed when a product is created, updated, or deleted.
      * 
      * @since    1.0.0
      * @param int $product_id The ID of the product that has been created, updated, or deleted.
      */
-    public function invalidate_feed_cache($product_id) {
+    public static function invalidate_feed_cache($product_id) {
         // Check if the post is a 'product'
         if (get_post_type($product_id) === 'product') {
             // Invalidate cache
@@ -1020,12 +1039,12 @@ class Smarty_Gfg_Public {
         $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
 
         // Log debug information
-        smarty_write_logs('Product ID: ' . $product->get_id());
-        smarty_write_logs('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
-        smarty_write_logs('Product sale price: ' . $product->get_sale_price());
-        smarty_write_logs('Excluded categories: ' . print_r($excluded_categories, true));
-        smarty_write_logs('Product categories: ' . print_r($product_categories, true));
-        smarty_write_logs('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
+        //error_log('Product ID: ' . $product->get_id());
+        //error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
+        //error_log('Product sale price: ' . $product->get_sale_price());
+        //error_log('Excluded categories: ' . print_r($excluded_categories, true));
+        //error_log('Product categories: ' . print_r($product_categories, true));
+        //error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
 
         if ($is_excluded) {
             return '';
@@ -1044,7 +1063,7 @@ class Smarty_Gfg_Public {
             if (!empty($variations)) {
                 $first_variation_id = $variations[0]; // Check only the first variation
                 $variation = wc_get_product($first_variation_id);
-                smarty_write_logs('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
+                //error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
                 if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
                     return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
                 }

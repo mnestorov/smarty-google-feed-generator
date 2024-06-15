@@ -64,6 +64,41 @@
             });
         });
 
+        // Handler for converting all images
+        $('.smarty-convert-all-images-button').on('click', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+            console.log('Convert All Images button clicked');
+
+            var button = $(this);
+            button.attr('disabled', true);
+            console.log('Button disabled');
+
+            $.ajax({
+                url: smartyFeedGenerator.ajaxUrl,
+                method: 'POST',
+                data: {
+                    action: 'smarty_convert_all_webp_images_to_png',
+                    nonce: smartyFeedGenerator.nonce
+                },
+                success: function (response) {
+                    console.log('AJAX success:', response);
+                    if (response.success) {
+                        alert(response.data);
+                    } else {
+                        alert('Error: ' + response.data);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log('AJAX error:', error);
+                    alert('AJAX Error: ' + error);
+                },
+                complete: function () {
+                    button.attr('disabled', false);
+                    console.log('Button re-enabled');
+                }
+            });
+        });
+
         $('.smarty-generate-feed-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
             //console.log('Generate Feed button clicked');
