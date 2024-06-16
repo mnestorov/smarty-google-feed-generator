@@ -34,11 +34,52 @@ class Smarty_Gfg_Admin {
 
 	/**
      * Instance of Smarty_Gfg_API.
-     *
+	 * 
+     * @since    1.0.0
      * @var Smarty_Gfg_API
      */
     private $api_instance;
 
+	/**
+	 * The tsv/csv columns description.
+	 * 
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private $csv_column_descriptions = array(
+		'ID' 					  			  => 'The unique identifier for the product (e.g., A2B4).',
+		'ID2' 					  			  => 'Secondary unique identifier for the product.',
+		'Link' 					  			  => 'The URL of the product page (e.g., https://www.example.com/asp/sp.asp?cat=12&id=1030).', 								// Example custom value: Final URL
+		'Mobile Link' 			  			  => 'The mobile URL of the product page (e.g., https://www.m.example.com/asp/sp.asp?cat=12&id=1030).', 						// Example custom value: Final Mobile URL
+		'Image Link' 			  			  => 'The URL of the product image (e.g., https://www.example.com/image1.jpg).', 								// Example custom value: Image URL
+		'Additional Image Link'   			  => 'URLs for additional product images (e.g., http://www.example.com/image1.jpg).',
+		'Title' 				  			  => 'The title of the product (e.g., Mens Pique Polo Shirt).', 									// Example custom value: Item Title
+		'Description' 			  			  => 'The description of the product.', 							// Example custom value: Item Description
+		'Google Product Category' 			  => 'The Google Product Category for the product (e.g., Apparel & Accessories > Clothing > Outerwear > Coats & Jackets or 371).',
+		'Product Type' 			  			  => 'The product type or category (e.g., Home > Women > Dresses > Maxi Dresses).', 								// Example custom value: Item Category
+		'Price' 				  			  => 'The price of the product (e.g., 15.00 USD).',
+		'Sale Price' 			  			  => 'The sale price of the product (e.g., 15.00 USD).',
+		'Bundle' 			  	  			  => 'Indicates if the product is a bundle (e.g., yes, no).', 						// Example custom value: Is Bundle
+		'Brand' 				  			  => 'The brand of the product (e.g., Google).',
+		'GTIN' 					  			  => 'The Global Trade Item Number for the product (e.g., 3234567890126).',
+		'MPN' 					    		  => 'The Manufacturer Part Number for the product (e.g., GO12345OOGLE).',
+		'Availability' 			  			  => 'The availability status of the product (e.g., in_stock).',
+		'Availability Date' 	  			  => 'The date when the product will be available (e.g., (For UTC+1) 2016-02-24T11:07+0100).',
+		'Condition' 			  			  => 'The condition of the product (e.g., new, used).',
+		'Color' 				  			  => 'The color of the product (e.g., Blue).',
+		'Gender' 				  			  => 'The gender the product is intended for (e.g., Unisex).',
+		'Material' 				  			  => 'The material of the product (e.g., leather).',
+		'Size' 					  			  => 'The size of the product (e.g., S, M, L, XL).',
+		'Size Type' 			  			  => 'The size type (e.g., regular, petite).',
+		'Size System' 						  => 'The size system (e.g., US, UK, EU).',
+		'Item Group ID' 					  => 'The ID for the item group (e.g., AB12345).',
+		'Product Detail' 					  => 'Additional product details (e.g., General:Product Type:Digital player).',
+		'Excluded Destination' 				  => 'Destinations where the product is excluded (e.g., Shopping_ads).',
+		'Included Destination' 				  => 'Destinations where the product is included (e.g., Shopping_ads).',
+		'Excluded Countries for Shopping Ads' => 'Countries excluded for shopping ads (e.g., DE).',
+		'Shipping' 							  => 'The shipping details for the product (e.g., US:CA:Overnight:16.00 USD:1:1:2:3).'
+	);
+	
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -73,6 +114,7 @@ class Smarty_Gfg_Admin {
 		 */
         wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-gfg-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style('dashicons');
 	}
 
 	/**
@@ -422,10 +464,37 @@ class Smarty_Gfg_Admin {
 		);
 
 		$csv_columns = array(
-			'ID', 'ID2', 'Final URL', 'Final Mobile URL', 'Image URL', 'Item Title', 
-			'Item Description', 'Item Category', 'Price', 'Sale Price', 
-			'Google Product Category', 'Is Bundle', 'MPN', 'Availability', 
-			'Condition', 'Brand'
+			'ID', 
+			'ID2', 
+			'Link', 														// Example custom value: Final URL 	
+			'Mobile Link', 													// Example custom value: Final Mobile URL				
+			'Image Link', 													// Example custom value: Image URL
+			'Additional Image Link',		
+			'Title', 														// Example custom value: Item Title
+			'Description', 													// Example custom value: Item Description
+			'Google Product Category', 
+			'Product Type', 												// Example custom value: Item Category
+			'Price', 
+			'Sale Price',
+			'Bundle', 														// Example custom value: Is Bundle
+			'Brand',
+			'GTIN',
+			'MPN', 
+			'Availability', 
+			'Availability Date',
+			'Condition',
+			'Color',
+			'Gender',
+			'Material',
+			'Size',
+			'Size Type',
+			'Size System',
+			'Item Group ID',
+			'Product Detail',
+			'Excluded Destination',
+			'Included Destination',
+			'Excluded Countries for Shopping Ads',
+			'Shipping'
 		);
 	
 		foreach ($csv_columns as $column) {
@@ -1181,10 +1250,10 @@ class Smarty_Gfg_Admin {
         $column = $args['column'];
         $options = get_option('smarty_gfg_settings_mapping', array());
         $new_value = isset($options[$column]) ? $options[$column] : '';
+		$description = isset($this->csv_column_descriptions[$column]) ? $this->csv_column_descriptions[$column] : '';
 
-        echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
-        echo '<p class="description"><small><em><b>Default:</b> <span style="color: #c51244;">' . sprintf(__('%s', 'smarty-google-feed-generator'), $column) . '</span></em></small></p>';
-    }
+		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" /><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span>';
+	}
 
 	/**
 	 * Callback function for the Compatibility section field.

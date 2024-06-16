@@ -298,18 +298,18 @@ class Smarty_Gfg_Public {
 		$item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
 
 		// Add image links
-		$item->appendChild($dom->createElementNS($gNamespace, 'image_link', wp_get_attachment_url($image_id)));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:image_link', wp_get_attachment_url($image_id)));
 
 		// Add additional images
 		$gallery_ids = $product->get_gallery_image_ids();
 		foreach ($gallery_ids as $gallery_id) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'additional_image_link', wp_get_attachment_url($gallery_id)));
+			$item->appendChild($dom->createElementNS($gNamespace, 'g:additional_image_link', wp_get_attachment_url($gallery_id)));
 		}
 
 		// Add price details
-		$item->appendChild($dom->createElementNS($gNamespace, 'price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
 		if ($is_on_sale) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
+			$item->appendChild($dom->createElementNS($gNamespace, 'g:sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
 		}
 
 		// Add product categories
@@ -322,7 +322,7 @@ class Smarty_Gfg_Public {
 		$categories = wp_get_post_terms($product->get_id(), 'product_cat');
 		if (!empty($categories) && !is_wp_error($categories)) {
 			$category_names = array_map(function($term) { return $term->name; }, $categories);
-			$item->appendChild($dom->createElementNS($gNamespace, 'product_type', htmlspecialchars(join(' > ', $category_names))));
+			$item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
 		}
 
 		// Check if the product has the "bundle" tag
@@ -441,26 +441,41 @@ class Smarty_Gfg_Public {
         // Define the columns and map headers based on user settings
         $csv_columns = array(
             'ID',                       // WooCommerce product ID
-            'ID2',                      // SKU, often used as an alternate identifier
-            'Final URL',                // URL to the product page
-            'Final Mobile URL',         // URL to the product page, mobile-specific if applicable
-            'Image URL',                // Main image URL
-            'Item Title',               // Title of the product
-            'Item Description',         // Description of the product
-            'Item Category',            // Categories the product belongs to
-            'Price',                    // Regular price of the product
-            'Sale Price',               // Sale price if the product is on discount
-            'Google Product Category',  // Google's product category if needed for feeds
-            'Is Bundle',                // Indicates if the product is a bundle
-            'MPN',                      // Manufacturer Part Number
-            'Availability',             // Stock status
-            'Condition',                // Condition of the product, usually "new" for e-commerce
-            'Brand',                    // Brand of the product
+            'SKU',                      // SKU, often used as an alternate identifier
+			'Link', 					// URL to the product page
+            'Mobile Link', 				// URL to the product page, mobile-specific if applicable
+			'Image Link', 	            // Main image URL
+            'Additional Image Link',
+			'Title', 					// Title of the product
+			'Description', 				// Description of the product
+			'Google Product Category',  // Google's product category if needed for feeds
+			'Product Type', 			// Categories the product belongs to
+			'Price',                    // Regular price of the product
+			'Sale Price',               // Sale price if the product is on discount
+			'Bundle', 					// Indicates if the product is a bundle
+			'Brand',                    // Brand of the product
+			'GTIN',
+			'MPN',                      // Manufacturer Part Number
+			'Availability',             // Stock status
+			'Availability Date',
+			'Condition',                // Condition of the product, usually "new" for e-commerce
+			'Color',
+			'Gender',
+			'Material',
+			'Size',
+			'Size Type',
+			'Size System',
+			'Item Group ID',
+			'Product Detail',
             'Custom Label 0',           // Custom label 0
             'Custom Label 1',           // Custom label 1
             'Custom Label 2',           // Custom label 2
             'Custom Label 3',           // Custom label 3
             'Custom Label 4',           // Custom label 4
+			'Excluded Destination',
+			'Included Destination',
+			'Excluded Countries for Shopping Ads',
+			'Shipping', 
         );
 
         $headers = array();
@@ -575,17 +590,17 @@ class Smarty_Gfg_Public {
                     // Prepare row for each variation
                     $row = array(
                         'ID'                      => $id,
-                        'ID2'                     => $sku,
-                        'Final URL'               => $product_link,
-                        'Final Mobile URL'        => $product_link,
-                        'Image URL'               => $variation_image,
-                        'Item Title'              => $name,
-                        'Item Description'        => $description,
-                        'Item Category'           => $categories,
+                        'SKU'                     => $sku,
+                        'Link'                    => $product_link,
+                        'Mobile Link'             => $product_link,
+                        'Image Link'              => $variation_image,
+                        'Title'                   => $name,
+                        'Description'             => $description,
+                        'Google Product Category' => $google_product_category,
+                        'Product Type'            => $categories,
                         'Price'                   => $variation_price,
                         'Sale Price'              => $variation_sale_price,
-                        'Google Product Category' => $google_product_category,
-                        'Is Bundle'               => $is_bundle,
+                        'Bundle'                  => $is_bundle,
                         'MPN'                     => $sku,
                         'Availability'            => $availability,
                         'Condition'               => 'New',
@@ -602,17 +617,17 @@ class Smarty_Gfg_Public {
                 $sku = $product->get_sku();
                 $row = array(
                     'ID'                      => $id,
-                    'ID2'                     => $sku,
-                    'Final URL'               => $product_link,
-                    'Final Mobile URL'        => $product_link,
-                    'Image URL'               => $image_link,
-                    'Item Title'              => $name,
-                    'Item Description'        => $description,
-                    'Item Category'           => $categories,
+                    'SKU'                     => $sku,
+                    'Link'                    => $product_link,
+                    'Mobile Link'             => $product_link,
+                    'Image Link'              => $image_link,
+                    'Title'                   => $name,
+                    'Description'             => $description,
+                    'Product Type'            => $categories,
+                    'Google Product Category' => $google_product_category,
                     'Price'                   => $regular_price,
                     'Sale Price'              => $sale_price,
-                    'Google Product Category' => $google_product_category,
-                    'Is Bundle'               => $is_bundle,
+                    'Bundle'                  => $is_bundle,
                     'MPN'                     => $sku,
                     'Availability'            => $availability,
                     'Condition'               => 'New',
@@ -775,33 +790,33 @@ class Smarty_Gfg_Public {
                         $item->addChild('description', 'No description available', $gNamespace);
                     }
 
-                    $item->addChild('image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
+                    $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
 
                     // Variation specific image, if different from the main product image
                     $image_id = $variation->get_image_id() ? $variation->get_image_id() : $product->get_image_id();
                     $variationImageURL = wp_get_attachment_url($variation->get_image_id());
                     $mainImageURL = wp_get_attachment_url($product->get_image_id());
                     if ($variationImageURL !== $mainImageURL) {
-                        $item->addChild('image_link', wp_get_attachment_url($image_id), $gNamespace);
+                        $item->addChild('g:image_link', wp_get_attachment_url($image_id), $gNamespace);
                     }
 
                     // Additional images: Loop through gallery if available
                     $gallery_ids = $product->get_gallery_image_ids();
                     foreach ($gallery_ids as $gallery_id) {
-                        $item->addChild('additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
+                        $item->addChild('g:additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
                     }
 
                     // Pricing: Regular and sale prices
-                    $item->addChild('price', htmlspecialchars($variation->get_regular_price() . ' ' . get_woocommerce_currency()), $gNamespace);
+                    $item->addChild('g:price', htmlspecialchars($variation->get_regular_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                     if ($variation->is_on_sale()) {
-                        $item->addChild('sale_price', htmlspecialchars($variation->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
+                        $item->addChild('g:sale_price', htmlspecialchars($variation->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                     }
 
                     // Categories: Compile a list from the product's categories
                     $categories = wp_get_post_terms($product->get_id(), 'product_cat');
                     if (!empty($categories) && !is_wp_error($categories)) {
                         $category_names = array_map(function($term) { return $term->name; }, $categories);
-                        $item->addChild('product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                        $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
                     }
                 }
             } else {
@@ -828,23 +843,23 @@ class Smarty_Gfg_Public {
                 }
                 
                  // Main image and additional images
-                $item->addChild('image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
+                $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
                 $gallery_ids = $product->get_gallery_image_ids();
                 foreach ($gallery_ids as $gallery_id) {
-                    $item->addChild('additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
+                    $item->addChild('g:additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
                 }
     
                 // Pricing information
-                $item->addChild('price', htmlspecialchars($product->get_price() . ' ' . get_woocommerce_currency()), $gNamespace);
+                $item->addChild('g:price', htmlspecialchars($product->get_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                 if ($product->is_on_sale() && !empty($product->get_sale_price())) {
-                    $item->addChild('sale_price', htmlspecialchars($product->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
+                    $item->addChild('g:sale_price', htmlspecialchars($product->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                 }
     
                 // Category information
                 $categories = wp_get_post_terms($product->get_id(), 'product_cat');
                 if (!empty($categories) && !is_wp_error($categories)) {
                     $category_names = array_map(function($term) { return $term->name; }, $categories);
-                    $item->addChild('product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                    $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
                 }
             }
         }
