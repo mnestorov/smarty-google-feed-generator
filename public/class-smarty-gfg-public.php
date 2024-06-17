@@ -341,6 +341,11 @@ class Smarty_Gfg_Public {
         $condition = get_option('smarty_condition', 'new');
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
 
+        $size_system = get_option('smarty_size_system', '');
+        if (!empty($size_system)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
+        }
+
 		// Add brand
 		$brand = get_bloginfo('name'); // Use the site name as the brand
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
@@ -554,9 +559,6 @@ class Smarty_Gfg_Public {
                     continue 2; // Continue to the next product
                 }
             }
-
-            // Use the condition value from the settings
-            $condition = get_option('smarty_condition', 'new');
             
             // Convert the first WebP image to PNG if needed
             Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
@@ -594,6 +596,12 @@ class Smarty_Gfg_Public {
             }
 
             $brand = get_bloginfo('name');
+
+            // Use the condition value from the settings
+            $condition = get_option('smarty_condition', 'new');
+
+            // Use the size system value from the settings
+            $size_system = get_option('smarty_size_system', '');
 
             // Custom Labels
             $custom_label_0 = $this->get_custom_label_0($product);
@@ -652,7 +660,7 @@ class Smarty_Gfg_Public {
                         'Material'                              => '',
                         'Size'                                  => '',
                         'Size Type'                             => '',
-                        'Size System'                           => '',
+                        'Size System'                           => $size_system,
                         //'Item Group ID'                       => '',
                         //'Product Detail'                      => '',
                         'Custom Label 0'                        => $custom_label_0, 
@@ -696,7 +704,7 @@ class Smarty_Gfg_Public {
                     'Material'                              => '',
                     'Size'                                  => '',
                     'Size Type'                             => '',
-                    'Size System'                           => '',
+                    'Size System'                           => $size_system,
                     //'Item Group ID'                       => '',
                     //'Product Detail'                      => '',
                     'Custom Label 0'                        => $custom_label_0, 

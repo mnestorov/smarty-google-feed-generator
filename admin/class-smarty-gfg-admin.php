@@ -212,6 +212,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_exclude_patterns', 'sanitize_textarea_field');
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_categories');
 		register_setting('smarty_gfg_options_general', 'smarty_condition', array($this, 'sanitize_text_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_size_system');
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
 		register_setting('smarty_gfg_options_general', 'smarty_included_destination', array($this, 'sanitize_included_destination'));
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_countries_for_shopping_ads', array($this, 'sanitize_excluded_countries'));
@@ -325,6 +326,14 @@ class Smarty_Gfg_Admin {
 			'smarty_gfg_options_general',										// Page on which to add the field
 			'smarty_gfg_section_general'										// Section to which this field belongs
 		);
+
+		add_settings_field(
+			'smarty_size_system',												// ID of the field
+			__('Size System', 'smarty-google-feed-generator'),					// Title of the field
+			array($this, 'size_system_cb'),										// Callback function to display the field
+			'smarty_gfg_options_general',										// Page on which to add the field
+			'smarty_gfg_section_general'										// Section to which this field belongs
+		);		
 
 		add_settings_field(
 			'smarty_excluded_destination',                                		// ID of the field
@@ -757,6 +766,8 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
+	 * Callback function for the Condition field.
+	 * 
      * @since    1.0.0
      */
 	public function condition_field_cb() {
@@ -772,6 +783,24 @@ class Smarty_Gfg_Admin {
 		}
 		echo '</select>';
 		echo '<p class="description">' . __('Select the default condition for the products.', 'smarty-google-feed-generator') . '</p>';
+	}
+
+	/**
+	 * Callback function for the Size System field.
+	 *
+	 * @since 1.0.0
+	 */
+	public function size_system_cb() {
+		$option = get_option('smarty_size_system', '');
+		$size_systems = ['US', 'UK', 'EU', 'DE', 'FR', 'JP', 'CN', 'IT', 'BR', 'MEX', 'AU'];
+		
+		echo '<select name="smarty_size_system" class="smarty-size-system" style="width: 100%;">';
+		echo '<option value="">' . __('Select a size system', 'smarty-google-feed-generator') . '</option>';
+		foreach ($size_systems as $system) {
+			echo '<option value="' . esc_attr($system) . '" ' . selected($option, $system, false) . '>' . esc_html($system) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __('Select a size system.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -799,7 +828,7 @@ class Smarty_Gfg_Admin {
 			echo '<option value="' . esc_attr($destination) . '" ' . (in_array($destination, $options) ? 'selected' : '') . '>' . esc_html($destination) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . __('A setting that you can use to include a product in a specific type of advertising campaign.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('A setting that you can use to include a product from participating in a specific type of advertising campaign.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -808,7 +837,7 @@ class Smarty_Gfg_Admin {
 	public function excluded_countries_cb() {
 		$option = get_option('smarty_excluded_countries_for_shopping_ads', '');
 		echo '<input type="text" name="smarty_excluded_countries_for_shopping_ads" value="' . esc_attr($option) . '" class="regular-text" maxlength="2" />';
-		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter ISO 3166-1 alpha-2 country codes separated by commas. <br><b>Example:</b> US, UK, DE', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter ISO 3166-1 alpha-2 country codes separated by commas. <br><b>Example:</b> US', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**

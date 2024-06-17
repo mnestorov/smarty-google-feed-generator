@@ -69,12 +69,8 @@ Functionality and additional fields we need to add in to the wp plugin settings 
 - Material - (dynamic value from product attributes with values: cotton/polyester/elastane)
 - Size - (dynamic value from product attributes)
 - Size Type - (dynamic value from product attributes)
-- Size System - (select field with the values: US|UK|EU|DE|FR|JP|CN|IT|BR|MEX|AU)
 - Item Group ID - (text field) - **need more information**
 - Product Detail - (text field) - **need more information**
-- Excluded Destination - (select field with the values: Shopping_ads|Buy_on_Google_listings|Display_ads|Local_inventory_ads|Free_listings|Free_local_listings|YouTube_Shopping)
-- Included Destination - (select field with the values: Shopping_ads|Buy_on_Google_listings|Display_ads|Local_inventory_ads|Free_listings|Free_local_listings|YouTube_Shopping)
-- Excluded Countries for Shopping Ads - (select field with the values: DE, US, UK)
 
 ## Contributing
 

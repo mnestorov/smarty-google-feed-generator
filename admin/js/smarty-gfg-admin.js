@@ -132,6 +132,11 @@
             width: '100%' // need to override the changed default
         });
 
+         //console.log('Initializing Select2 for .smarty-size-system');
+        $('.smarty-size-system').select2({
+            width: '100%' // need to override the changed default
+        });
+
         //console.log('Initializing Select2 for .smarty-excluded-destination');
         $('.smarty-excluded-destination').select2({
             width: '100%' // need to override the changed default
