@@ -365,7 +365,7 @@ class Smarty_Gfg_Public {
         }
 
         // Add Excluded Countries for Shopping Ads
-        $excluded_countries = get_option('smarty_excluded_countries', '');
+        $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
         if (!empty($excluded_countries)) {
             $countries = explode(',', $excluded_countries);
             foreach ($countries as $country) {
@@ -611,7 +611,7 @@ class Smarty_Gfg_Public {
 
             $excluded_destinations = get_option('smarty_excluded_destination', []);
             $included_destinations = get_option('smarty_included_destination', []);
-            $excluded_countries = get_option('smarty_excluded_countries', '');
+            $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
             
             // Check for variable type to handle variations
             if ($product->is_type('variable')) {

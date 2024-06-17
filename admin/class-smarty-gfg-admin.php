@@ -214,7 +214,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_condition', array($this, 'sanitize_text_field'));
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
 		register_setting('smarty_gfg_options_general', 'smarty_included_destination', array($this, 'sanitize_included_destination'));
-		register_setting('smarty_gfg_options_general', 'smarty_excluded_countries_for_shopping_ads', 'sanitize_textarea_field');
+		register_setting('smarty_gfg_options_general', 'smarty_excluded_countries_for_shopping_ads', array($this, 'sanitize_excluded_countries'));
 			
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_days', array($this,'sanitize_number_field'));
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
@@ -628,7 +628,23 @@ class Smarty_Gfg_Admin {
 			return array_map('sanitize_text_field', $input);
 		}
 		return [];
-	}	
+	}
+
+	/**
+	 * Sanitize the "Excluded Countries for Shopping Ads" option.
+	 *
+	 * @since 1.0.0
+	 * @param string $input The input value.
+	 * @return string Sanitized value.
+	 */
+	public function sanitize_excluded_countries($input) {
+		$input = strtoupper(trim($input));
+		if (preg_match('/^[A-Z]{2}$/', $input)) {
+			return $input;
+		}
+		add_settings_error('smarty_excluded_countries', 'invalid_country_code', __('Please enter a valid 2-character ISO 3166-1 alpha-2 country code.', 'smarty-google-feed-generator'));
+		return '';
+	}
 
 	/**
      * Handle AJAX request to convert images.
@@ -791,8 +807,8 @@ class Smarty_Gfg_Admin {
      */
 	public function excluded_countries_cb() {
 		$option = get_option('smarty_excluded_countries_for_shopping_ads', '');
-		echo '<input type="text" name="smarty_excluded_countries_for_shopping_ads" value="' . esc_attr($option) . '" class="regular-text" />';
-		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter countries, separated by commas. <br><b>Example:</b> US, UK, DE', 'smarty-google-feed-generator') . '</p>';
+		echo '<input type="text" name="smarty_excluded_countries_for_shopping_ads" value="' . esc_attr($option) . '" class="regular-text" maxlength="2" />';
+		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter ISO 3166-1 alpha-2 country codes separated by commas. <br><b>Example:</b> US, UK, DE', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
