@@ -54,6 +54,28 @@ The plugin hooks into various WooCommerce and WordPress actions to detect change
 
 For a detailed list of changes and updates made to this project, please refer to our [Changelog](./CHANGELOG.md).
 
+## TODO
+
+Functionality and additional fields we need to add in to the wp plugin settings page:
+
+- Make dynamic column mapping
+- Include/Exclude columns functionality for the TSV/CSV and XML feed
+- Brand - (dynamic value from product attributes) - _at this point the brand is get from the site name_
+- GTIN - (dynamic value from product attributes)
+- Condition - (dynamic value from product attributes with values: new|refurbished|used) - _at this point the condition is set globally from plugin settings_
+- Multipack - (dynamic value from product attributes or/and tag `multipack` with values: 6, 4, 2, etc.)
+- Color - (dynamic value from product attributes with values: Blue, Yellow, etc.)
+- Gender - (dynamic value from product attributes with values: male|female|unisex)
+- Material - (dynamic value from product attributes with values: cotton/polyester/elastane)
+- Size - (dynamic value from product attributes)
+- Size Type - (dynamic value from product attributes)
+- Size System - (select field with the values: US|UK|EU|DE|FR|JP|CN|IT|BR|MEX|AU)
+//- Item Group ID (text field)
+//- Product Detail (text field)
+- Excluded Destination - (select field with the values: Shopping_ads|Buy_on_Google_listings|Display_ads|Local_inventory_ads|Free_listings|Free_local_listings|YouTube_Shopping)
+- Included Destination - (select field with the values: Shopping_ads|Buy_on_Google_listings|Display_ads|Local_inventory_ads|Free_listings|Free_local_listings|YouTube_Shopping)
+- Excluded Countries for Shopping Ads - (select field with the values: DE, US, UK)
+
 ## Contributing
 
 Contributions are welcome. Please follow the WordPress coding standards and submit pull requests for any enhancements.
