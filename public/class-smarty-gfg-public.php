@@ -351,6 +351,27 @@ class Smarty_Gfg_Public {
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
+
+        // Add Excluded Destinations
+        $excluded_destinations = get_option('smarty_excluded_destination', []);
+        foreach ($excluded_destinations as $excluded_destination) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
+        }
+
+        // Add Included Destinations
+        $included_destinations = get_option('smarty_included_destination', []);
+        foreach ($included_destinations as $included_destination) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
+        }
+
+        // Add Excluded Countries for Shopping Ads
+        $excluded_countries = get_option('smarty_excluded_countries', '');
+        if (!empty($excluded_countries)) {
+            $countries = explode(',', $excluded_countries);
+            foreach ($countries as $country) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_countries', htmlspecialchars(trim($country))));
+            }
+        }
 	}
 
 	/**
@@ -587,6 +608,10 @@ class Smarty_Gfg_Public {
             if (in_array('bundle', $product_tags)) {
                 $is_bundle = 'yes';
             }
+
+            $excluded_destinations = get_option('smarty_excluded_destination', []);
+            $included_destinations = get_option('smarty_included_destination', []);
+            $excluded_countries = get_option('smarty_excluded_countries', '');
             
             // Check for variable type to handle variations
             if ($product->is_type('variable')) {
@@ -635,9 +660,9 @@ class Smarty_Gfg_Public {
                         'Custom Label 2'                        => $custom_label_2,
                         'Custom Label 3'                        => $custom_label_3, 
                         'Custom Label 4'                        => $custom_label_4,
-                        'Excluded Destination'                  => '',
-                        'Included Destination'                  => '',
-                        'Excluded Countries for Shopping Ads'   => '',
+                        'Excluded Destination'                  => implode(', ', $excluded_destinations),
+                        'Included Destination'                  => implode(', ', $included_destinations),
+                        'Excluded Countries for Shopping Ads'   => $excluded_countries,
                         //'Shipping'                            => '',
                         //'Shipping Label'                      => '',
                     );
@@ -679,9 +704,9 @@ class Smarty_Gfg_Public {
                     'Custom Label 2'                        => $custom_label_2,
                     'Custom Label 3'                        => $custom_label_3, 
                     'Custom Label 4'                        => $custom_label_4,
-                    'Excluded Destination'                  => '',
-                    'Included Destination'                  => '',
-                    'Excluded Countries for Shopping Ads'   => '',
+                    'Excluded Destination'                  => implode(', ', $excluded_destinations),
+                    'Included Destination'                  => implode(', ', $included_destinations),
+                    'Excluded Countries for Shopping Ads'   => $excluded_countries,
                     'Shipping'                              => '',
                     //'Shipping Label'                      => '',
                 );

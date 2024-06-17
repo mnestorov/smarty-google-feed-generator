@@ -212,6 +212,9 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_exclude_patterns', 'sanitize_textarea_field');
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_categories');
 		register_setting('smarty_gfg_options_general', 'smarty_condition', array($this, 'sanitize_text_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
+		register_setting('smarty_gfg_options_general', 'smarty_included_destination', array($this, 'sanitize_included_destination'));
+		register_setting('smarty_gfg_options_general', 'smarty_excluded_countries_for_shopping_ads', 'sanitize_textarea_field');
 			
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_days', array($this,'sanitize_number_field'));
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
@@ -321,6 +324,30 @@ class Smarty_Gfg_Admin {
 			array($this, 'condition_field_cb'),									// Callback function to display the field
 			'smarty_gfg_options_general',										// Page on which to add the field
 			'smarty_gfg_section_general'										// Section to which this field belongs
+		);
+
+		add_settings_field(
+			'smarty_excluded_destination',                                		// ID of the field
+			__('Excluded Destination', 'smarty-google-feed-generator'),   		// Title of the field
+			array($this, 'excluded_destination_cb'),                      		// Callback function to display the field
+			'smarty_gfg_options_general',                                 		// Page on which to add the field
+			'smarty_gfg_section_general'                                 	 	// Section to which this field belongs
+		);
+	
+		add_settings_field(
+			'smarty_included_destination',                                		// ID of the field
+			__('Included Destination', 'smarty-google-feed-generator'),   		// Title of the field
+			array($this, 'included_destination_cb'),                      		// Callback function to display the field
+			'smarty_gfg_options_general',                                 		// Page on which to add the field
+			'smarty_gfg_section_general'                                  		// Section to which this field belongs
+		);
+	
+		add_settings_field(
+			'smarty_excluded_countries_for_shopping_ads',                 		// ID of the field
+			__('Excluded Countries for Shopping Ads', 'smarty-google-feed-generator'), // Title of the field
+			array($this, 'excluded_countries_cb'),                        		// Callback function to display the field
+			'smarty_gfg_options_general',                                 		// Page on which to add the field
+			'smarty_gfg_section_general'                                  		// Section to which this field belongs
 		);
 			
 		add_settings_field(
@@ -580,6 +607,30 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
+     * Function to sanitize excluded destination on save.
+     * 
+     * @since    1.0.0
+     */
+	public function sanitize_excluded_destination($input) {
+		if (is_array($input)) {
+			return array_map('sanitize_text_field', $input);
+		}
+		return [];
+	}
+	
+	/**
+     * Function to sanitize included destination on save.
+     * 
+     * @since    1.0.0
+     */
+	public function sanitize_included_destination($input) {
+		if (is_array($input)) {
+			return array_map('sanitize_text_field', $input);
+		}
+		return [];
+	}	
+
+	/**
      * Handle AJAX request to convert images.
      * 
      * @since    1.0.0
@@ -705,8 +756,45 @@ class Smarty_Gfg_Admin {
 		}
 		echo '</select>';
 		echo '<p class="description">' . __('Select the default condition for the products.', 'smarty-google-feed-generator') . '</p>';
-	}	
+	}
 
+	/**
+     * @since    1.0.0
+     */
+	public function excluded_destination_cb() {
+		$options = get_option('smarty_excluded_destination', []);
+		$destinations = ['Shopping_ads', 'Buy_on_Google_listings', 'Display_ads', 'Local_inventory_ads', 'Free_listings', 'Free_local_listings', 'YouTube_Shopping'];
+		echo '<select name="smarty_excluded_destination[]" multiple="multiple" class="smarty-excluded-destination">';
+		foreach ($destinations as $destination) {
+			echo '<option value="' . esc_attr($destination) . '" ' . (in_array($destination, $options) ? 'selected' : '') . '>' . esc_html($destination) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __('A setting that you can use to exclude a product from participating in a specific type of advertising campaign.', 'smarty-google-feed-generator') . '</p>';
+	}
+	
+	/**
+     * @since    1.0.0
+     */
+	public function included_destination_cb() {
+		$options = get_option('smarty_included_destination', []);
+		$destinations = ['Shopping_ads', 'Buy_on_Google_listings', 'Display_ads', 'Local_inventory_ads', 'Free_listings', 'Free_local_listings', 'YouTube_Shopping'];
+		echo '<select name="smarty_included_destination[]" multiple="multiple" class="smarty-included-destination">';
+		foreach ($destinations as $destination) {
+			echo '<option value="' . esc_attr($destination) . '" ' . (in_array($destination, $options) ? 'selected' : '') . '>' . esc_html($destination) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __('A setting that you can use to include a product in a specific type of advertising campaign.', 'smarty-google-feed-generator') . '</p>';
+	}
+	
+	/**
+     * @since    1.0.0
+     */
+	public function excluded_countries_cb() {
+		$option = get_option('smarty_excluded_countries_for_shopping_ads', '');
+		echo '<input type="text" name="smarty_excluded_countries_for_shopping_ads" value="' . esc_attr($option) . '" class="regular-text" />';
+		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter countries, separated by commas. <br><b>Example:</b> US, UK, DE', 'smarty-google-feed-generator') . '</p>';
+	}
+	
 	/**
      * Converts an image from WEBP to PNG, updates the product image, and regenerates the feed.
 	 * 

@@ -132,6 +132,16 @@
             width: '100%' // need to override the changed default
         });
 
+        //console.log('Initializing Select2 for .smarty-excluded-destination');
+        $('.smarty-excluded-destination').select2({
+            width: '100%' // need to override the changed default
+        });
+
+        //console.log('Initializing Select2 for .smarty-included-destination');
+        $('.smarty-included-destination').select2({
+            width: '100%' // need to override the changed default
+        });
+
         //console.log('Initializing Select2 for .smarty-select2-ajax');
         $('.smarty-select2-ajax').select2({
             ajax: {
