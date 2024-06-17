@@ -127,23 +127,7 @@
             window.open(redirectUrl, '_blank');
         });
 
-        //console.log('Initializing Select2 for .smarty-excluded-categories');
-        $('.smarty-excluded-categories').select2({
-            width: '100%' // need to override the changed default
-        });
-
-         //console.log('Initializing Select2 for .smarty-size-system');
-        $('.smarty-size-system').select2({
-            width: '100%' // need to override the changed default
-        });
-
-        //console.log('Initializing Select2 for .smarty-excluded-destination');
-        $('.smarty-excluded-destination').select2({
-            width: '100%' // need to override the changed default
-        });
-
-        //console.log('Initializing Select2 for .smarty-included-destination');
-        $('.smarty-included-destination').select2({
+        $('.smarty-excluded-categories, .smarty-size-system, .smarty-excluded-destination, .smarty-included-destination').select2({
             width: '100%' // need to override the changed default
         });
 
