@@ -441,7 +441,7 @@ class Smarty_Gfg_Public {
         // Define the columns and map headers based on user settings
         $csv_columns = array(
             'ID',                       // WooCommerce product ID
-            'SKU',                      // SKU, often used as an alternate identifier
+            'ID2',                      // SKU, often used as an alternate identifier
 			'Link', 					// URL to the product page
             'Mobile Link', 				// URL to the product page, mobile-specific if applicable
 			'Image Link', 	            // Main image URL
@@ -459,7 +459,8 @@ class Smarty_Gfg_Public {
 			'Availability',             // Stock status
 			'Availability Date',
 			'Condition',                // Condition of the product, usually "new" for e-commerce
-			'Color',
+			'Multipack',
+            'Color',
 			'Gender',
 			'Material',
 			'Size',
@@ -467,15 +468,15 @@ class Smarty_Gfg_Public {
 			'Size System',
 			'Item Group ID',
 			'Product Detail',
-            'Custom Label 0',           // Custom label 0
-            'Custom Label 1',           // Custom label 1
-            'Custom Label 2',           // Custom label 2
-            'Custom Label 3',           // Custom label 3
-            'Custom Label 4',           // Custom label 4
+            'Custom Label 0',
+            'Custom Label 1',
+            'Custom Label 2',
+            'Custom Label 3',
+            'Custom Label 4',
 			'Excluded Destination',
 			'Included Destination',
 			'Excluded Countries for Shopping Ads',
-			'Shipping', 
+			'Shipping',
         );
 
         $headers = array();
@@ -589,54 +590,85 @@ class Smarty_Gfg_Public {
                     
                     // Prepare row for each variation
                     $row = array(
-                        'ID'                      => $id,
-                        'SKU'                     => $sku,
-                        'Link'                    => $product_link,
-                        'Mobile Link'             => $product_link,
-                        'Image Link'              => $variation_image,
-                        'Title'                   => $name,
-                        'Description'             => $description,
-                        'Google Product Category' => $google_product_category,
-                        'Product Type'            => $categories,
-                        'Price'                   => $variation_price,
-                        'Sale Price'              => $variation_sale_price,
-                        'Bundle'                  => $is_bundle,
-                        'MPN'                     => $sku,
-                        'Availability'            => $availability,
-                        'Condition'               => 'New',
-                        'Brand'                   => $brand,
-                        'Custom Label 0'          => $custom_label_0, 
-                        'Custom Label 1'          => $custom_label_1, 
-                        'Custom Label 2'          => $custom_label_2,
-                        'Custom Label 3'          => $custom_label_3, 
-                        'Custom Label 4'          => $custom_label_4,
+                        'ID'                                    => $id,
+                        'ID2'                                   => $sku,
+                        'Link'                                  => $product_link,
+                        'Mobile Link'                           => $product_link,
+                        'Image Link'                            => $variation_image,
+                        'Additional Image Link'                 => '',
+                        'Title'                                 => $name,
+                        'Description'                           => $description,
+                        'Google Product Category'               => $google_product_category,
+                        'Product Type'                          => $categories,
+                        'Price'                                 => $variation_price,
+                        'Sale Price'                            => $variation_sale_price,
+                        'Bundle'                                => $is_bundle,
+                        'Brand'                                 => $brand,
+                        'GTIN'                                  => '',
+                        'MPN'                                   => $sku,
+                        'Availability'                          => $availability,
+                        'Availability Date'                     => '', 
+                        'Condition'                             => 'New',
+                        'Multipack'                             => '',
+                        'Color'                                 => '',
+                        'Gender'                                => '',
+                        'Material'                              => '',
+                        'Size'                                  => '',
+                        'Size Type'                             => '',
+                        'Size System'                           => '',
+                        'Item Group ID'                         => '',
+                        'Product Detail'                        => '',
+                        'Custom Label 0'                        => $custom_label_0, 
+                        'Custom Label 1'                        => $custom_label_1, 
+                        'Custom Label 2'                        => $custom_label_2,
+                        'Custom Label 3'                        => $custom_label_3, 
+                        'Custom Label 4'                        => $custom_label_4,
+                        'Excluded Destination'                  => '',
+                        'Included Destination'                  => '',
+                        'Excluded Countries for Shopping Ads'   => '',
+                        'Shipping'                              => '',
                     );
                 }
             } else {
                 // Prepare row for a simple product
                 $sku = $product->get_sku();
                 $row = array(
-                    'ID'                      => $id,
-                    'SKU'                     => $sku,
-                    'Link'                    => $product_link,
-                    'Mobile Link'             => $product_link,
-                    'Image Link'              => $image_link,
-                    'Title'                   => $name,
-                    'Description'             => $description,
-                    'Product Type'            => $categories,
-                    'Google Product Category' => $google_product_category,
-                    'Price'                   => $regular_price,
-                    'Sale Price'              => $sale_price,
-                    'Bundle'                  => $is_bundle,
-                    'MPN'                     => $sku,
-                    'Availability'            => $availability,
-                    'Condition'               => 'New',
-                    'Brand'                   => $brand,
-                    'Custom Label 0'          => $custom_label_0, 
-                    'Custom Label 1'          => $custom_label_1, 
-                    'Custom Label 2'          => $custom_label_2,
-                    'Custom Label 3'          => $custom_label_3, 
-                    'Custom Label 4'          => $custom_label_4,
+                    'ID'                                    => $id,
+                    'ID2'                                   => $sku,
+                    'Link'                                  => $product_link,
+                    'Mobile Link'                           => $product_link,
+                    'Image Link'                            => $image_link,
+                    'Title'                                 => $name,
+                    'Description'                           => $description,
+                    'Product Type'                          => $categories,
+                    'Google Product Category'               => $google_product_category,
+                    'Price'                                 => $regular_price,
+                    'Sale Price'                            => $sale_price,
+                    'Bundle'                                => $is_bundle,
+                    'Brand'                                 => $brand,
+                    'GTIN'                                  => '',
+                    'MPN'                                   => $sku,
+                    'Availability'                          => $availability,
+                    'Availability Date'                     => '',
+                    'Condition'                             => 'New',
+                    'Multipack'                             => '',
+                    'Color'                                 => '',
+                    'Gender'                                => '',
+                    'Material'                              => '',
+                    'Size'                                  => '',
+                    'Size Type'                             => '',
+                    'Size System'                           => '',
+                    'Item Group ID'                         => '',
+                    'Product Detail'                        => '',
+                    'Custom Label 0'                        => $custom_label_0, 
+                    'Custom Label 1'                        => $custom_label_1, 
+                    'Custom Label 2'                        => $custom_label_2,
+                    'Custom Label 3'                        => $custom_label_3, 
+                    'Custom Label 4'                        => $custom_label_4,
+                    'Excluded Destination'                  => '',
+                    'Included Destination'                  => '',
+                    'Excluded Countries for Shopping Ads'   => '',
+                    'Shipping'                              => '',
                 );
             }
     

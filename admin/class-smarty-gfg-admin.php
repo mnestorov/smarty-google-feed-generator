@@ -66,6 +66,7 @@ class Smarty_Gfg_Admin {
 		'Availability' 			  			  => 'The availability status of the product (e.g., in_stock).',
 		'Availability Date' 	  			  => 'The date when the product will be available (e.g., (For UTC+1) 2016-02-24T11:07+0100).',
 		'Condition' 			  			  => 'The condition of the product (e.g., new, used).',
+		'Multipack'						  	  => 'The number of identical products sold within a merchant-defined multipack (e.g., 6).',
 		'Color' 				  			  => 'The color of the product (e.g., Blue).',
 		'Gender' 				  			  => 'The gender the product is intended for (e.g., Unisex).',
 		'Material' 				  			  => 'The material of the product (e.g., leather).',
@@ -168,7 +169,7 @@ class Smarty_Gfg_Admin {
 	private function get_settings_tabs() {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
-			'mapping'       => __('CSV Column Mapping', 'smarty-google-feed-generator'),
+			'mapping'       => __('TSV/CSV Column Mapping', 'smarty-google-feed-generator'),
 			'compatibility' => __('Plugin Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -220,10 +221,6 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_3_category');
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_3_category_value', array($this,'sanitize_category_values'));
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_4_sale_price_value', 'sanitize_text_field');
-
-		//register_setting('smarty_settings', 'smarty_custom_label_3_category_value', [
-            //'sanitize_cb' => 'sanitize_category_values'
-        //]);
 	
 		register_setting('smarty_gfg_options_general', 'smarty_meta_title_field', 'sanitize_text_field');
 		register_setting('smarty_gfg_options_general', 'smarty_meta_description_field', 'sanitize_text_field');
@@ -387,14 +384,6 @@ class Smarty_Gfg_Admin {
 			'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
 			['label' => 'smarty_custom_label_3_category_value']
 		);
-
-		//add_settings_field(
-        //    'smarty_custom_label_3_category_value',
-        //    __('Category Value', 'smarty'),
-        //    array($this,'display_category_values_field'),
-        //    'smarty-settings-page',
-        //    'smarty_settings_section'
-        //);
 	
 		add_settings_field(
 			'smarty_custom_label_4_sale_price_value',                       // ID of the field
@@ -458,14 +447,14 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_mapping', 'smarty_gfg_settings_mapping', array($this, 'sanitize_mapping_settings'));
 		add_settings_section(
 			'smarty_gfg_section_mapping',									// ID of the section
-			__('CSV Column Mapping', 'smarty-google-feed-generator'),		// Title of the section  
+			__('TSV/CSV Column Mapping', 'smarty-google-feed-generator'),	// Title of the section  
 			array($this, 'section_mapping_cb'),								// Callback function that fills the section with the desired content
 			'smarty_gfg_options_mapping'									// Page on which to add the section
 		);
 
 		$csv_columns = array(
 			'ID', 
-			'ID2', 
+			'ID2', 															// Example custom value: SKU
 			'Link', 														// Example custom value: Final URL 	
 			'Mobile Link', 													// Example custom value: Final Mobile URL				
 			'Image Link', 													// Example custom value: Image URL
@@ -483,6 +472,7 @@ class Smarty_Gfg_Admin {
 			'Availability', 
 			'Availability Date',
 			'Condition',
+			'Multipack',
 			'Color',
 			'Gender',
 			'Material',
@@ -491,10 +481,15 @@ class Smarty_Gfg_Admin {
 			'Size System',
 			'Item Group ID',
 			'Product Detail',
+			'Custom Label 0',
+            'Custom Label 1',
+            'Custom Label 2',
+            'Custom Label 3',
+            'Custom Label 4',
 			'Excluded Destination',
 			'Included Destination',
 			'Excluded Countries for Shopping Ads',
-			'Shipping'
+			'Shipping',
 		);
 	
 		foreach ($csv_columns as $column) {
@@ -824,6 +819,7 @@ class Smarty_Gfg_Admin {
 	/**
 	 * Converts a single product image from WEBP to PNG format.
 	 *
+	 * @since    1.0.0
 	 * @param int $image_id The ID of the image to convert.
 	 */
 	private function convert_product_image($image_id) {
@@ -916,6 +912,7 @@ class Smarty_Gfg_Admin {
 	/**
      * Sanitize mapping settings.
      * 
+	 * @since    1.0.0
      * @param array $input The input array.
      * @return array Sanitized array.
      */
@@ -928,9 +925,8 @@ class Smarty_Gfg_Admin {
     }
 
     /**
-     * Sanitizes the plugin Compatibility settings.
-     *
-     * Validates and sanitizes user input for the settings.
+     * Sanitizes the plugin Compatibility settings - 
+	 * validates and sanitizes user input for the settings.
      *
 	 * @since    1.0.0
      * @param array $input The input settings array.
@@ -982,6 +978,7 @@ class Smarty_Gfg_Admin {
 			echo '<option value="' . esc_attr($option) . '" selected>' . esc_html($option) . '</option>';
 		}
 		echo '</select>';
+		echo '<p class="description">' . __('The Google Product Category for the product. <br><b>Example:</b> Apparel & Accessories > Clothing > Outerwear > Coats & Jackets', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -992,7 +989,7 @@ class Smarty_Gfg_Admin {
 	public function google_category_as_id_cb() {
 		$option = get_option('smarty_google_category_as_id');
 		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
-		echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1010,7 +1007,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_convert_images_cb() {
-		echo '<p>' . __('Use the button below to manually convert the first or all WebP image(s) of each products in to the feed to PNG.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Use the buttons below to manually convert the first or all WebP image(s) of each products in to the feed to PNG format.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1048,7 +1045,7 @@ class Smarty_Gfg_Admin {
 	public function exclude_patterns_cb() {
 		$option = get_option('smarty_exclude_patterns');
 		echo '<textarea name="smarty_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
-		echo '<p class="description">' . __('Enter patterns to exclude from the CSV feed, one per line.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('Enter URL patterns to exclude from the TSV/CSV feed, one per line.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1068,7 +1065,7 @@ class Smarty_Gfg_Admin {
 			echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array)$option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . __('Select categories to exclude from the feed.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('Select product categories to exclude from the feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1112,7 +1109,7 @@ class Smarty_Gfg_Admin {
 				echo '<p class="description">Enter the value to label products with high ratings.</p>';
 				break;
 			case 'smarty_custom_label_3_category_value':
-				echo '<p class="description">Enter custom values for the categories separated by commas. <b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
+				echo '<p class="description">Enter custom values for the categories separated by commas. <br><b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
 				break;
 			case 'smarty_custom_label_4_sale_price_value':
 				echo '<p class="description">Enter the value to label products with a sale price.</p>';
@@ -1160,7 +1157,6 @@ class Smarty_Gfg_Admin {
         }
         $category_values = array_map('trim', $category_values);
         $category_values = implode(', ', $category_values);
-
         echo '<input type="text" id="smarty_custom_label_3_category_value" name="smarty_custom_label_3_category_value" value="' . esc_attr($category_values) . '" class="regular-text" />';
         echo '<p class="description">Enter custom values for the categories separated by commas. <strong>Example:</strong> Tech, Apparel, Literature</p>';
         echo '<p class="description"><strong>Important:</strong> Ensure these values are in the same order as the selected categories.</p>';
@@ -1229,7 +1225,6 @@ class Smarty_Gfg_Admin {
 		$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
 		echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
 		echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
-		
 	}
 
 	/**
@@ -1238,11 +1233,11 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_mapping_cb() {
-		echo '<p>' . __('Configure the mapping of CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Configure the mapping of TSV/CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
-     * Callback function for rendering the CSV mapping fields.
+     * Callback function for rendering the TSV/CSV mapping fields.
      * 
      * @since 1.0.0
      */
@@ -1250,9 +1245,7 @@ class Smarty_Gfg_Admin {
         $column = $args['column'];
         $options = get_option('smarty_gfg_settings_mapping', array());
         $new_value = isset($options[$column]) ? $options[$column] : '';
-		$description = isset($this->csv_column_descriptions[$column]) ? $this->csv_column_descriptions[$column] : '';
-
-		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" /><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span>';
+		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
 	}
 
 	/**
