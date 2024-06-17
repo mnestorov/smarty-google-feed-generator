@@ -337,8 +337,9 @@ class Smarty_Gfg_Public {
 		$availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
 
-		// Add condition
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', 'new'));
+		// Use the condition value from the settings
+        $condition = get_option('smarty_condition', 'new');
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
 
 		// Add brand
 		$brand = get_bloginfo('name'); // Use the site name as the brand
@@ -457,7 +458,7 @@ class Smarty_Gfg_Public {
 			'GTIN',
 			'MPN',                      // Manufacturer Part Number
 			'Availability',             // Stock status
-			'Availability Date',
+			//'Availability Date',
 			'Condition',                // Condition of the product, usually "new" for e-commerce
 			'Multipack',
             'Color',
@@ -466,8 +467,8 @@ class Smarty_Gfg_Public {
 			'Size',
 			'Size Type',
 			'Size System',
-			'Item Group ID',
-			'Product Detail',
+			//'Item Group ID',
+			//'Product Detail',
             'Custom Label 0',
             'Custom Label 1',
             'Custom Label 2',
@@ -477,6 +478,7 @@ class Smarty_Gfg_Public {
 			'Included Destination',
 			'Excluded Countries for Shopping Ads',
 			'Shipping',
+            //'Shipping Label',
         );
 
         $headers = array();
@@ -531,6 +533,9 @@ class Smarty_Gfg_Public {
                     continue 2; // Continue to the next product
                 }
             }
+
+            // Use the condition value from the settings
+            $condition = get_option('smarty_condition', 'new');
             
             // Convert the first WebP image to PNG if needed
             Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
@@ -543,6 +548,13 @@ class Smarty_Gfg_Public {
             $categories = !empty($categories) ? implode(', ', $categories) : '';
             $image_id = $product->get_image_id();
             $image_link = $image_id ? wp_get_attachment_url($image_id) : '';
+
+            // Get the first additional image link if available
+            $gallery_ids = $product->get_gallery_image_ids();
+            $additional_image_link = '';
+            if (!empty($gallery_ids)) {
+                $additional_image_link = wp_get_attachment_url(reset($gallery_ids));
+            }
 
             // Custom meta fields for title and description if set
             $meta_title = get_post_meta($id, get_option('smarty_meta_title_field', 'meta-title'), true);
@@ -595,7 +607,7 @@ class Smarty_Gfg_Public {
                         'Link'                                  => $product_link,
                         'Mobile Link'                           => $product_link,
                         'Image Link'                            => $variation_image,
-                        'Additional Image Link'                 => '',
+                        'Additional Image Link'                 => $additional_image_link,
                         'Title'                                 => $name,
                         'Description'                           => $description,
                         'Google Product Category'               => $google_product_category,
@@ -607,8 +619,8 @@ class Smarty_Gfg_Public {
                         'GTIN'                                  => '',
                         'MPN'                                   => $sku,
                         'Availability'                          => $availability,
-                        //'Availability Date'                     => '', 
-                        'Condition'                             => 'New',
+                        //'Availability Date'                   => '', 
+                        'Condition'                             => $condition,
                         'Multipack'                             => '',
                         'Color'                                 => '',
                         'Gender'                                => '',
@@ -616,8 +628,8 @@ class Smarty_Gfg_Public {
                         'Size'                                  => '',
                         'Size Type'                             => '',
                         'Size System'                           => '',
-                        //'Item Group ID'                         => '',
-                        //'Product Detail'                        => '',
+                        //'Item Group ID'                       => '',
+                        //'Product Detail'                      => '',
                         'Custom Label 0'                        => $custom_label_0, 
                         'Custom Label 1'                        => $custom_label_1, 
                         'Custom Label 2'                        => $custom_label_2,
@@ -639,6 +651,7 @@ class Smarty_Gfg_Public {
                     'Link'                                  => $product_link,
                     'Mobile Link'                           => $product_link,
                     'Image Link'                            => $image_link,
+                    'Additional Image Link'                 => $additional_image_link,
                     'Title'                                 => $name,
                     'Description'                           => $description,
                     'Product Type'                          => $categories,
@@ -650,8 +663,8 @@ class Smarty_Gfg_Public {
                     'GTIN'                                  => '',
                     'MPN'                                   => $sku,
                     'Availability'                          => $availability,
-                    //'Availability Date'                     => '',
-                    'Condition'                             => 'New',
+                    //'Availability Date'                   => '',
+                    'Condition'                             => $condition,
                     'Multipack'                             => '',
                     'Color'                                 => '',
                     'Gender'                                => '',
@@ -659,8 +672,8 @@ class Smarty_Gfg_Public {
                     'Size'                                  => '',
                     'Size Type'                             => '',
                     'Size System'                           => '',
-                    //'Item Group ID'                         => '',
-                    //'Product Detail'                        => '',
+                    //'Item Group ID'                       => '',
+                    //'Product Detail'                      => '',
                     'Custom Label 0'                        => $custom_label_0, 
                     'Custom Label 1'                        => $custom_label_1, 
                     'Custom Label 2'                        => $custom_label_2,

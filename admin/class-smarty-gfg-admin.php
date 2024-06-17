@@ -211,6 +211,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_google_category_as_id', array($this,'sanitize_checkbox'));
 		register_setting('smarty_gfg_options_general', 'smarty_exclude_patterns', 'sanitize_textarea_field');
 		register_setting('smarty_gfg_options_general', 'smarty_excluded_categories');
+		register_setting('smarty_gfg_options_general', 'smarty_condition', array($this, 'sanitize_text_field'));
 			
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_days', array($this,'sanitize_number_field'));
 		register_setting('smarty_gfg_options_general', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
@@ -303,6 +304,14 @@ class Smarty_Gfg_Admin {
 			array($this,'excluded_categories_cb'),                          // Callback function to display the field
 			'smarty_gfg_options_general',                               	// Page on which to add the field
 			'smarty_gfg_section_general'                                    // Section to which this field belongs
+		);
+
+		add_settings_field(
+			'smarty_condition',												// ID of the field
+			__('Condition', 'smarty-google-feed-generator'),				// Title of the field
+			array($this, 'condition_field_cb'),								// Callback function to display the field
+			'smarty_gfg_options_general',									// Page on which to add the field
+			'smarty_gfg_section_general'									// Section to which this field belongs
 		);
 			
 		add_settings_field(
@@ -676,6 +685,24 @@ class Smarty_Gfg_Admin {
 			
 		return $categories;
 	}
+
+	/**
+     * @since    1.0.0
+     */
+	public function condition_field_cb() {
+		$option = get_option('smarty_condition', 'new');
+		$options = array(
+			'new' 		  => __('New', 'smarty-google-feed-generator'),
+			'refurbished' => __('Refurbished', 'smarty-google-feed-generator'),
+			'used' 		  => __('Used', 'smarty-google-feed-generator')
+		);
+		echo '<select name="smarty_condition">';
+		foreach ($options as $value => $label) {
+			echo '<option value="' . esc_attr($value) . '" ' . selected($option, $value, false) . '>' . esc_html($label) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __('Select the default condition for the products.', 'smarty-google-feed-generator') . '</p>';
+	}	
 
 	/**
      * Converts an image from WEBP to PNG, updates the product image, and regenerates the feed.
@@ -1099,25 +1126,25 @@ class Smarty_Gfg_Admin {
 		// Add custom descriptions based on the label
 		switch ($args['label']) {
 			case 'smarty_custom_label_0_older_than_value':
-				echo '<p class="description">Enter the value to label products older than the specified number of days.</p>';
+				echo '<p class="description">' . __('Enter the value to label products older than the specified number of days.', 'smarty-google-feed-generator') . '</p>';
 				break;
 			case 'smarty_custom_label_0_not_older_than_value':
-				echo '<p class="description">Enter the value to label products not older than the specified number of days.</p>';
+				echo '<p class="description">' . __('Enter the value to label products not older than the specified number of days.', 'smarty-google-feed-generator') . '</p>';
 				break;
 			case 'smarty_custom_label_1_most_ordered_value':
-				echo '<p class="description">Enter the value to label the most ordered products in the last specified days.</p>';
+				echo '<p class="description">' . __('Enter the value to label the most ordered products in the last specified days.', 'smarty-google-feed-generator') . '</p>';
 				break;
 			case 'smarty_custom_label_2_high_rating_value':
-				echo '<p class="description">Enter the value to label products with high ratings.</p>';
+				echo '<p class="description">' . __('Enter the value to label products with high ratings.', 'smarty-google-feed-generator') . '</p>';
 				break;
 			case 'smarty_custom_label_3_category_value':
-				echo '<p class="description">Enter custom values for the categories separated by commas. <br><b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories. </span></em></small></p>';
+				echo '<p class="description">' . __('Enter custom values for the categories separated by commas. <br><b>Example:</b> Tech, Apparel, Literature <br><small><em><strong>Important:</strong> <span style="color: #c51244;">Ensure these values are in the same order as the selected categories.', 'smarty-google-feed-generator') . '</span></em></small></p>';
 				break;
 			case 'smarty_custom_label_4_sale_price_value':
-				echo '<p class="description">Enter the value to label products with a sale price.</p>';
+				echo '<p class="description">' . __('Enter the value to label products with a sale price.', 'smarty-google-feed-generator') . '</p>';
 				break;
 			default:
-				echo '<p class="description">Enter a custom value for this label.</p>';
+				echo '<p class="description">' . __('Enter a custom value for this label.', 'smarty-google-feed-generator') . '</p>';
 				break;
 		}
 	}
@@ -1143,7 +1170,7 @@ class Smarty_Gfg_Admin {
 		
 		// Add description for the category selection
 		if ($args['label'] === 'smarty_custom_label_3_category') {
-			echo '<p class="description">Select one or multiple categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">Ensure the values for each category are entered in the same order in the Category Value field.</span></em></small></p>';
+			echo '<p class="description">' . __('Select one or multiple categories from the list.', 'smarty-google-feed-generator') . '<br><small><em><b>' . __('Important: ', 'smarty-google-feed-generator') . '</b><span style="color: #c51244;">' . __('Ensure the values for each category are entered in the same order in the Category Value field.', 'smarty-google-feed-generator') . '</span></em></small></p>';
 		}
 	}
 
@@ -1160,8 +1187,8 @@ class Smarty_Gfg_Admin {
         $category_values = array_map('trim', $category_values);
         $category_values = implode(', ', $category_values);
         echo '<input type="text" id="smarty_custom_label_3_category_value" name="smarty_custom_label_3_category_value" value="' . esc_attr($category_values) . '" class="regular-text" />';
-        echo '<p class="description">Enter custom values for the categories separated by commas. <strong>Example:</strong> Tech, Apparel, Literature</p>';
-        echo '<p class="description"><strong>Important:</strong> Ensure these values are in the same order as the selected categories.</p>';
+        echo '<p class="description">' . __('Enter custom values for the categories separated by commas.', 'smarty-google-feed-generator') . '<strong>' . __('Example: ', 'smarty-google-feed-generator') . '</strong>' . __('Tech, Apparel, Literature', 'smarty-google-feed-generator') . '</p>';
+        echo '<p class="description"><strong>' . __('Important:', 'smarty-google-feed-generator') . '</strong>' . __('Ensure these values are in the same order as the selected categories.', 'smarty-google-feed-generator') . '</p>';
     }
 	
 	/**
