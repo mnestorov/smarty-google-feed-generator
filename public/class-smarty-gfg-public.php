@@ -607,7 +607,7 @@ class Smarty_Gfg_Public {
                         'GTIN'                                  => '',
                         'MPN'                                   => $sku,
                         'Availability'                          => $availability,
-                        'Availability Date'                     => '', 
+                        //'Availability Date'                     => '', 
                         'Condition'                             => 'New',
                         'Multipack'                             => '',
                         'Color'                                 => '',
@@ -616,8 +616,8 @@ class Smarty_Gfg_Public {
                         'Size'                                  => '',
                         'Size Type'                             => '',
                         'Size System'                           => '',
-                        'Item Group ID'                         => '',
-                        'Product Detail'                        => '',
+                        //'Item Group ID'                         => '',
+                        //'Product Detail'                        => '',
                         'Custom Label 0'                        => $custom_label_0, 
                         'Custom Label 1'                        => $custom_label_1, 
                         'Custom Label 2'                        => $custom_label_2,
@@ -626,7 +626,8 @@ class Smarty_Gfg_Public {
                         'Excluded Destination'                  => '',
                         'Included Destination'                  => '',
                         'Excluded Countries for Shopping Ads'   => '',
-                        'Shipping'                              => '',
+                        //'Shipping'                            => '',
+                        //'Shipping Label'                      => '',
                     );
                 }
             } else {
@@ -649,7 +650,7 @@ class Smarty_Gfg_Public {
                     'GTIN'                                  => '',
                     'MPN'                                   => $sku,
                     'Availability'                          => $availability,
-                    'Availability Date'                     => '',
+                    //'Availability Date'                     => '',
                     'Condition'                             => 'New',
                     'Multipack'                             => '',
                     'Color'                                 => '',
@@ -658,8 +659,8 @@ class Smarty_Gfg_Public {
                     'Size'                                  => '',
                     'Size Type'                             => '',
                     'Size System'                           => '',
-                    'Item Group ID'                         => '',
-                    'Product Detail'                        => '',
+                    //'Item Group ID'                         => '',
+                    //'Product Detail'                        => '',
                     'Custom Label 0'                        => $custom_label_0, 
                     'Custom Label 1'                        => $custom_label_1, 
                     'Custom Label 2'                        => $custom_label_2,
@@ -669,6 +670,7 @@ class Smarty_Gfg_Public {
                     'Included Destination'                  => '',
                     'Excluded Countries for Shopping Ads'   => '',
                     'Shipping'                              => '',
+                    //'Shipping Label'                      => '',
                 );
             }
     
