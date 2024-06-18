@@ -288,14 +288,23 @@ class Smarty_Gfg_Public {
 		}
 
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:sku', $sku));
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:mpn', $sku));
 		$item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
-		$item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
-
-		// Add description, using meta description if available or fallback to short description
+        
+        // Add description, using meta description if available or fallback to short description
 		$meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
 		$description = !empty($meta_description) ? $meta_description : $product->get_short_description();
 		$item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
+		
+        // Add product categories
+		$categories = wp_get_post_terms($product->get_id(), 'product_cat');
+		if (!empty($categories) && !is_wp_error($categories)) {
+			$category_names = array_map(function($term) { return $term->name; }, $categories);
+			$item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
+		}
+
+        // Add product link
+        $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
 
 		// Add image links
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:image_link', wp_get_attachment_url($image_id)));
@@ -306,70 +315,63 @@ class Smarty_Gfg_Public {
 			$item->appendChild($dom->createElementNS($gNamespace, 'g:additional_image_link', wp_get_attachment_url($gallery_id)));
 		}
 
+        // Add Google product categories
+		$google_product_category = $this->get_cleaned_google_product_category();
+		if ($google_product_category) {
+			$item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
+		}
+
 		// Add price details
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
 		if ($is_on_sale) {
 			$item->appendChild($dom->createElementNS($gNamespace, 'g:sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
 		}
 
-		// Add product categories
-		$google_product_category = $this->get_cleaned_google_product_category();
-		if ($google_product_category) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
-		}
-
-		// Add product categories
-		$categories = wp_get_post_terms($product->get_id(), 'product_cat');
-		if (!empty($categories) && !is_wp_error($categories)) {
-			$category_names = array_map(function($term) { return $term->name; }, $categories);
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
-		}
-
-		// Check if the product has the "bundle" tag
+        // Check if the product has the "bundle" tag
 		$is_bundle = 'no';
 		$product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
 		if (in_array('bundle', $product_tags)) {
 			$is_bundle = 'yes';
 		}
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
-
+		
+        // Add brand
+		$brand = get_bloginfo('name'); // Use the site name as the brand
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
+		
+        // Use the condition value from the settings
+        $condition = get_option('smarty_condition', 'new');
+		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
+		
 		// Add availability
 		$availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
-
-		// Use the condition value from the settings
-        $condition = get_option('smarty_condition', 'new');
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
 
         $size_system = get_option('smarty_size_system', '');
         if (!empty($size_system)) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
         }
 
-		// Add brand
-		$brand = get_bloginfo('name'); // Use the site name as the brand
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
-
-		// Custom Labels
+		// Add custom labels
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label_0($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label_1($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
 		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
 
-        // Add Excluded Destinations
+        // Add excluded destinations
         $excluded_destinations = get_option('smarty_excluded_destination', []);
         foreach ($excluded_destinations as $excluded_destination) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
         }
 
-        // Add Included Destinations
+        // Add included destinations
         $included_destinations = get_option('smarty_included_destination', []);
         foreach ($included_destinations as $included_destination) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
         }
 
-        // Add Excluded Countries for Shopping Ads
+        // Add excluded countries for shopping ads
         $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
         if (!empty($excluded_countries)) {
             $countries = explode(',', $excluded_countries);
@@ -484,23 +486,20 @@ class Smarty_Gfg_Public {
         // Define the columns and map headers based on user settings
         $csv_columns = array(
             'ID',                       // WooCommerce product ID
-            'ID2',                      // SKU, often used as an alternate identifier
+            'MPN',                      // Manufacturer Part Number
+            //'GTIN',
+            'Title', 					// Title of the product
+			'Description', 				// Description of the product
+            'Product Type', 			// Categories the product belongs to
 			'Link', 					// URL to the product page
             'Mobile Link', 				// URL to the product page, mobile-specific if applicable
 			'Image Link', 	            // Main image URL
             'Additional Image Link',
-			'Title', 					// Title of the product
-			'Description', 				// Description of the product
 			'Google Product Category',  // Google's product category if needed for feeds
-			'Product Type', 			// Categories the product belongs to
 			'Price',                    // Regular price of the product
 			'Sale Price',               // Sale price if the product is on discount
 			'Bundle', 					// Indicates if the product is a bundle
 			'Brand',                    // Brand of the product
-			'GTIN',
-			'MPN',                      // Manufacturer Part Number
-			'Availability',             // Stock status
-			//'Availability Date',
 			'Condition',                // Condition of the product, usually "new" for e-commerce
 			'Multipack',
             'Color',
@@ -509,6 +508,8 @@ class Smarty_Gfg_Public {
 			'Size',
 			'Size Type',
 			'Size System',
+			'Availability',             // Stock status
+			//'Availability Date',
 			//'Item Group ID',
 			//'Product Detail',
             'Custom Label 0',
@@ -656,23 +657,20 @@ class Smarty_Gfg_Public {
                     // Prepare row for each variation
                     $row = array(
                         'ID'                                    => $id,
-                        'ID2'                                   => $sku,
+                        'MPN'                                   => $sku,
+                        //'GTIN'                                => '',
+                        'Title'                                 => $name,
+                        'Description'                           => $description,
+                        'Product Type'                          => $categories,
                         'Link'                                  => $product_link,
                         'Mobile Link'                           => $product_link,
                         'Image Link'                            => $variation_image,
                         'Additional Image Link'                 => $additional_image_link,
-                        'Title'                                 => $name,
-                        'Description'                           => $description,
                         'Google Product Category'               => $google_product_category,
-                        'Product Type'                          => $categories,
                         'Price'                                 => $variation_price,
                         'Sale Price'                            => $variation_sale_price,
                         'Bundle'                                => $is_bundle,
                         'Brand'                                 => $brand,
-                        'GTIN'                                  => '',
-                        'MPN'                                   => $sku,
-                        'Availability'                          => $availability,
-                        //'Availability Date'                   => '', 
                         'Condition'                             => $condition,
                         'Multipack'                             => '',
                         'Color'                                 => '',
@@ -681,6 +679,8 @@ class Smarty_Gfg_Public {
                         'Size'                                  => '',
                         'Size Type'                             => '',
                         'Size System'                           => $size_system,
+                        'Availability'                          => $availability,
+                        //'Availability Date'                   => '',
                         //'Item Group ID'                       => '',
                         //'Product Detail'                      => '',
                         'Custom Label 0'                        => $custom_label_0, 
@@ -700,23 +700,20 @@ class Smarty_Gfg_Public {
                 $sku = $product->get_sku();
                 $row = array(
                     'ID'                                    => $id,
-                    'ID2'                                   => $sku,
-                    'Link'                                  => $product_link,
-                    'Mobile Link'                           => $product_link,
-                    'Image Link'                            => $image_link,
-                    'Additional Image Link'                 => $additional_image_link,
+                    'MPN'                                   => $sku,
+                    //'GTIN'                                => '',
                     'Title'                                 => $name,
                     'Description'                           => $description,
                     'Product Type'                          => $categories,
+                    'Link'                                  => $product_link,
+                    'Mobile Link'                           => $product_link,
+                    'Image Link'                            => $variation_image,
+                    'Additional Image Link'                 => $additional_image_link,
                     'Google Product Category'               => $google_product_category,
-                    'Price'                                 => $regular_price,
-                    'Sale Price'                            => $sale_price,
+                    'Price'                                 => $variation_price,
+                    'Sale Price'                            => $variation_sale_price,
                     'Bundle'                                => $is_bundle,
                     'Brand'                                 => $brand,
-                    'GTIN'                                  => '',
-                    'MPN'                                   => $sku,
-                    'Availability'                          => $availability,
-                    //'Availability Date'                   => '',
                     'Condition'                             => $condition,
                     'Multipack'                             => '',
                     'Color'                                 => '',
@@ -725,6 +722,8 @@ class Smarty_Gfg_Public {
                     'Size'                                  => '',
                     'Size Type'                             => '',
                     'Size System'                           => $size_system,
+                    'Availability'                          => $availability,
+                    //'Availability Date'                   => '',
                     //'Item Group ID'                       => '',
                     //'Product Detail'                      => '',
                     'Custom Label 0'                        => $custom_label_0, 
@@ -870,14 +869,12 @@ class Smarty_Gfg_Public {
     
                     // Add basic product and variation details
                     $item->addChild('g:id', $variation->get_id(), $gNamespace);
-                    $item->addChild('g:sku', $variation->get_sku(), $gNamespace);
+                    $item->addChild('g:mpn', $variation->get_sku(), $gNamespace);
                     $item->addChild('title', htmlspecialchars($product->get_name()), $gNamespace);
-                    $item->addChild('link', get_permalink($product->get_id()), $gNamespace);
-                    
+
                     // Description: Use main product description or fallback to the short description if empty
                     $description = $product->get_description();
                     if (empty($description)) {
-                        // Fallback to short description if main description is empty
                         $description = $product->get_short_description();
                     }
     
@@ -887,7 +884,18 @@ class Smarty_Gfg_Public {
                     } else {
                         $item->addChild('description', 'No description available', $gNamespace);
                     }
-    
+
+                    // Categories: Compile a list from the product's categories
+                    $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+                    if (!empty($categories) && !is_wp_error($categories)) {
+                        $category_names = array_map(function($term) { return $term->name; }, $categories);
+                        $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                    }
+
+                    // Product link
+                    $item->addChild('link', get_permalink($product->get_id()), $gNamespace);
+                    
+                    // Product images
                     $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
     
                     // Variation specific image, if different from the main product image
@@ -909,15 +917,15 @@ class Smarty_Gfg_Public {
                     if ($variation->is_on_sale()) {
                         $item->addChild('g:sale_price', htmlspecialchars($variation->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                     }
-    
-                    // Categories: Compile a list from the product's categories
-                    $categories = wp_get_post_terms($product->get_id(), 'product_cat');
-                    if (!empty($categories) && !is_wp_error($categories)) {
-                        $category_names = array_map(function($term) { return $term->name; }, $categories);
-                        $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
-                    }
-    
-                    // Add shipping details
+
+                    // Custom labels
+                    $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
+                    $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
+                    $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
+                    $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
+                    $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
+
+                    // Shipping
                     $shipping_cost = $this->get_shipping_cost();
                     if ($shipping_cost !== false) {
                         $shipping_element = $item->addChild('g:shipping');
@@ -928,27 +936,18 @@ class Smarty_Gfg_Public {
     
                         $shipping_element->addChild('g:service', 'Flat Rate', $gNamespace);
                     }
-    
-                    // Add custom labels
-                    $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
-                    $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
-                    $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
-                    $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
-                    $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
                 }
             } else {
                 // Handle simple products
                 $item = $xml->addChild('item');
                 $gNamespace = 'http://base.google.com/ns/1.0';
                 $item->addChild('g:id', $product->get_id(), $gNamespace);
-                $item->addChild('g:sku', $product->get_sku(), $gNamespace);
+                $item->addChild('g:mpn', $product->get_sku(), $gNamespace);
                 $item->addChild('title', htmlspecialchars($product->get_name()), $gNamespace);
-                $item->addChild('link', get_permalink($product->get_id()), $gNamespace);
-    
-                // Description handling
+                
+                // Description: Use main product description or fallback to the short description if empty
                 $description = $product->get_description();
                 if (empty($description)) {
-                    // Fallback to short description if main description is empty
                     $description = $product->get_short_description();
                 }
     
@@ -958,28 +957,38 @@ class Smarty_Gfg_Public {
                 } else {
                     $item->addChild('description', 'No description available', $gNamespace);
                 }
+
+                // Categories: Compile a list from the product's categories
+                $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+                if (!empty($categories) && !is_wp_error($categories)) {
+                    $category_names = array_map(function($term) { return $term->name; }, $categories);
+                    $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                }
+
+                // Product link
+                $item->addChild('link', get_permalink($product->get_id()), $gNamespace);
     
-                // Main image and additional images
+                // Product images
                 $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
                 $gallery_ids = $product->get_gallery_image_ids();
                 foreach ($gallery_ids as $gallery_id) {
                     $item->addChild('g:additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
                 }
     
-                // Pricing information
+                // Pricing: Regular and sale prices
                 $item->addChild('g:price', htmlspecialchars($product->get_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                 if ($product->is_on_sale() && !empty($product->get_sale_price())) {
                     $item->addChild('g:sale_price', htmlspecialchars($product->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                 }
     
-                // Category information
-                $categories = wp_get_post_terms($product->get_id(), 'product_cat');
-                if (!empty($categories) && !is_wp_error($categories)) {
-                    $category_names = array_map(function($term) { return $term->name; }, $categories);
-                    $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
-                }
-    
-                // Add shipping details
+                // Custom labels
+                $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
+                $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
+                $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
+                $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
+                $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
+
+                // Shipping
                 $shipping_cost = $this->get_shipping_cost();
                 if ($shipping_cost !== false) {
                     $shipping_element = $item->addChild('g:shipping');
@@ -990,13 +999,6 @@ class Smarty_Gfg_Public {
     
                     $shipping_element->addChild('g:service', 'Flat Rate', $gNamespace);
                 }
-    
-                // Add custom labels
-                $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
-                $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
-                $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
-                $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
-                $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
             }
         }
     

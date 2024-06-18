@@ -47,39 +47,15 @@ class Smarty_Gfg_Admin {
 	 * @access   private
 	 */
 	private $csv_column_descriptions = array(
-		//'ID' 					  			      => 'The unique identifier for the product (e.g., A2B4).',
-		'ID2' 					  			      => 'Secondary unique identifier for the product.',
-		'Link' 					  			      => 'The URL of the product page (e.g., https://www.example.com/asp/sp.asp?cat=12&id=1030).', 										// Example custom value: Final URL
-		'Mobile Link' 			  			      => 'The mobile URL of the product page (e.g., https://www.m.example.com/asp/sp.asp?cat=12&id=1030).', 							// Example custom value: Final Mobile URL
-		'Image Link' 			  			      => 'The URL of the product image (e.g., https://www.example.com/image1.jpg).', 													// Example custom value: Image URL
-		//'Additional Image Link'   		      => 'URLs for additional product images (e.g., http://www.example.com/image1.jpg).',
-		'Title' 				  			      => 'The title of the product (e.g., Mens Pique Polo Shirt).', 																	// Example custom value: Item Title
-		'Description' 			  			      => 'The description of the product.', 																							// Example custom value: Item Description
-		//'Google Product Category' 			  => 'The Google Product Category for the product (e.g., Apparel & Accessories > Clothing > Outerwear > Coats & Jackets or 371).',
-		'Product Type' 			  			      => 'The product type or category (e.g., Home > Women > Dresses > Maxi Dresses).', 												// Example custom value: Item Category
-		//'Price' 				  			      => 'The price of the product (e.g., 15.00 USD).',
-		//'Sale Price' 			  			      => 'The sale price of the product (e.g., 15.00 USD).',
-		'Bundle' 			  	  			      => 'Indicates if the product is a bundle (e.g., yes, no).', 																		// Example custom value: Is Bundle
-		//'Brand' 				  			      => 'The brand of the product (e.g., Google).',
-		//'GTIN' 					  			  => 'The Global Trade Item Number for the product (e.g., 3234567890126).',
-		//'MPN' 					    		  => 'The Manufacturer Part Number for the product (e.g., GO12345OOGLE).',
-		//'Availability' 			  			  => 'The availability status of the product (e.g., in_stock).',
-		//'Availability Date' 	  			      => 'The date when the product will be available (e.g., (For UTC+1) 2016-02-24T11:07+0100).',
-		//'Condition' 			  			      => 'The condition of the product (e.g., new, used).',
-		//'Multipack'						  	  => 'The number of identical products sold within a merchant-defined multipack (e.g., 6).',
-		//'Color' 				  			      => 'The color of the product (e.g., Blue).',
-		//'Gender' 				  			      => 'The gender the product is intended for (e.g., Unisex).',
-		//'Material' 				  			  => 'The material of the product (e.g., leather).',
-		//'Size' 					  			  => 'The size of the product (e.g., S, M, L, XL).',
-		//'Size Type' 			  			      => 'The size type (e.g., regular, petite).',
-		//'Size System' 						  => 'The size system (e.g., US, UK, EU).',
-		//'Item Group ID' 					      => 'The ID for the item group (e.g., AB12345).',
-		//'Product Detail' 					      => 'Additional product details (e.g., General:Product Type:Digital player).',
-		//'Excluded Destination' 				  => 'Destinations where the product is excluded (e.g., Shopping_ads).',
-		//'Included Destination' 				  => 'Destinations where the product is included (e.g., Shopping_ads).',
-		//'Excluded Countries for Shopping Ads'   => 'Countries excluded for shopping ads (e.g., DE).',
-		//'Shipping' 							  => 'The shipping details for the product (e.g., US:CA:Overnight:16.00 USD:1:1:2:3).',
-		//'Shipping Label'						  => '',
+		'MPN' 			=> 'The Manufacturer Part Number for the product (e.g., GO12345OOGLE).',
+		'Title' 		=> 'The title of the product (e.g., Mens Pique Polo Shirt).',
+		'Description' 	=> 'The description of the product.',
+		'Product Type' 	=> 'The product type or category (e.g., Home > Women > Dresses > Maxi Dresses).',
+		'ID2' 			=> 'Secondary unique identifier for the product.',
+		'Link' 			=> 'The URL of the product page (e.g., https://www.example.com/asp/sp.asp?cat=12&id=1030).',
+		'Mobile Link' 	=> 'The mobile URL of the product page (e.g., https://www.m.example.com/asp/sp.asp?cat=12&id=1030).',
+		'Image Link' 	=> 'The URL of the product image (e.g., https://www.example.com/image1.jpg).',
+		'Bundle' 		=> 'Indicates if the product is a bundle (e.g., yes, no).',
 	);
 	
 	/**
@@ -506,44 +482,14 @@ class Smarty_Gfg_Admin {
 		);
 
 		$csv_columns = array(
-			//'ID', 
-			'ID2', 																// Example custom value: SKU
+			'MPN', 																// Example custom value: SKU
+			'Title', 															// Example custom value: Item Title
+			'Description', 														// Example custom value: Item Description
+			'Product Type', 													// Example custom value: Item Category
 			'Link', 															// Example custom value: Final URL 	
 			'Mobile Link', 														// Example custom value: Final Mobile URL				
 			'Image Link', 														// Example custom value: Image URL
-			//'Additional Image Link',		
-			'Title', 															// Example custom value: Item Title
-			'Description', 														// Example custom value: Item Description
-			//'Google Product Category', 
-			'Product Type', 													// Example custom value: Item Category
-			//'Price', 
-			//'Sale Price',
 			'Bundle', 															// Example custom value: Is Bundle
-			//'Brand',
-			//'GTIN',
-			//'MPN', 
-			//'Availability', 
-			//'Availability Date',
-			//'Condition',
-			//'Multipack',
-			//'Color',
-			//'Gender',
-			//'Material',
-			//'Size',
-			//'Size Type',
-			//'Size System',
-			//'Item Group ID',
-			//'Product Detail',
-			//'Custom Label 0',
-            //'Custom Label 1',
-            //'Custom Label 2',
-            //'Custom Label 3',
-            //'Custom Label 4',
-			//'Excluded Destination',
-			//'Included Destination',
-			//'Excluded Countries for Shopping Ads',
-			//'Shipping',
-			//'Shipping Label',
 		);
 	
 		foreach ($csv_columns as $column) {
