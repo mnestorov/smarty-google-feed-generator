@@ -164,9 +164,10 @@ class Smarty_Gfg_Public {
 
         // Check if WooCommerce is active before proceeding
         if (class_exists('WooCommerce')) {
-            // Get excluded categories from settings
+            // Get excluded categories and columns from settings
             $excluded_categories = get_option('smarty_excluded_categories', array());
-            //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+            $excluded_columns = get_option('smarty_exclude_xml_columns', array());
+            error_log('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Set up arguments for querying products, excluding certain categories
             $args = array(
@@ -188,8 +189,8 @@ class Smarty_Gfg_Public {
 
             // Fetch products using WooCommerce function
             $products = wc_get_products($args);
-            //error_log('Product Query Args: ' . print_r($args, true));
-            //error_log('Products: ' . print_r($products, true));
+            error_log('Product Query Args: ' . print_r($args, true));
+            error_log('Products: ' . print_r($products, true));
 
             // Initialize the XML structure
             $dom = new DOMDocument('1.0', 'UTF-8');
@@ -203,7 +204,7 @@ class Smarty_Gfg_Public {
 
             // Loop through each product to add details to the feed
             foreach ($products as $product) {
-                //error_log('Processing Product: ' . print_r($product->get_data(), true));
+                error_log('Processing Product: ' . print_r($product->get_data(), true));
                 if ($product->is_type('variable')) {
                     // Get all variations if product is variable
                     $variations = $product->get_children();
@@ -218,7 +219,7 @@ class Smarty_Gfg_Public {
                         Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
 
                         // Add product details as child nodes
-                        $this->add_google_product_details($dom, $item, $product, $variation);
+                        $this->add_google_product_details($dom, $item, $product, $variation, $excluded_columns);
                     }
                 } else {
                     // Process simple products similarly
@@ -229,13 +230,13 @@ class Smarty_Gfg_Public {
                     Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
 
                     // Add product details as child nodes
-                    $this->add_google_product_details($dom, $item, $product);
+                    $this->add_google_product_details($dom, $item, $product, null, $excluded_columns);
                 }
             }
 
             // Save and output the XML
             $feed_content = $dom->saveXML();
-            //error_log('Feed Content: ' . $feed_content);
+            error_log('Feed Content: ' . $feed_content);
 
             if ($feed_content) {
                 $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
@@ -246,7 +247,7 @@ class Smarty_Gfg_Public {
                 exit; // Ensure the script stops here to prevent further output that could corrupt the feed
             } else {
                 ob_end_clean();
-                //error_log('Failed to generate feed content.');
+                error_log('Failed to generate feed content.');
                 echo '<error>Failed to generate feed content.</error>';
                 exit;
             }
@@ -266,7 +267,7 @@ class Smarty_Gfg_Public {
 	 * @param WC_Product $product The WooCommerce product instance.
 	 * @param WC_Product $variation Optional. The variation instance if the product is variable.
 	 */
-	public function add_google_product_details($dom, $item, $product, $variation = null) {
+	public function add_google_product_details($dom, $item, $product, $variation = null, $excluded_columns = array()) {
 		$gNamespace = 'http://base.google.com/ns/1.0';
 
 		if ($variation) {
@@ -287,113 +288,205 @@ class Smarty_Gfg_Public {
 			$is_in_stock = $product->is_in_stock();
 		}
 
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:mpn', $sku));
-		$item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
+		if (!in_array('ID', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
+        }
+
+        if (!in_array('MPN', $excluded_columns) || !in_array('SKU', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:mpn', $sku));
+        }
+
+        if (!in_array('Title', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
+        }
         
         // Add description, using meta description if available or fallback to short description
-		$meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
-		$description = !empty($meta_description) ? $meta_description : $product->get_short_description();
-		$item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
+		if (!in_array('Description', $excluded_columns)) {
+            $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
+            $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
+            $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
+        }
 		
         // Add product categories
-		$categories = wp_get_post_terms($product->get_id(), 'product_cat');
-		if (!empty($categories) && !is_wp_error($categories)) {
-			$category_names = array_map(function($term) { return $term->name; }, $categories);
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
-		}
+		if (!in_array('Product Type', $excluded_columns)) {
+            $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+            if (!empty($categories) && !is_wp_error($categories)) {
+                $category_names = array_map(function($term) { return $term->name; }, $categories);
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
+            }
+        }
 
         // Add product link
-        $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
+        if (!in_array('Link', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
+        }
 
-		// Add image links
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:image_link', wp_get_attachment_url($image_id)));
+		// Add image link
+		if (!in_array('Image Link', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:image_link', wp_get_attachment_url($image_id)));
+        }
 
 		// Add additional images
-		$gallery_ids = $product->get_gallery_image_ids();
-		foreach ($gallery_ids as $gallery_id) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:additional_image_link', wp_get_attachment_url($gallery_id)));
-		}
+		if (!in_array('Additional Image Link', $excluded_columns)) {
+            $gallery_ids = $product->get_gallery_image_ids();
+            foreach ($gallery_ids as $gallery_id) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:additional_image_link', wp_get_attachment_url($gallery_id)));
+            }
+        }
 
         // Add Google product categories
-		$google_product_category = $this->get_cleaned_google_product_category();
-		if ($google_product_category) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
-		}
+		if (!in_array('Google Product Category', $excluded_columns)) {
+            $google_product_category = $this->get_cleaned_google_product_category();
+            if ($google_product_category) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
+            }
+        }
 
 		// Add price details
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
-		if ($is_on_sale) {
-			$item->appendChild($dom->createElementNS($gNamespace, 'g:sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
-		}
+		if (!in_array('Price', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:price', htmlspecialchars($price . ' ' . get_woocommerce_currency())));
+        }
+        
+		if (!in_array('Sale Price', $excluded_columns) && $is_on_sale) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:sale_price', htmlspecialchars($sale_price . ' ' . get_woocommerce_currency())));
+        }
 
         // Check if the product has the "bundle" tag
-		$is_bundle = 'no';
-		$product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
-		if (in_array('bundle', $product_tags)) {
-			$is_bundle = 'yes';
-		}
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
+		if (!in_array('Bundle', $excluded_columns)) {
+            $is_bundle = 'no';
+            $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
+            if (in_array('bundle', $product_tags)) {
+                $is_bundle = 'yes';
+            }
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
+        }
 		
         // Add brand
-		$brand = get_bloginfo('name'); // Use the site name as the brand
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
+		if (!in_array('Brand', $excluded_columns)) {
+            $brand = get_bloginfo('name'); // Use the site name as the brand
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
+        }
 		
         // Use the condition value from the settings
-        $condition = get_option('smarty_condition', 'new');
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
+        if (!in_array('Condition', $excluded_columns)) {
+            $condition = get_option('smarty_condition', 'new');
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
+        }
+
+        // Add multipack
+		if (!in_array('Multipack', $excluded_columns)) {
+            $multipack = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:multipack', $multipack));
+        }
+
+        // Add color
+		if (!in_array('Color', $excluded_columns)) {
+            $color = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:color', $color));
+        }
+
+        // Add gender
+		if (!in_array('Gender', $excluded_columns)) {
+            $gender = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:gender', $gender));
+        }
+
+        // Add material
+        if (!in_array('Material', $excluded_columns)) {
+            $material = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:material', $material));
+        }
+
+        // Add size
+        if (!in_array('Size', $excluded_columns)) {
+            $size = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:size', $size));
+        }
+
+        // Add size type
+        if (!in_array('Size Type', $excluded_columns)) {
+            $size_type = '';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:size_type', $size_type));
+        }
+
+        // Add size system
+        if (!in_array('Size System', $excluded_columns)) {
+            $size_system = get_option('smarty_size_system', '');
+            if (!empty($size_system)) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
+            }
+        }
 		
 		// Add availability
-		$availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
-
-        $size_system = get_option('smarty_size_system', '');
-        if (!empty($size_system)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
+		if (!in_array('Availability', $excluded_columns)) {
+            $availability = $is_in_stock ? 'in_stock' : 'out_of_stock';
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:availability', $availability));
         }
 
 		// Add custom labels
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label_0($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label_1($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
-		$item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
+		if (!in_array('Custom Label 0', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label_0($product)));
+        }
+
+        if (!in_array('Custom Label 1', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label_1($product)));
+        }
+
+        if (!in_array('Custom Label 2', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
+        }
+
+        if (!in_array('Custom Label 3', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
+        }
+        
+        if (!in_array('Custom Label 4', $excluded_columns)) {
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
+        }
 
         // Add excluded destinations
-        $excluded_destinations = get_option('smarty_excluded_destination', []);
-        foreach ($excluded_destinations as $excluded_destination) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
+        if (!in_array('Excluded Destination', $excluded_columns)) {
+            $excluded_destinations = get_option('smarty_excluded_destination', []);
+            foreach ($excluded_destinations as $excluded_destination) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
+            }
         }
 
         // Add included destinations
-        $included_destinations = get_option('smarty_included_destination', []);
-        foreach ($included_destinations as $included_destination) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
+        if (!in_array('Included Destination', $excluded_columns)) {
+            $included_destinations = get_option('smarty_included_destination', []);
+            foreach ($included_destinations as $included_destination) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
+            }
         }
 
         // Add excluded countries for shopping ads
-        $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
-        if (!empty($excluded_countries)) {
-            $countries = explode(',', $excluded_countries);
-            foreach ($countries as $country) {
-                $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_countries', htmlspecialchars(trim($country))));
+        if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
+            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            if (!empty($shopping_ads_excluded_country)) {
+                $countries = explode(',', $shopping_ads_excluded_country);
+                foreach ($countries as $country) {
+                    $item->appendChild($dom->createElementNS($gNamespace, 'g:shopping_ads_excluded_country', htmlspecialchars(trim($country))));
+                }
             }
         }
 
         // Add shipping details
-        $shipping_cost = $this->get_shipping_cost();
-        if ($shipping_cost !== false) {
-            $shipping_element = $dom->createElementNS($gNamespace, 'g:shipping');
-            $shipping_price = $dom->createElementNS($gNamespace, 'g:price', $shipping_cost . ' ' . get_woocommerce_currency());
-
-            $shipping_country = $dom->createElementNS($gNamespace, 'g:country', WC()->countries->get_base_country()); // Get the store's base country
-            $shipping_service = $dom->createElementNS($gNamespace, 'g:service', 'Flat Rate'); // Set shipping service
-
-            $shipping_element->appendChild($shipping_price);
-            $shipping_element->appendChild($shipping_country);
-            $shipping_element->appendChild($shipping_service);
-
-            $item->appendChild($shipping_element);
+        if (!in_array('Shipping', $excluded_columns)) {
+            $shipping_cost = $this->get_shipping_cost();
+            if ($shipping_cost !== false) {
+                $shipping_element = $dom->createElementNS($gNamespace, 'g:shipping');
+                $shipping_price = $dom->createElementNS($gNamespace, 'g:price', $shipping_cost . ' ' . get_woocommerce_currency());
+    
+                $shipping_country = $dom->createElementNS($gNamespace, 'g:country', WC()->countries->get_base_country()); // Get the store's base country
+                $shipping_service = $dom->createElementNS($gNamespace, 'g:service', 'Flat Rate'); // Set shipping service
+    
+                $shipping_element->appendChild($shipping_price);
+                $shipping_element->appendChild($shipping_country);
+                $shipping_element->appendChild($shipping_service);
+    
+                $item->appendChild($shipping_element);
+            }
         }
 	}
 
@@ -483,6 +576,9 @@ class Smarty_Gfg_Public {
         // Fetch user-defined column mappings
         $mappings = get_option('smarty_gfg_settings_mapping', array());
 
+        // Get excluded columns from settings
+        $excluded_columns = get_option('smarty_exclude_csv_columns', array());
+
         // Define the columns and map headers based on user settings
         $csv_columns = array(
             'ID',                       // WooCommerce product ID
@@ -526,7 +622,9 @@ class Smarty_Gfg_Public {
 
         $headers = array();
         foreach ($csv_columns as $column) {
-            $headers[] = isset($mappings[$column]) && !empty($mappings[$column]) ? $mappings[$column] : $column;
+            if (!in_array($column, $excluded_columns)) {
+                $headers[] = isset($mappings[$column]) && !empty($mappings[$column]) ? $mappings[$column] : $column;
+            }
         }
     
         // Write the header row to the CSV file
@@ -534,7 +632,7 @@ class Smarty_Gfg_Public {
 
         // Get excluded categories from settings
         $excluded_categories = get_option('smarty_excluded_categories', array());
-        //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+        error_log('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Prepare arguments for querying products excluding specific categories
         $args = array(
@@ -556,8 +654,8 @@ class Smarty_Gfg_Public {
         
         // Retrieve products using the defined arguments
         $products = wc_get_products($args);
-        //error_log('Product Query Args: ' . print_r($args, true));
-        //error_log('Products: ' . print_r($products, true));
+        error_log('Product Query Args: ' . print_r($args, true));
+        error_log('Products: ' . print_r($products, true));
 
         // Get exclude patterns from settings and split into array
         $exclude_patterns = preg_split('/\r\n|\r|\n/', get_option('smarty_exclude_patterns'));
@@ -606,10 +704,10 @@ class Smarty_Gfg_Public {
             
             // Get Google category as ID or name
             $google_product_category = $this->get_cleaned_google_product_category(); // Get Google category from plugin settings
-            //error_log('Google Product Category: ' . $google_product_category); // Debugging line
+            error_log('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
-                //error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
+                error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
 
             // Check if the product has the "bundle" tag
@@ -636,7 +734,7 @@ class Smarty_Gfg_Public {
 
             $excluded_destinations = get_option('smarty_excluded_destination', []);
             $included_destinations = get_option('smarty_included_destination', []);
-            $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
 
             // Get shipping cost
             $shipping_cost = $this->get_shipping_cost();
@@ -654,89 +752,222 @@ class Smarty_Gfg_Public {
                     $variation_price = $variation->get_regular_price();
                     $variation_sale_price = $variation->get_sale_price() ?: '';
                     
-                    // Prepare row for each variation
-                    $row = array(
-                        'ID'                                    => $id,
-                        'MPN'                                   => $sku,
-                        //'GTIN'                                => '',
-                        'Title'                                 => $name,
-                        'Description'                           => $description,
-                        'Product Type'                          => $categories,
-                        'Link'                                  => $product_link,
-                        'Mobile Link'                           => $product_link,
-                        'Image Link'                            => $variation_image,
-                        'Additional Image Link'                 => $additional_image_link,
-                        'Google Product Category'               => $google_product_category,
-                        'Price'                                 => $variation_price,
-                        'Sale Price'                            => $variation_sale_price,
-                        'Bundle'                                => $is_bundle,
-                        'Brand'                                 => $brand,
-                        'Condition'                             => $condition,
-                        'Multipack'                             => '',
-                        'Color'                                 => '',
-                        'Gender'                                => '',
-                        'Material'                              => '',
-                        'Size'                                  => '',
-                        'Size Type'                             => '',
-                        'Size System'                           => $size_system,
-                        'Availability'                          => $availability,
-                        //'Availability Date'                   => '',
-                        //'Item Group ID'                       => '',
-                        //'Product Detail'                      => '',
-                        'Custom Label 0'                        => $custom_label_0, 
-                        'Custom Label 1'                        => $custom_label_1, 
-                        'Custom Label 2'                        => $custom_label_2,
-                        'Custom Label 3'                        => $custom_label_3, 
-                        'Custom Label 4'                        => $custom_label_4,
-                        'Excluded Destination'                  => implode(', ', $excluded_destinations),
-                        'Included Destination'                  => implode(', ', $included_destinations),
-                        'Excluded Countries for Shopping Ads'   => $excluded_countries,
-                        'Shipping'                              => $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '',
-                        //'Shipping Label'                      => '',
-                    );
+                    // Prepare row data excluding the columns that should be hidden
+                    $row = array();
+                    foreach ($csv_columns as $column) {
+                        if (!in_array($column, $excluded_columns)) {
+                            switch ($column) {
+                                case 'ID':
+                                    $row[] = $id;
+                                    break;
+                                case 'MPN':
+                                    $row[] = $sku;
+                                    break;
+                                case 'GTIN':
+                                    $row[] = '';
+                                case 'Title':
+                                    $row[] = $name;
+                                    break;
+                                case 'Description':
+                                    $row[] = $description;
+                                    break;
+                                case 'Product Type':
+                                    $row[] = $categories;
+                                    break;
+                                case 'Link':
+                                case 'Mobile Link':
+                                    $row[] = $product_link;
+                                    break;
+                                case 'Image Link':
+                                    $row[] = $image_link;
+                                    break;
+                                case 'Additional Image Link':
+                                    $row[] = $additional_image_link;
+                                    break;
+                                case 'Google Product Category':
+                                    $row[] = $google_product_category;
+                                    break;
+                                case 'Price':
+                                    $row[] = $variation_price;
+                                    break;
+                                case 'Sale Price':
+                                    $row[] = $variation_sale_price;
+                                    break;
+                                case 'Bundle':
+                                    $row[] = $is_bundle;
+                                    break;
+                                case 'Brand':
+                                    $row[] = $brand;
+                                    break;
+                                case 'Condition':
+                                    $row[] = $condition;
+                                    break;
+                                case 'Multipack':
+                                    $row[] = '';
+                                    break;
+                                case 'Color':
+                                    $row[] = '';
+                                    break;
+                                case 'Gender':
+                                    $row[] = '';
+                                    break;
+                                case 'Material':
+                                    $row[] = '';
+                                    break;
+                                case 'Size':
+                                    $row[] = '';
+                                    break;
+                                case 'Size Type':
+                                    $row[] = '';
+                                    break;
+                                case 'Size System':
+                                    $row[] = $size_system;
+                                    break;
+                                case 'Availability':
+                                    $row[] = $availability;
+                                    break;
+                                case 'Custom Label 0':
+                                    $row[] = $custom_label_0;
+                                    break;
+                                case 'Custom Label 1':
+                                    $row[] = $custom_label_1;
+                                    break;
+                                case 'Custom Label 2':
+                                    $row[] = $custom_label_2;
+                                    break;
+                                case 'Custom Label 3':
+                                    $row[] = $custom_label_3;
+                                    break;
+                                case 'Custom Label 4':
+                                    $row[] = $custom_label_4;
+                                    break;
+                                case 'Excluded Destination':
+                                    $row[] = implode(', ', $excluded_destinations);
+                                    break;
+                                case 'Included Destination':
+                                    $row[] = implode(', ', $included_destinations);
+                                    break;
+                                case 'Excluded Countries for Shopping Ads':
+                                    $row[] = $shopping_ads_excluded_country;
+                                    break;
+                                case 'Shipping':
+                                    $row[] = $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '';
+                                    break;
+                                default:
+                                    $row[] = ''; // Default case for any other columns
+                            }
+                        }
+                    }
                 }
             } else {
                 // Prepare row for a simple product
                 $sku = $product->get_sku();
-                $row = array(
-                    'ID'                                    => $id,
-                    'MPN'                                   => $sku,
-                    //'GTIN'                                => '',
-                    'Title'                                 => $name,
-                    'Description'                           => $description,
-                    'Product Type'                          => $categories,
-                    'Link'                                  => $product_link,
-                    'Mobile Link'                           => $product_link,
-                    'Image Link'                            => $variation_image,
-                    'Additional Image Link'                 => $additional_image_link,
-                    'Google Product Category'               => $google_product_category,
-                    'Price'                                 => $variation_price,
-                    'Sale Price'                            => $variation_sale_price,
-                    'Bundle'                                => $is_bundle,
-                    'Brand'                                 => $brand,
-                    'Condition'                             => $condition,
-                    'Multipack'                             => '',
-                    'Color'                                 => '',
-                    'Gender'                                => '',
-                    'Material'                              => '',
-                    'Size'                                  => '',
-                    'Size Type'                             => '',
-                    'Size System'                           => $size_system,
-                    'Availability'                          => $availability,
-                    //'Availability Date'                   => '',
-                    //'Item Group ID'                       => '',
-                    //'Product Detail'                      => '',
-                    'Custom Label 0'                        => $custom_label_0, 
-                    'Custom Label 1'                        => $custom_label_1, 
-                    'Custom Label 2'                        => $custom_label_2,
-                    'Custom Label 3'                        => $custom_label_3, 
-                    'Custom Label 4'                        => $custom_label_4,
-                    'Excluded Destination'                  => implode(', ', $excluded_destinations),
-                    'Included Destination'                  => implode(', ', $included_destinations),
-                    'Excluded Countries for Shopping Ads'   => $excluded_countries,
-                    'Shipping'                              => $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '',
-                    //'Shipping Label'                      => '',
-                );
+                $row = array();
+                foreach ($csv_columns as $column) {
+                    if (!in_array($column, $excluded_columns)) {
+                        switch ($column) {
+                            case 'ID':
+                                $row[] = $id;
+                                break;
+                            case 'MPN':
+                                $row[] = $sku;
+                                break;
+                            case 'GTIN':
+                                $row[] = '';
+                                break;
+                            case 'Title':
+                                $row[] = $name;
+                                break;
+                            case 'Description':
+                                $row[] = $description;
+                                break;
+                            case 'Product Type':
+                                $row[] = $categories;
+                                break;
+                            case 'Link':
+                            case 'Mobile Link':
+                                $row[] = $product_link;
+                                break;
+                            case 'Image Link':
+                                $row[] = $image_link;
+                                break;
+                            case 'Additional Image Link':
+                                $row[] = $additional_image_link;
+                                break;
+                            case 'Google Product Category':
+                                $row[] = $google_product_category;
+                                break;
+                            case 'Price':
+                                $row[] = $regular_price;
+                                break;
+                            case 'Sale Price':
+                                $row[] = $sale_price;
+                                break;
+                            case 'Bundle':
+                                $row[] = $is_bundle;
+                                break;
+                            case 'Brand':
+                                $row[] = $brand;
+                                break;
+                            case 'Condition':
+                                $row[] = $condition;
+                                break;
+                            case 'Multipack':
+                                $row[] = '';
+                                break;
+                            case 'Color':
+                                $row[] = '';
+                                break;
+                            case 'Gender':
+                                $row[] = '';
+                                break;
+                            case 'Material':
+                                $row[] = '';
+                                break;
+                            case 'Size':
+                                $row[] = '';
+                                break;
+                            case 'Size Type':
+                                $row[] = '';
+                                break;
+                            case 'Size System':
+                                $row[] = $size_system;
+                                break;
+                            case 'Availability':
+                                $row[] = $availability;
+                                break;
+                            case 'Custom Label 0':
+                                $row[] = $custom_label_0;
+                                break;
+                            case 'Custom Label 1':
+                                $row[] = $custom_label_1;
+                                break;
+                            case 'Custom Label 2':
+                                $row[] = $custom_label_2;
+                                break;
+                            case 'Custom Label 3':
+                                $row[] = $custom_label_3;
+                                break;
+                            case 'Custom Label 4':
+                                $row[] = $custom_label_4;
+                                break;
+                            case 'Excluded Destination':
+                                $row[] = implode(', ', $excluded_destinations);
+                                break;
+                            case 'Included Destination':
+                                $row[] = implode(', ', $included_destinations);
+                                break;
+                            case 'Excluded Countries for Shopping Ads':
+                                $row[] = $shopping_ads_excluded_country;
+                                break;
+                            case 'Shipping':
+                                $row[] = $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '';
+                                break;
+                            default:
+                                $row[] = ''; // Default case for any other columns
+                        }
+                    }
+                }
             }
     
             // Only output the row if the SKU is set (some products may not have variations correctly set)
