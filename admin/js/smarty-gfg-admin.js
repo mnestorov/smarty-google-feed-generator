@@ -29,7 +29,7 @@
 
     $(document).ready(function ($) {
         //console.log('Document is ready');
-
+        
         $('.smarty-convert-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
             //console.log('Convert Images button clicked');
