@@ -794,8 +794,7 @@ class Smarty_Gfg_Admin {
 		$option = get_option('smarty_size_system', '');
 		$size_systems = ['US', 'UK', 'EU', 'DE', 'FR', 'JP', 'CN', 'IT', 'BR', 'MEX', 'AU'];
 		
-		echo '<select name="smarty_size_system" class="smarty-size-system" style="width: 100%;">';
-		echo '<option value="">' . __('Select a size system', 'smarty-google-feed-generator') . '</option>';
+		echo '<select name="smarty_size_system">';
 		foreach ($size_systems as $system) {
 			echo '<option value="' . esc_attr($system) . '" ' . selected($option, $system, false) . '>' . esc_html($system) . '</option>';
 		}
@@ -837,7 +836,7 @@ class Smarty_Gfg_Admin {
 	public function excluded_countries_cb() {
 		$option = get_option('smarty_excluded_countries_for_shopping_ads', '');
 		echo '<input type="text" name="smarty_excluded_countries_for_shopping_ads" value="' . esc_attr($option) . '" class="regular-text" maxlength="2" />';
-		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter ISO 3166-1 alpha-2 country codes separated by commas. <br><b>Example:</b> US', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('A setting that allows you to exclude countries where your products are advertised on Shopping ads. Enter <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" target="_blank">ISO 3166-1 alpha-2</a> country codes separated by commas. <br><b>Example:</b> US', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**

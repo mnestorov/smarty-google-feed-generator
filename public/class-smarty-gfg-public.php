@@ -377,6 +377,22 @@ class Smarty_Gfg_Public {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_countries', htmlspecialchars(trim($country))));
             }
         }
+
+        // Add shipping details
+        $shipping_cost = $this->get_shipping_cost();
+        if ($shipping_cost !== false) {
+            $shipping_element = $dom->createElementNS($gNamespace, 'g:shipping');
+            $shipping_price = $dom->createElementNS($gNamespace, 'g:price', $shipping_cost . ' ' . get_woocommerce_currency());
+
+            $shipping_country = $dom->createElementNS($gNamespace, 'g:country', WC()->countries->get_base_country()); // Get the store's base country
+            $shipping_service = $dom->createElementNS($gNamespace, 'g:service', 'Flat Rate'); // Set shipping service
+
+            $shipping_element->appendChild($shipping_price);
+            $shipping_element->appendChild($shipping_country);
+            $shipping_element->appendChild($shipping_service);
+
+            $item->appendChild($shipping_element);
+        }
 	}
 
 	/**
@@ -595,6 +611,13 @@ class Smarty_Gfg_Public {
                 //error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
 
+            // Check if the product has the "bundle" tag
+            $is_bundle = 'no';
+            $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
+            if (in_array('bundle', $product_tags)) {
+                $is_bundle = 'yes';
+            }
+
             $brand = get_bloginfo('name');
 
             // Use the condition value from the settings
@@ -610,17 +633,14 @@ class Smarty_Gfg_Public {
             $custom_label_3 = $this->get_custom_label_3($product);
             $custom_label_4 = $this->get_custom_label_4($product);
 
-            // Check if the product has the "bundle" tag
-            $is_bundle = 'no';
-            $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
-            if (in_array('bundle', $product_tags)) {
-                $is_bundle = 'yes';
-            }
-
             $excluded_destinations = get_option('smarty_excluded_destination', []);
             $included_destinations = get_option('smarty_included_destination', []);
             $excluded_countries = get_option('smarty_excluded_countries_for_shopping_ads', '');
-            
+
+            // Get shipping cost
+            $shipping_cost = $this->get_shipping_cost();
+            $base_country = WC()->countries->get_base_country(); // Get the store's base country
+
             // Check for variable type to handle variations
             if ($product->is_type('variable')) {
                 // Handle variations separately if product is variable
@@ -671,7 +691,7 @@ class Smarty_Gfg_Public {
                         'Excluded Destination'                  => implode(', ', $excluded_destinations),
                         'Included Destination'                  => implode(', ', $included_destinations),
                         'Excluded Countries for Shopping Ads'   => $excluded_countries,
-                        //'Shipping'                            => '',
+                        'Shipping'                              => $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '',
                         //'Shipping Label'                      => '',
                     );
                 }
@@ -715,7 +735,7 @@ class Smarty_Gfg_Public {
                     'Excluded Destination'                  => implode(', ', $excluded_destinations),
                     'Included Destination'                  => implode(', ', $included_destinations),
                     'Excluded Countries for Shopping Ads'   => $excluded_countries,
-                    'Shipping'                              => '',
+                    'Shipping'                              => $shipping_cost !== false ? $shipping_cost . ' ' . get_woocommerce_currency() . ' (' . $base_country . ')' : '',
                     //'Shipping Label'                      => '',
                 );
             }
@@ -815,8 +835,6 @@ class Smarty_Gfg_Public {
         if (get_post_type($post_id) === 'product' && ($comment_approved == 1 || $comment_approved == 'approve')) {
             // Invalidate cache
             delete_transient('smarty_google_reviews_feed');
-            // Optionally, regenerate the feed file
-            // smarty_regenerate_google_reviews_feed();
         }
     }
 
@@ -828,28 +846,28 @@ class Smarty_Gfg_Public {
      * 
      * @since    1.0.0
      */
-	public function regenerate_feed() {
+    public function regenerate_feed() {
         // Fetch products from WooCommerce that are published and in stock
-		$products = wc_get_products(array(
-			'status'        => 'publish',
+        $products = wc_get_products(array(
+            'status'        => 'publish',
             'stock_status'  => 'instock',
-			'limit'         => -1,          // No limit to ensure all qualifying products are included
-			'orderby'       => 'date',      // Order by product date
-			'order'         => 'DESC',      // Order in descending order
-		));
-
+            'limit'         => -1,          // No limit to ensure all qualifying products are included
+            'orderby'       => 'date',      // Order by product date
+            'order'         => 'DESC',      // Order in descending order
+        ));
+    
         // Initialize XML structure with a root element and namespace attribute
-		$xml = new SimpleXMLElement('<feed xmlns:g="http://base.google.com/ns/1.0"/>');
-		
+        $xml = new SimpleXMLElement('<feed xmlns:g="http://base.google.com/ns/1.0"/>');
+    
         // Iterate through each product to populate the feed
-		foreach ($products as $product) {
+        foreach ($products as $product) {
             if ($product->is_type('variable')) {
                 // Handle variable products, which can have multiple variations
                 foreach ($product->get_children() as $child_id) {
                     $variation = wc_get_product($child_id);
                     $item = $xml->addChild('item');
                     $gNamespace = 'http://base.google.com/ns/1.0';
-
+    
                     // Add basic product and variation details
                     $item->addChild('g:id', $variation->get_id(), $gNamespace);
                     $item->addChild('g:sku', $variation->get_sku(), $gNamespace);
@@ -862,16 +880,16 @@ class Smarty_Gfg_Public {
                         // Fallback to short description if main description is empty
                         $description = $product->get_short_description();
                     }
-
+    
                     if (!empty($description)) {
                         // Ensure that HTML tags are removed and properly encoded
                         $item->addChild('description', htmlspecialchars(strip_tags($description)), $gNamespace);
                     } else {
                         $item->addChild('description', 'No description available', $gNamespace);
                     }
-
+    
                     $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
-
+    
                     // Variation specific image, if different from the main product image
                     $image_id = $variation->get_image_id() ? $variation->get_image_id() : $product->get_image_id();
                     $variationImageURL = wp_get_attachment_url($variation->get_image_id());
@@ -879,25 +897,44 @@ class Smarty_Gfg_Public {
                     if ($variationImageURL !== $mainImageURL) {
                         $item->addChild('g:image_link', wp_get_attachment_url($image_id), $gNamespace);
                     }
-
+    
                     // Additional images: Loop through gallery if available
                     $gallery_ids = $product->get_gallery_image_ids();
                     foreach ($gallery_ids as $gallery_id) {
                         $item->addChild('g:additional_image_link', wp_get_attachment_url($gallery_id), $gNamespace);
                     }
-
+    
                     // Pricing: Regular and sale prices
                     $item->addChild('g:price', htmlspecialchars($variation->get_regular_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                     if ($variation->is_on_sale()) {
                         $item->addChild('g:sale_price', htmlspecialchars($variation->get_sale_price() . ' ' . get_woocommerce_currency()), $gNamespace);
                     }
-
+    
                     // Categories: Compile a list from the product's categories
                     $categories = wp_get_post_terms($product->get_id(), 'product_cat');
                     if (!empty($categories) && !is_wp_error($categories)) {
                         $category_names = array_map(function($term) { return $term->name; }, $categories);
                         $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
                     }
+    
+                    // Add shipping details
+                    $shipping_cost = $this->get_shipping_cost();
+                    if ($shipping_cost !== false) {
+                        $shipping_element = $item->addChild('g:shipping');
+                        $shipping_element->addChild('g:price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()), $gNamespace);
+    
+                        $base_country = WC()->countries->get_base_country(); // Get the store's base country
+                        $shipping_element->addChild('g:country', htmlspecialchars($base_country), $gNamespace);
+    
+                        $shipping_element->addChild('g:service', 'Flat Rate', $gNamespace);
+                    }
+    
+                    // Add custom labels
+                    $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
+                    $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
+                    $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
+                    $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
+                    $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
                 }
             } else {
                 // Handle simple products
@@ -907,22 +944,22 @@ class Smarty_Gfg_Public {
                 $item->addChild('g:sku', $product->get_sku(), $gNamespace);
                 $item->addChild('title', htmlspecialchars($product->get_name()), $gNamespace);
                 $item->addChild('link', get_permalink($product->get_id()), $gNamespace);
-
+    
                 // Description handling
                 $description = $product->get_description();
                 if (empty($description)) {
                     // Fallback to short description if main description is empty
                     $description = $product->get_short_description();
                 }
-
+    
                 if (!empty($description)) {
                     // Ensure that HTML tags are removed and properly encoded
                     $item->addChild('description', htmlspecialchars(strip_tags($description)), $gNamespace);
                 } else {
                     $item->addChild('description', 'No description available', $gNamespace);
                 }
-                
-                 // Main image and additional images
+    
+                // Main image and additional images
                 $item->addChild('g:image_link', wp_get_attachment_url($product->get_image_id()), $gNamespace);
                 $gallery_ids = $product->get_gallery_image_ids();
                 foreach ($gallery_ids as $gallery_id) {
@@ -941,15 +978,34 @@ class Smarty_Gfg_Public {
                     $category_names = array_map(function($term) { return $term->name; }, $categories);
                     $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
                 }
+    
+                // Add shipping details
+                $shipping_cost = $this->get_shipping_cost();
+                if ($shipping_cost !== false) {
+                    $shipping_element = $item->addChild('g:shipping');
+                    $shipping_element->addChild('g:price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()), $gNamespace);
+    
+                    $base_country = WC()->countries->get_base_country(); // Get the store's base country
+                    $shipping_element->addChild('g:country', htmlspecialchars($base_country), $gNamespace);
+    
+                    $shipping_element->addChild('g:service', 'Flat Rate', $gNamespace);
+                }
+    
+                // Add custom labels
+                $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
+                $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
+                $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
+                $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
+                $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
             }
         }
-
+    
         // Save the generated XML content to a transient or a file for later use
-		$feed_content = $xml->asXML();
+        $feed_content = $xml->asXML();
         $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-        set_transient('smarty_google_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);  // Cache the feed using WordPress transients              
-		file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_feed.xml', $feed_content);   // Optionally save the feed to a file in the WP uploads directory
-	}
+        set_transient('smarty_google_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);  // Cache the feed using WordPress transients
+        file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_feed.xml', $feed_content);   // Optionally save the feed to a file in the WP uploads directory
+    }
 
 	/**
      * Hook into product changes.
@@ -1134,12 +1190,12 @@ class Smarty_Gfg_Public {
         $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
 
         // Log debug information
-        //error_log('Product ID: ' . $product->get_id());
-        //error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
-        //error_log('Product sale price: ' . $product->get_sale_price());
-        //error_log('Excluded categories: ' . print_r($excluded_categories, true));
-        //error_log('Product categories: ' . print_r($product_categories, true));
-        //error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
+        error_log('Product ID: ' . $product->get_id());
+        error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
+        error_log('Product sale price: ' . $product->get_sale_price());
+        error_log('Excluded categories: ' . print_r($excluded_categories, true));
+        error_log('Product categories: ' . print_r($product_categories, true));
+        error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
 
         if ($is_excluded) {
             return '';
@@ -1158,7 +1214,7 @@ class Smarty_Gfg_Public {
             if (!empty($variations)) {
                 $first_variation_id = $variations[0]; // Check only the first variation
                 $variation = wc_get_product($first_variation_id);
-                //error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
+                error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
                 if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
                     return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
                 }
@@ -1199,4 +1255,45 @@ class Smarty_Gfg_Public {
 	
 		return '';
 	}
+
+    /**
+     * Get the flat rate shipping cost from WooCommerce settings.
+     * 
+     * @since 1.0.0
+     * @return string|false The shipping cost or false if not found.
+     */
+    private function get_shipping_cost() {
+        $shipping_zones = WC_Shipping_Zones::get_zones();
+    
+        foreach ($shipping_zones as $zone) {
+            $shipping_methods = $zone['shipping_methods'];
+            
+            foreach ($shipping_methods as $method) {
+                if ($method->id === 'flat_rate') {
+                    if (isset($method->cost) && !empty($method->cost)) {
+                        return $method->cost;
+                    } else {
+                        error_log('Flat rate shipping cost is not set or empty'); // Debug
+                    }
+                }
+            }
+        }
+    
+        // Check for the 'Rest of the World' zone
+        $default_zone = new WC_Shipping_Zone(0);
+        $shipping_methods = $default_zone->get_shipping_methods();
+    
+        foreach ($shipping_methods as $method) {
+            if ($method->id === 'flat_rate') {
+                if (isset($method->cost) && !empty($method->cost)) {
+                    return $method->cost;
+                } else {
+                    error_log('Flat rate shipping cost is not set or empty in the default zone'); // Debug
+                }
+            }
+        }
+    
+        error_log('No flat rate shipping method found'); // Debug
+        return false;
+    }      
 }

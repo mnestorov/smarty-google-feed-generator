@@ -127,7 +127,7 @@
             window.open(redirectUrl, '_blank');
         });
 
-        $('.smarty-excluded-categories, .smarty-size-system, .smarty-excluded-destination, .smarty-included-destination').select2({
+        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination').select2({
             width: '100%' // need to override the changed default
         });
 
