@@ -168,7 +168,7 @@ class Smarty_Gfg_Admin {
 	private function get_settings_tabs() {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
-			'mapping'       => __('Feed Columns', 'smarty-google-feed-generator'),
+			'mapping'       => __('Columns Options', 'smarty-google-feed-generator'),
 			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -511,10 +511,17 @@ class Smarty_Gfg_Admin {
 		);
 
 		add_settings_section(
-			'smarty_gfg_section_mapping',										// ID of the section
-			__('Feed Columns', 'smarty-google-feed-generator'),					// Title of the section  
-			array($this, 'section_mapping_cb'),									// Callback function that fills the section with the desired content
+			'smarty_gfg_section_options',										// ID of the section
+			__('Columns Options', 'smarty-google-feed-generator'),				// Title of the section  
+			array($this, 'section_options_cb'),									// Callback function that fills the section with the desired content
 			'smarty_gfg_options_mapping'										// Page on which to add the section
+		);
+
+		add_settings_section(
+			'smarty_gfg_section_columns_mapping',                             	// ID of the section
+			__('Mapping Column Headers', 'smarty-google-feed-generator'),      	// Title of the section
+			array($this,'section_columns_mapping_cb'),                    		// Callback function that fills the section with the desired content
+			'smarty_gfg_options_mapping'                                		// Page on which to add the section
 		);
 
 		$csv_columns = array(
@@ -534,7 +541,7 @@ class Smarty_Gfg_Admin {
 				__($column, 'smarty-google-feed-generator'),					// Title of the field
 				array($this, 'csv_mapping_fields_cb'),							// Callback function to display the field
 				'smarty_gfg_options_mapping',									// Page on which to add the field
-				'smarty_gfg_section_mapping',									// Section to which this field belongs
+				'smarty_gfg_section_columns_mapping',							// Section to which this field belongs
 				array('column' => $column)
 			);
 		}
@@ -1433,7 +1440,16 @@ class Smarty_Gfg_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function section_mapping_cb() {
+	public function section_options_cb() {
+		echo '<p>' . __('Main column options for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
+	}
+
+	/**
+	 * Callback function for the Mapping section field.
+	 *
+	 * @since    1.0.0
+	 */
+	public function section_columns_mapping_cb() {
 		echo '<p>' . __('Configure the mapping of TSV/CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
 	}
 
@@ -1455,7 +1471,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_exclude_columns_cb() {
-		echo '<p>' . __('Exclude columns from the tsv/csv and xml feeds.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Exclude columns from the TSV/CSV and xml feeds.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
