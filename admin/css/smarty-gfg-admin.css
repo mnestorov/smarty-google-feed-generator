@@ -47,6 +47,10 @@ textarea[name="smarty_exclude_patterns"].large-text {
     color: #333;
 }
 
+.dashicons, .dashicons-before:before {
+    font-size: 17px;
+}
+
 .tooltip {
     position: relative;
     display: inline-block;
@@ -63,12 +67,12 @@ textarea[name="smarty_exclude_patterns"].large-text {
     font-size: 14px;
     text-align: center;
     border-radius: 5px;
-    padding: 15px;
+    padding: 5px 10px 10px;
     position: absolute;
     z-index: 1;
     bottom: 125%; /* Position above the tooltip icon */
     left: 50%;
-    margin-left: -165px; /* Center the tooltip */
+    margin-left: -160px; /* Center the tooltip */
     opacity: 0;
     transition: opacity 0.3s;
 }
