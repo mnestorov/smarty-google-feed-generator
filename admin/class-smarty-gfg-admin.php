@@ -154,8 +154,8 @@ class Smarty_Gfg_Admin {
 	 */
 	public function add_settings_page() {
 		add_options_page(
-			'Google Feed Generator | Settings',         // Page title
-			'Google Feed Generator',                    // Menu title
+			'Feed Generator | Settings',         		// Page title
+			'Feed Generator',                    		// Menu title
 			'manage_options',                           // Capability required to access this page
 			'smarty-gfg-settings',           			// Menu slug
 			array($this, 'display_settings_page')  		// Callback function to display the page content
@@ -169,6 +169,7 @@ class Smarty_Gfg_Admin {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
 			'google-feed'   => __('Google Feed', 'smarty-google-feed-generator'),
+			'bing-feed'   	=> __('Bing Feed', 'smarty-google-feed-generator'),
 			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -247,6 +248,7 @@ class Smarty_Gfg_Admin {
 		 */
 
 		// Sections
+
 		add_settings_section(
 			'smarty_gfg_section_general',                                   	// ID of the section
 			__('General', 'smarty-google-feed-generator'),                  	// Title of the section
@@ -337,10 +339,11 @@ class Smarty_Gfg_Admin {
 		 */
 
 		// Sections
+
 		add_settings_section(
 			'smarty_gfg_section_google_feed',									// ID of the section
 			__('Google Feed', 'smarty-google-feed-generator'),					// Title of the section
-			array($this, 'section_google_feed_cb'),								// Callback function that fills the section with the desired content
+			array($this, 'section_tab_google_feed_cb'),							// Callback function that fills the section with the desired content
 			'smarty_gfg_options_google_feed'									// Page on which to add the section
 		);
 
@@ -368,14 +371,14 @@ class Smarty_Gfg_Admin {
 		add_settings_section(
 			'smarty_gfg_section_compatibility',									// ID of the section
 			__('Compatibility', 'smarty-google-feed-generator'),    			// Title of the section  		
-			array($this, 'section_compatibility_cb'),                			// Callback function that fills the section with the desired content	
+			array($this, 'section_tab_compatibility_cb'),                		// Callback function that fills the section with the desired content	
 			'smarty_gfg_options_compatibility'                   				// Page on which to add the section   		
 		);                            	
 	
 		add_settings_section(
 			'smarty_gfg_section_license',										// ID of the section
 			__('License', 'smarty-google-feed-generator'),						// Title of the section  
-			array($this, 'section_license_cb'),									// Callback function that fills the section with the desired content
+			array($this, 'section_tab_license_cb'),								// Callback function that fills the section with the desired content
 			'smarty_gfg_options_license'										// Page on which to add the section
 		);
 
@@ -521,7 +524,7 @@ class Smarty_Gfg_Admin {
 
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
-		
+
 		$csv_columns = array(
 			'MPN', 																// Example custom value: SKU
 			'Title', 															// Example custom value: Item Title
@@ -592,11 +595,11 @@ class Smarty_Gfg_Admin {
 	
 		if (!$this->is_field_excluded('Excluded Countries for Shopping Ads')) {
 			add_settings_field(
-				'smarty_excluded_countries_for_shopping_ads',                 		// ID of the field
-				__('Excluded Countries for Shopping Ads', 'smarty-google-feed-generator'), // Title of the field
-				array($this, 'excluded_countries_cb'),                        		// Callback function to display the field
-				'smarty_gfg_options_google_feed',                                 	// Page on which to add the field
-				'smarty_gfg_section_google_feed',                           		// Section to which this field belongs
+				'smarty_excluded_countries_for_shopping_ads',                 				// ID of the field
+				__('Excluded Countries for Shopping Ads', 'smarty-google-feed-generator'), 	// Title of the field
+				array($this, 'excluded_countries_cb'),                        				// Callback function to display the field
+				'smarty_gfg_options_google_feed',                                 			// Page on which to add the field
+				'smarty_gfg_section_google_feed',                           				// Section to which this field belongs
 				['id' => 'smarty-excluded-countries']
 			);
 		}
@@ -1251,7 +1254,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_meta_fields_cb() {
-		echo '<p>' . __('Use this settings for the Google Feed Generator If custom meta fields exists.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Use this settings for the Feed Generator If custom meta fields exists.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1260,7 +1263,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_settings_cb() {
-		echo '<p>' . __('Cache settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Cache settings for the Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1394,8 +1397,8 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function convert_images_button_cb() {
-		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block;">' . __('Convert First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('Convert All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block;">' . __('First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
 	}
 	
 	/**
@@ -1404,9 +1407,11 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_feed" style="display: inline-block;">' . __('Google Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Google Reviews Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block;">' . __('Google CSV Export', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-block; margin: 0 10px;">' . __('Bing Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed" style="display: inline-block;">' . __('Bing TXT Feed', 'smarty-google-feed-generator') . '</button>';
 	}
 	
 	/**
@@ -1454,33 +1459,12 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
-	 * Callback function for the Mapping section field.
+	 * Callback function for the Google section field.
 	 *
 	 * @since    1.0.0
 	 */
-	public function section_google_feed_cb() {
-		echo '<p>' . __('Main column options for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
-	}
-
-	/**
-	 * Callback function for the Mapping section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public function section_columns_mapping_cb() {
-		echo '<p>' . __('Configure the mapping of TSV/CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
-	}
-
-	/**
-     * Callback function for rendering the TSV/CSV mapping fields.
-     * 
-     * @since 1.0.0
-     */
-    public function csv_mapping_fields_cb($args) {
-        $column = $args['column'];
-        $options = get_option('smarty_gfg_settings_mapping', array());
-        $new_value = isset($options[$column]) ? $options[$column] : '';
-		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
+	public function section_tab_google_feed_cb() {
+		echo '<p>' . __('Main column options for the Google feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -1639,11 +1623,41 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
+	 * Callback function for the Mapping section field.
+	 *
+	 * @since    1.0.0
+	 */
+	public function section_columns_mapping_cb() {
+		echo '<p>' . __('Configure the mapping of TSV/CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
+	}
+
+	/**
+     * Callback function for rendering the TSV/CSV mapping fields.
+     * 
+     * @since 1.0.0
+     */
+    public function csv_mapping_fields_cb($args) {
+        $column = $args['column'];
+        $options = get_option('smarty_gfg_settings_mapping', array());
+        $new_value = isset($options[$column]) ? $options[$column] : '';
+		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
+	}
+
+	/**
+	 * Callback function for the Bing section field.
+	 *
+	 * @since    1.0.0
+	 */
+	public function section_tab_bing_feed_cb() {
+		echo '<p>' . __('Main column options for the Bing feed.', 'smarty-google-feed-generator') . '</p>';
+	}
+
+	/**
 	 * Callback function for the Compatibility section field.
 	 *
 	 * @since    1.0.0
 	 */
-	public static function section_compatibility_cb() {
+	public static function section_tab_compatibility_cb() {
 		return smarty_check_compatibility();
 	}
 
@@ -1653,7 +1667,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      * @param array $args Arguments for the callback.
      */
-	public function section_license_cb($args) {
+	public function section_tab_license_cb($args) {
 		?>
 		<p id="<?php echo esc_attr($args['id']); ?>">
 			<?php echo esc_html__('Enter your API key to enable advanced features.', 'smarty-google-feed-generator'); ?>

@@ -108,7 +108,7 @@
             var redirectUrl = '';
 
             switch (action) {
-                case 'generate_product_feed':
+                case 'generate_google_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-feed/';
                     break;
                 case 'generate_reviews_feed':
@@ -116,6 +116,12 @@
                     break;
                 case 'generate_csv_export':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-csv-export/';
+                    break;
+                case 'generate_bing_feed':
+                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-feed/';
+                    break;
+                case 'generate_bing_txt_feed':
+                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-txt-feed/';
                     break;
                 default:
                     alert('Invalid action.');
