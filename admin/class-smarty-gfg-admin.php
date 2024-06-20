@@ -168,8 +168,8 @@ class Smarty_Gfg_Admin {
 	private function get_settings_tabs() {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
-			'google-feed'   => __('Google Feed', 'smarty-google-feed-generator'),
-			'bing-feed'   	=> __('Bing Feed', 'smarty-google-feed-generator'),
+			'google-feed'   => __('Google Products Feed', 'smarty-google-feed-generator'),
+			'bing-feed'   	=> __('Bing Shopping Feed', 'smarty-google-feed-generator'),
 			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -211,7 +211,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_clear_cache', array($this,'sanitize_checkbox'));
 		register_setting('smarty_gfg_options_general', 'smarty_cache_duration', array($this,'sanitize_number_field'));
 
-		// Google Feed Settings
+		// Google Products Feed Settings
 		register_setting('smarty_gfg_options_google_feed', 'smarty_google_product_category');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_google_category_as_id', array($this,'sanitize_checkbox'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_patterns', 'sanitize_textarea_field');
@@ -335,14 +335,14 @@ class Smarty_Gfg_Admin {
 		);
 
 		/*
-		 * GOOGLE FEED TAB
+		 * GOOGLE PRODUCTS FEED TAB
 		 */
 
 		// Sections
 
 		add_settings_section(
 			'smarty_gfg_section_google_feed',									// ID of the section
-			__('Google Feed', 'smarty-google-feed-generator'),					// Title of the section
+			__('Google Products Feed', 'smarty-google-feed-generator'),			// Title of the section
 			array($this, 'section_tab_google_feed_cb'),							// Callback function that fills the section with the desired content
 			'smarty_gfg_options_google_feed'									// Page on which to add the section
 		);
@@ -1407,10 +1407,10 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_feed" style="display: inline-block;">' . __('Google Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_feed" style="display: inline-block;">' . __('Google Products Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Google Reviews Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block;">' . __('Google CSV Export', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-block; margin: 0 10px;">' . __('Bing Feed', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-block; margin: 0 10px;">' . __('Bing Shopping Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed" style="display: inline-block;">' . __('Bing TXT Feed', 'smarty-google-feed-generator') . '</button>';
 	}
 	
@@ -1464,7 +1464,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_tab_google_feed_cb() {
-		echo '<p>' . __('Main column options for the Google feed.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Main column options for the Google Products feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -1628,7 +1628,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_columns_mapping_cb() {
-		echo '<p>' . __('Configure the mapping of TSV/CSV column headers to WooCommerce product attributes.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Configure the mapping of Google Products feed TSV/CSV column headers.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -1649,7 +1649,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_tab_bing_feed_cb() {
-		echo '<p>' . __('Main column options for the Bing feed.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Main column options for the Bing Shopping feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
