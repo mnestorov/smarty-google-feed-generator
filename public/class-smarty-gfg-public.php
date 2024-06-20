@@ -1193,6 +1193,9 @@ class Smarty_Gfg_Public {
         if (!in_array('Custom Label 4', $excluded_columns)) {
             $data['custom_label_4'] = $this->get_custom_label_4($product);
         }
+
+        $brand = get_bloginfo('name');
+        $data['seller_name'] = htmlspecialchars($brand);
     
         if (!in_array('Shipping', $excluded_columns)) {
             $shipping_cost = $this->get_shipping_cost();
