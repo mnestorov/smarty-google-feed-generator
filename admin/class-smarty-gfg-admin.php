@@ -1737,7 +1737,21 @@ class Smarty_Gfg_Admin {
 	 */
 	public static function add_activity_log($message) {
 		$logs = get_option('smarty_activity_log', array());
-		$logs[] = current_time('mysql') . ' - ' . $message;
+		
+		// Get the current time in the specified format
+		$time_format = 'Y-M-d H:i:s';  // PHP date format
+		$current_time = current_time($time_format);
+	
+		// Get the timezone
+		$timezone = new DateTimeZone(get_option('timezone_string') ?: 'UTC');
+		$datetime = new DateTime(null, $timezone);
+		$timezone_name = $datetime->format('T');  // Gets the timezone abbreviation, e.g., GMT
+	
+		// Combine time, timezone, and message
+		$log_entry = sprintf("[%s %s] - %s", $current_time, $timezone_name, $message);
+		$logs[] = $log_entry;
+	
+		// Save the updated logs back to the database
 		update_option('smarty_activity_log', $logs);
 	}
 
