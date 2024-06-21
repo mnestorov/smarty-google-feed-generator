@@ -47,5 +47,10 @@ class Smarty_Gfg_Activator {
         if (!wp_next_scheduled('smarty_generate_bing_feed')) {
             wp_schedule_event(time(), 'twicedaily', 'smarty_generate_bing_feed');
         }
+
+        // Schedule Facebook Feed Event
+        if (!wp_next_scheduled('smarty_generate_facebook_feed')) {
+            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_facebook_feed');
+        }
     }
 }

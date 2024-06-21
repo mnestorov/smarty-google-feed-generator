@@ -117,6 +117,11 @@ class Smarty_Gfg_Public {
             $this->generate_bing_feed('txt');
             exit;
         }
+
+        if (get_query_var('smarty_facebook_feed')) {
+            $this->generate_facebook_feed();
+            exit;
+        }
 	}
 
 	/**
@@ -130,6 +135,7 @@ class Smarty_Gfg_Public {
 		add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
         add_rewrite_rule('^smarty-bing-feed/?', 'index.php?smarty_bing_feed=1', 'top');                     // url: ?smarty-bing-feed
         add_rewrite_rule('^smarty-bing-txt-feed/?', 'index.php?smarty_bing_txt_feed=1', 'top');             // url: ?smarty-bing-txt-feed
+        add_rewrite_rule('^smarty-facebook-feed/?', 'index.php?smarty_facebook_feed=1', 'top');             // url: ?smarty-facebook-feed
 	}
 	
 	/**
@@ -145,6 +151,7 @@ class Smarty_Gfg_Public {
 		$vars[] = 'smarty_csv_export';
         $vars[] = 'smarty_bing_feed';
         $vars[] = 'smarty_bing_txt_feed';
+        $vars[] = 'smarty_facebook_feed';
 		return $vars;
 	}
 
@@ -1254,7 +1261,107 @@ class Smarty_Gfg_Public {
             }
             fputcsv($output, $row, "\t");
         }
-    }    
+    }
+
+    /**
+     * Generates the Facebook Product Catalog feed in CSV format.
+     * 
+     * @since    1.0.0
+     */
+    public function generate_facebook_feed() {
+        // Set headers to force download and define the file name
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="facebook-products.csv"');
+
+        // Open PHP output stream as a writable file
+        $handle = fopen('php://output', 'w');
+
+        // Check if the file handle is valid
+        if ($handle === false) {
+            wp_die('Failed to open output stream for CSV export'); // Kill the script and display message if handle is invalid
+        }
+
+        // Define the columns for Facebook feed
+        $csv_columns = array(
+            'id',                       // Unique ID of the product
+            'title',                    // Title of the product
+            'description',              // Description of the product
+            'availability',             // Availability status
+            'condition',                // Condition of the product
+            'price',                    // Price of the product
+            'link',                     // URL to the product page
+            'image_link',               // Main image URL
+            'brand',                    // Brand of the product
+            'product_type',             // Product category
+            'fb_product_category',      // Facebook Product Category
+        );
+
+        // Write the header row to the CSV file
+        fputcsv($handle, $csv_columns);
+
+        // Fetch products from WooCommerce
+        $args = array(
+            'status'        => 'publish',
+            'stock_status'  => 'instock',
+            'limit'         => -1,
+            'orderby'       => 'date',
+            'order'         => 'DESC',
+            'type'          => ['simple', 'variable'],
+        );
+        $products = wc_get_products($args);
+
+        // Get Facebook category mappings from settings
+        $category_mappings = get_option('smarty_facebook_category_mappings', array());
+
+        // Iterate through each product
+        foreach ($products as $product) {
+            // Prepare product data for the CSV
+            $id = $product->get_id();
+            $title = $product->get_name();
+            $description = strip_tags($product->get_description());
+            $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
+            $condition = 'new'; // Assuming all products are new
+            $price = $product->get_price() . ' ' . get_woocommerce_currency();
+            $link = get_permalink($id);
+            $image_link = wp_get_attachment_url($product->get_image_id());
+            $brand = get_bloginfo('name'); // Use the site name as the brand
+
+            // Compile a list from the product's categories
+            $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+            $category_names = array();
+            $facebook_category = '';
+            if (!empty($categories) && !is_wp_error($categories)) {
+                foreach ($categories as $category) {
+                    $category_names[] = $category->name;
+                    if (isset($category_mappings[$category->term_id])) {
+                        $facebook_category = $category_mappings[$category->term_id];
+                    }
+                }
+            }
+            $product_type = join(' > ', $category_names);
+
+            // Prepare the row data
+            $row = array(
+                $id,
+                $title,
+                $description,
+                $availability,
+                $condition,
+                $price,
+                $link,
+                $image_link,
+                $brand,
+                $product_type,
+                $facebook_category,
+            );
+
+            // Write the row to the CSV file
+            fputcsv($handle, $row);
+        }
+
+        fclose($handle);
+        exit;
+    }
 
     /**
      * Handle AJAX request to generate feed.
@@ -1285,6 +1392,10 @@ class Smarty_Gfg_Public {
             case 'generate_bing_feed':
                 $this->generate_bing_feed();
                 wp_send_json_success('Bing Product feed generated successfully.');
+                break;
+            case 'generate_facebook_feed':
+                $this->generate_facebook_feed();
+                wp_send_json_success('Facebook feed generated successfully.');
                 break;
 			default:
 				wp_send_json_error('Invalid action.');
