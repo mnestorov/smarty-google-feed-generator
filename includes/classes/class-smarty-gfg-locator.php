@@ -170,6 +170,7 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
 		$this->loader->add_action('smarty_generate_google_feed', $plugin_public, 'generate_google_feed');
 		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_public, 'generate_google_reviews_feed');
+		$this->loader->add_action('smarty_generate_bing_feed',  $plugin_public, 'generate_bing_feed');
 		$this->loader->add_action('woocommerce_new_product', $plugin_public, 'invalidate_feed_cache');
     	$this->loader->add_action('woocommerce_update_product', $plugin_public, 'invalidate_feed_cache');
 		$this->loader->add_action('before_delete_post', $plugin_public, 'invalidate_feed_cache_on_delete');

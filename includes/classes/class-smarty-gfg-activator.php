@@ -43,7 +43,7 @@ class Smarty_Gfg_Activator {
             wp_schedule_event(time(), 'daily', 'smarty_generate_google_reviews_feed');
         }
 
-        // Schedule Google Feed Event
+        // Schedule Bing Feed Event
         if (!wp_next_scheduled('smarty_generate_bing_feed')) {
             wp_schedule_event(time(), 'twicedaily', 'smarty_generate_bing_feed');
         }

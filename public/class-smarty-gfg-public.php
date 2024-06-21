@@ -1270,11 +1270,11 @@ class Smarty_Gfg_Public {
 	
 		$action = sanitize_text_field($_POST['feed_action']);
 		switch ($action) {
-			case 'generate_product_feed':
+			case 'generate_google_feed':
 				$this->generate_google_feed();
 				wp_send_json_success('Google Product feed generated successfully.');
 				break;
-			case 'generate_reviews_feed':
+			case 'generate_google_reviews_feed':
 				$this->generate_google_reviews_feed();
 				wp_send_json_success('Google Reviews feed generated successfully.');
 				break;
@@ -1282,7 +1282,7 @@ class Smarty_Gfg_Public {
 				$this->generate_csv_export();
 				wp_send_json_success('CSV export generated successfully.');
 				break;
-            case 'generate_product_feed':
+            case 'generate_bing_feed':
                 $this->generate_bing_feed();
                 wp_send_json_success('Bing Product feed generated successfully.');
                 break;
@@ -1308,8 +1308,8 @@ class Smarty_Gfg_Public {
             delete_transient('smarty_bing_feed');
 
             // Regenerate the feeds
-            $this->regenerate_feed('google');
-            $this->regenerate_feed('bing');
+            $this->regenerate_google_feed();
+            $this->regenerate_bing_feed();
         }
     }
 
@@ -1332,8 +1332,8 @@ class Smarty_Gfg_Public {
             delete_transient('smarty_bing_feed');
 
             // Regenerate the feeds immediately to update the feed file
-            $this->regenerate_feed('google');
-            $this->regenerate_feed('bing');
+            $this->regenerate_google_feed();
+            $this->regenerate_bing_feed();
         }
     }
 

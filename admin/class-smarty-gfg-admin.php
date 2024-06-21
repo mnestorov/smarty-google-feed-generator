@@ -1235,7 +1235,7 @@ class Smarty_Gfg_Admin {
 	public function google_category_as_id_cb() {
 		$option = get_option('smarty_google_category_as_id');
 		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
-		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.<br><small><em><b>Important: </b><span style="color: #c51244;">For Bing Shopping feed you need to use Google Product Category <b>name</b> so not use this checkbox.</span></em></small>', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
