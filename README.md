@@ -58,8 +58,6 @@ For a detailed list of changes and updates made to this project, please refer to
 
 Functionality and additional fields we need to add in to the wp plugin settings page:
 
-- Make dynamic column mapping
-- Include/Exclude columns functionality for the TSV/CSV and XML feed
 - Brand - (dynamic value from product attributes) - _at this point the brand is get from the site name_
 - GTIN - (dynamic value from product attributes)
 - Condition - (dynamic value from product attributes with values: new|refurbished|used) - _at this point the condition is set globally from plugin settings_
