@@ -17,7 +17,7 @@
 <?php $api_key = $license_options['api_key'] ?? ''; ?>
 
 <div class="wrap">
-	<h1><?php echo esc_html('Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
+	<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
 	<h2 class="nav-tab-wrapper">
 	<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
             <?php $active = ($current_tab == $tab_key) ? 'nav-tab-active' : ''; ?>
@@ -35,9 +35,6 @@
 			<?php elseif ($current_tab == 'google-feed') : ?>
 				<?php settings_fields('smarty_gfg_options_google_feed'); ?>
 				<?php do_settings_sections('smarty_gfg_options_google_feed'); ?>
-			<?php elseif ($current_tab == 'facebook-feed') : ?>
-				<?php settings_fields('smarty_gfg_options_facebook_feed'); ?>
-				<?php do_settings_sections('smarty_gfg_options_facebook_feed'); ?>
 			<?php elseif ($current_tab == 'compatibility') : ?>
 				<?php $compatibility = call_user_func('Smarty_Gfg_Admin::section_tab_compatibility_cb'); ?>
 				<div class="flex-container">

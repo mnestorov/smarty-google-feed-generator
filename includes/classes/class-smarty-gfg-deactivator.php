@@ -41,12 +41,6 @@ class Smarty_Gfg_Deactivator {
             wp_unschedule_event($bing_feed_timestamp, 'smarty_generate_bing_feed');
         }
 
-        // Clear scheduled feed regeneration event
-        $facebook_feed_timestamp = wp_next_scheduled('smarty_generate_facebook_feed');
-        if ($facebook_feed_timestamp) {
-            wp_unschedule_event($facebook_feed_timestamp, 'smarty_generate_facebook_feed');
-        }
-
         // Path to the generated XML file
         $google_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_google_feed.xml';
         $bing_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_bing_feed.xml';

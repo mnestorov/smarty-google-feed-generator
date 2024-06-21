@@ -154,8 +154,8 @@ class Smarty_Gfg_Admin {
 	 */
 	public function add_settings_page() {
 		add_options_page(
-			'Feed Generator | Settings',         		// Page title
-			'Feed Generator',                    		// Menu title
+			'Google Feed Generator | Settings',         // Page title
+			'Google Feed Generator',                    // Menu title
 			'manage_options',                           // Capability required to access this page
 			'smarty-gfg-settings',           			// Menu slug
 			array($this, 'display_settings_page')  		// Callback function to display the page content
@@ -169,7 +169,6 @@ class Smarty_Gfg_Admin {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
 			'google-feed'   => __('Google Products Feed', 'smarty-google-feed-generator'),
-			'facebook-feed' => __('Facebook Feed', 'smarty-google-feed-generator'),
 			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -236,9 +235,6 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_xml_columns');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_csv_columns');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_settings_mapping', array($this, 'sanitize_mapping_settings'));
-
-		// Facebook Feed Settings
-		register_setting('smarty_gfg_options_facebook_feed', 'smarty_gfg_settings_facebook');
 
 		// Compatibility Settings
 		register_setting('smarty_gfg_options_compatibility', 'smarty_gfg_settings_compatibility', array($this, 'sanitize_compatibility_settings'));
@@ -592,29 +588,6 @@ class Smarty_Gfg_Admin {
 				['id' => 'smarty-excluded-countries']
 			);
 		}
-
-		/*
-		 * FACEBOOK FEED TAB
-		 */
-
-		// Sections
-
-		add_settings_section(
-			'smarty_gfg_section_facebook_feed',									// ID of the section
-			__('Facebook Feed', 'smarty-google-feed-generator'),				// Title of the section
-			array($this, 'section_tab_facebook_feed_cb'),						// Callback function that fills the section with the desired content
-			'smarty_gfg_options_facebook_feed'									// Page on which to add the section
-		);
-
-		// Fields
-
-		add_settings_field(
-            'smarty_facebook_category_mappings',
-            __('Facebook Category Mappings', 'smarty-google-feed-generator'),
-            array($this, 'facebook_category_mappings_cb'),
-            'smarty_gfg_options_facebook_feed',
-            'smarty_gfg_section_facebook_feed'
-        );
 
 		/*
 		 * COMPATIBILITY TAB
@@ -1248,7 +1221,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_general_cb() {
-		echo '<p>' . __('General settings for the Feed Generator.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('General settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1310,7 +1283,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_meta_fields_cb() {
-		echo '<p>' . __('Use this settings for the Feed Generator If custom meta fields exists.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Use this settings for the Google Feed Generator If custom meta fields exists.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1319,7 +1292,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_settings_cb() {
-		echo '<p>' . __('Cache settings for the Feed Generator.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Cache settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**
@@ -1670,36 +1643,6 @@ class Smarty_Gfg_Admin {
     public function csv_mapping_fields_cb($args) {
 		$this->render_mapping_fields_cb('smarty_gfg_settings_mapping', $args);
 	}
-
-	/**
-	 * Callback function for the Facebook section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public function section_tab_facebook_feed_cb() {
-		echo '<p>' . __('Main column options for the Facebook feed.', 'smarty-google-feed-generator') . '</p>';
-	}
-
-	/**
-     * @since    1.0.0
-     */
-	public function facebook_category_mappings_cb() {
-        $mappings = get_option('smarty_facebook_category_mappings', array());
-
-        // Fetch all WooCommerce categories
-        $categories = get_terms(array(
-            'taxonomy' => 'product_cat',
-            'hide_empty' => false,
-        ));
-
-        foreach ($categories as $category) {
-            $value = isset($mappings[$category->term_id]) ? esc_attr($mappings[$category->term_id]) : '';
-            echo '<p>';
-            echo '<label for="facebook_category_' . esc_attr($category->term_id) . '">' . esc_html($category->name) . '</label>';
-            echo '<input type="text" id="facebook_category_' . esc_attr($category->term_id) . '" name="smarty_facebook_category_mappings[' . esc_attr($category->term_id) . ']" value="' . $value . '" />';
-            echo '</p>';
-        }
-    }
 
 	/**
 	 * Callback function for the Compatibility section field.
