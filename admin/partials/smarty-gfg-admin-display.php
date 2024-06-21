@@ -35,9 +35,6 @@
 			<?php elseif ($current_tab == 'google-feed') : ?>
 				<?php settings_fields('smarty_gfg_options_google_feed'); ?>
 				<?php do_settings_sections('smarty_gfg_options_google_feed'); ?>
-			<?php elseif ($current_tab == 'bing-feed') : ?>
-				<?php //settings_fields('smarty_gfg_options_bing_feed'); ?>
-				<?php //do_settings_sections('smarty_gfg_options_bing_feed'); ?>
 			<?php elseif ($current_tab == 'compatibility') : ?>
 				<?php $compatibility = call_user_func('Smarty_Gfg_Admin::section_compatibility_cb'); ?>
 				<div class="flex-container">

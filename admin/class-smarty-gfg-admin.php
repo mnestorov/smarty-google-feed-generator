@@ -169,7 +169,6 @@ class Smarty_Gfg_Admin {
 		return array(
 			'general' 		=> __('General', 'smarty-google-feed-generator'),
 			'google-feed'   => __('Google Products Feed', 'smarty-google-feed-generator'),
-			'bing-feed'   	=> __('Bing Shopping Feed', 'smarty-google-feed-generator'),
 			'compatibility' => __('Compatibility', 'smarty-google-feed-generator'),
 			'license' 		=> __('License', 'smarty-google-feed-generator')
 		);
@@ -206,16 +205,17 @@ class Smarty_Gfg_Admin {
 	 */
 	public function settings_init() {
 		// General Settings
+		register_setting('smarty_gfg_options_general', 'smarty_exclude_patterns', 'sanitize_textarea_field');
+		register_setting('smarty_gfg_options_general', 'smarty_excluded_categories');
 		register_setting('smarty_gfg_options_general', 'smarty_meta_title_field', 'sanitize_text_field');
 		register_setting('smarty_gfg_options_general', 'smarty_meta_description_field', 'sanitize_text_field');
 		register_setting('smarty_gfg_options_general', 'smarty_clear_cache', array($this,'sanitize_checkbox'));
 		register_setting('smarty_gfg_options_general', 'smarty_cache_duration', array($this,'sanitize_number_field'));
 
 		// Google Products Feed Settings
+		register_setting('smarty_gfg_options_google_feed', 'smarty_feed_type', array($this, 'sanitize_feed_type'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_google_product_category');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_google_category_as_id', array($this,'sanitize_checkbox'));
-		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_patterns', 'sanitize_textarea_field');
-		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_categories');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_condition', array($this, 'sanitize_text_field'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_size_system');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
@@ -285,6 +285,22 @@ class Smarty_Gfg_Admin {
 		);
 
 		// Fields
+
+		add_settings_field(
+			'smarty_exclude_patterns',                                      	// ID of the field
+			__('Exclude Patterns', 'smarty-google-feed-generator'),         	// Title of the field
+			array($this,'exclude_patterns_cb'),                            		// Callback function to display the field
+			'smarty_gfg_options_general',                               		// Page on which to add the field
+			'smarty_gfg_section_general'                                    	// Section to which this field belongs
+		);
+	
+		add_settings_field(
+			'smarty_excluded_categories',                                   	// ID of the field
+			__('Excluded Categories', 'smarty-google-feed-generator'),      	// Title of the field
+			array($this,'excluded_categories_cb'),                          	// Callback function to display the field
+			'smarty_gfg_options_general',                               		// Page on which to add the field
+			'smarty_gfg_section_general'                                    	// Section to which this field belongs
+		);
 	
 		add_settings_field(
 			'smarty_convert_images',                                        	// ID of the field
@@ -362,10 +378,10 @@ class Smarty_Gfg_Admin {
 		);
 
 		add_settings_section(
-			'smarty_gfg_section_columns_mapping',                             	// ID of the section
-			__('Mapping Column Headers', 'smarty-google-feed-generator'),      	// Title of the section
-			array($this,'section_columns_mapping_cb'),                    		// Callback function that fills the section with the desired content
-			'smarty_gfg_options_google_feed'                                	// Page on which to add the section
+			'smarty_gfg_section_columns_mapping',                            	// ID of the section
+			__('Mapping Column Headers', 'smarty-google-feed-generator'),    	// Title of the section
+			array($this,'section_columns_mapping_cb'),                       	// Callback function that fills the section with the desired content
+			'smarty_gfg_options_google_feed'                                 	// Page on which to add the section
 		);
 
 		add_settings_section(
@@ -392,28 +408,13 @@ class Smarty_Gfg_Admin {
 			'smarty_gfg_section_google_feed'                                    // Section to which this field belongs
 		);
 	
+
 		add_settings_field(
-			'smarty_google_category_as_id',                                 	// ID of the field
+			'smarty_google_category_as_id',                                		// ID of the field
 			__('Use Google Category ID', 'smarty-google-feed-generator'),   	// Title of the field
 			array($this,'google_category_as_id_cb'),                        	// Callback function to display the field
 			'smarty_gfg_options_google_feed',                               	// Page on which to add the field
-			'smarty_gfg_section_google_feed'                                    // Section to which this field belongs
-		);
-	
-		add_settings_field(
-			'smarty_exclude_patterns',                                      	// ID of the field
-			__('Exclude Patterns', 'smarty-google-feed-generator'),         	// Title of the field
-			array($this,'exclude_patterns_cb'),                            		// Callback function to display the field
-			'smarty_gfg_options_google_feed',                               	// Page on which to add the field
-			'smarty_gfg_section_google_feed'                                    // Section to which this field belongs
-		);
-	
-		add_settings_field(
-			'smarty_excluded_categories',                                   	// ID of the field
-			__('Excluded Categories', 'smarty-google-feed-generator'),      	// Title of the field
-			array($this,'excluded_categories_cb'),                          	// Callback function to display the field
-			'smarty_gfg_options_google_feed',                               	// Page on which to add the field
-			'smarty_gfg_section_google_feed'                                    // Section to which this field belongs
+			'smarty_gfg_section_google_feed'                                	// Section to which this field belongs
 		);
 
 		add_settings_field(
@@ -573,22 +574,22 @@ class Smarty_Gfg_Admin {
 
 		if (!$this->is_field_excluded('Excluded Destination')) {
 			add_settings_field(
-				'smarty_excluded_destination',                                		// ID of the field
-				__('Excluded Destination', 'smarty-google-feed-generator'),   		// Title of the field
-				array($this, 'excluded_destination_cb'),                      		// Callback function to display the field
-				'smarty_gfg_options_google_feed',                                 	// Page on which to add the field
-				'smarty_gfg_section_google_feed',                               	// Section to which this field belongs
+				'smarty_excluded_destination',                                	// ID of the field
+				__('Excluded Destination', 'smarty-google-feed-generator'),   	// Title of the field
+				array($this, 'excluded_destination_cb'),                      	// Callback function to display the field
+				'smarty_gfg_options_google_feed',                               // Page on which to add the field
+				'smarty_gfg_section_google_feed',                               // Section to which this field belongs
 				['id' => 'smarty-excluded-destination']
 			);
 		}
 		
 		if (!$this->is_field_excluded('Included Destination')) {
 			add_settings_field(
-				'smarty_included_destination',                                		// ID of the field
-				__('Included Destination', 'smarty-google-feed-generator'),   		// Title of the field
-				array($this, 'included_destination_cb'),                      		// Callback function to display the field
-				'smarty_gfg_options_google_feed',                                 	// Page on which to add the field
-				'smarty_gfg_section_google_feed',                                	// Section to which this field belongs
+				'smarty_included_destination',                                	// ID of the field
+				__('Included Destination', 'smarty-google-feed-generator'),   	// Title of the field
+				array($this, 'included_destination_cb'),                      	// Callback function to display the field
+				'smarty_gfg_options_google_feed',                               // Page on which to add the field
+				'smarty_gfg_section_google_feed',                               // Section to which this field belongs
 				['id' => 'smarty-included-destination']
 			);
 		}
@@ -827,6 +828,14 @@ class Smarty_Gfg_Admin {
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
 	
+		// Ensure these options are arrays
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
+	
 		// Check if Size System is excluded in both XML and CSV
 		if (in_array('Size System', $exclude_xml_columns) && in_array('Size System', $exclude_csv_columns)) {
 			return; // Do not display the field
@@ -841,7 +850,7 @@ class Smarty_Gfg_Admin {
 		}
 		echo '</select>';
 		echo '<p class="description">' . __('Select a size system.', 'smarty-google-feed-generator') . '</p>';
-	}	
+	}		
 
 	/**
      * @since    1.0.0
@@ -850,12 +859,20 @@ class Smarty_Gfg_Admin {
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
 	
+		// Ensure these options are arrays
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
+	
 		// Check if Excluded Destination is excluded in both XML and CSV
 		if (in_array('Excluded Destination', $exclude_xml_columns) && in_array('Excluded Destination', $exclude_csv_columns)) {
 			return; // Do not display the field
 		}
 	
-		$options = get_option('smarty_excluded_destination', []);
+		$options = get_option('smarty_excluded_destination', array());
 		$destinations = ['Shopping_ads', 'Buy_on_Google_listings', 'Display_ads', 'Local_inventory_ads', 'Free_listings', 'Free_local_listings', 'YouTube_Shopping'];
 		echo '<select id="smarty-excluded-destination" name="smarty_excluded_destination[]" multiple="multiple" class="smarty-excluded-destination">';
 		foreach ($destinations as $destination) {
@@ -863,7 +880,7 @@ class Smarty_Gfg_Admin {
 		}
 		echo '</select>';
 		echo '<p class="description">' . __('A setting that you can use to exclude a product from participating in a specific type of advertising campaign.', 'smarty-google-feed-generator') . '</p>';
-	}	
+	}		
 	
 	/**
      * @since    1.0.0
@@ -1227,7 +1244,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_custom_labels_cb() {
-		echo '<p>' . __('Define default values for custom labels.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Define default values for custom labels <b>(also works for Bing Shopping feed)</b>.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
@@ -1464,8 +1481,35 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_tab_google_feed_cb() {
-		echo '<p>' . __('Main column options for the Google Products feed.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Main column options for the Google Products feed <b>(also works for Bing Shopping feed)</b>.', 'smarty-google-feed-generator') . '</p>';
 	}
+
+	/**
+	 * A common method to render the columns for both XML and CSV settings.
+	 *
+	 * @since    1.0.0
+	 */
+	public function render_columns_cb($option_name, $columns, $disabled_columns, $type) {
+		$options = get_option($option_name, array());
+		
+		// Ensure $options is an array
+		if (!is_array($options)) {
+			$options = array();
+		}
+		
+		foreach ($columns as $column) {
+			$checked = in_array($column, $options) ? 'checked' : '';
+			$disabled = in_array($column, $disabled_columns) ? 'disabled' : '';
+	
+			// Generate the description dynamically for custom labels
+			if (strpos($column, 'Custom Label') !== false) {
+				$description = isset($this->column_descriptions['Custom Label']) ? $this->column_descriptions['Custom Label'] : '';
+			} else {
+				$description = isset($this->column_descriptions[$column]) ? $this->column_descriptions[$column] : '';
+			}
+			echo '<label><input type="checkbox" id="' . esc_attr($column) . '" name="' . esc_attr($option_name) . '[]" value="' . esc_attr($column) . '" ' . $checked . ' ' . $disabled . '> ' . esc_html($column) . '</label><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span><br>';
+		}
+	}		
 
 	/**
      * Callback function for the General section.
@@ -1473,87 +1517,33 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function section_exclude_columns_cb() {
-		echo '<p>' . __('Exclude columns from the TSV/CSV and xml feeds.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p>' . __('Exclude columns from the TSV/CSV and XML feeds <b>(also works for Bing Shopping XML feed)</b>.', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**
      * @since    1.0.0
      */
 	public function exclude_xml_columns_cb() {
-		$options = get_option('smarty_exclude_xml_columns', array());
-		$columns = array(
-			'ID', 
-			'MPN', 
-			'Title', 
-			'Description', 
-			'Product Type', 
-			'Link',
-			'Mobile Link', 
-			'Image Link', 
-			'Additional Image Link', 
-			'Google Product Category',
-			'Price', 
-			'Sale Price', 
-			'Bundle', 
-			'Brand', 
-			'Condition', 
-			'Multipack', 
-			'Color',
-			'Gender', 
-			'Material', 
-			'Size', 
-			'Size Type', 
-			'Size System', 
-			'Availability',
-			'Custom Label 0', 
-			'Custom Label 1', 
-			'Custom Label 2', 
-			'Custom Label 3', 
-			'Custom Label 4',
-			'Excluded Destination',
-        	'Included Destination',
-			'Excluded Countries for Shopping Ads',
-			'Shipping',
-		);
-
-		// Columns to be disabled
-		 $disabled_columns = array(
-			'ID', 
-			'MPN',
-			'Title', 
-			'Description', 
-			'Product Type', 
-			'Link',
-			'Image Link', 
-			'Additional Image Link',
-			'Google Product Category',
-			'Price', 
-			'Sale Price', 
-			'Bundle', 
-			'Brand', 
-			'Condition',
-			'Availability',
-		);
-
-		foreach ($columns as $column) {
-			$checked = in_array($column, $options) ? 'checked' : '';
-			$disabled = in_array($column, $disabled_columns) ? 'disabled' : '';
-
-			// Generate the description dynamically for custom labels
-			if (strpos($column, 'Custom Label') !== false) {
-				$description = isset($this->column_descriptions['Custom Label']) ? $this->column_descriptions['Custom Label'] : '';
-			} else {
-				$description = isset($this->column_descriptions[$column]) ? $this->column_descriptions[$column] : '';
-			}
-			echo '<label><input type="checkbox" id="' . esc_attr($column) . '" name="smarty_exclude_xml_columns[]" value="' . esc_attr($column) . '" ' . $checked . ' ' . $disabled . '> ' . esc_html($column) . '</label><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span><br>';
-		}
+		$feed_type = get_option('smarty_feed_type', 'google');
+		list($columns, $disabled_columns) = $this->get_feed_columns($feed_type);
+		$this->render_columns_cb('smarty_exclude_xml_columns', $columns, $disabled_columns, 'xml');
 	}
-
+	
 	/**
      * @since    1.0.0
      */
 	public function exclude_csv_columns_cb() {
-		$options = get_option('smarty_exclude_csv_columns', array());
+		$feed_type = get_option('smarty_feed_type', 'google');
+		list($columns, $disabled_columns) = $this->get_feed_columns($feed_type);
+		$this->render_columns_cb('smarty_exclude_csv_columns', $columns, $disabled_columns, 'csv');
+	}	
+
+	/**
+	 * Get the appropriate column names and excluded columns based on the feed type.
+	 * 
+     * @since    1.0.0
+     */
+	public function get_feed_columns($feed_type) {
 		$columns = array(
 			'ID', 
 			'MPN', 
@@ -1584,12 +1574,11 @@ class Smarty_Gfg_Admin {
 			'Custom Label 3', 
 			'Custom Label 4',
 			'Excluded Destination',
-        	'Included Destination',
+			'Included Destination',
 			'Excluded Countries for Shopping Ads',
 			'Shipping',
 		);
-
-		// Columns to be disabled
+	
 		$disabled_columns = array(
 			'ID', 
 			'MPN',
@@ -1607,19 +1596,8 @@ class Smarty_Gfg_Admin {
 			'Condition',
 			'Availability',
 		);
-
-		foreach ($columns as $column) {
-			$checked = in_array($column, $options) ? 'checked' : '';
-			$disabled = in_array($column, $disabled_columns) ? 'disabled' : '';
-			
-			// Generate the description dynamically for custom labels
-			if (strpos($column, 'Custom Label') !== false) {
-				$description = isset($this->column_descriptions['Custom Label']) ? $this->column_descriptions['Custom Label'] : '';
-			} else {
-				$description = isset($this->column_descriptions[$column]) ? $this->column_descriptions[$column] : '';
-			}
-			echo '<label><input type="checkbox" id="' . esc_attr($column) . '" name="smarty_exclude_csv_columns[]" value="' . esc_attr($column) . '" ' . $checked . ' ' . $disabled . '> ' . esc_html($column) . '</label><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span><br>';
-		}
+	
+		return array($columns, $disabled_columns);
 	}
 
 	/**
@@ -1628,28 +1606,30 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function section_columns_mapping_cb() {
+		echo '<div id="mapping-section">';
 		echo '<p>' . __('Configure the mapping of Google Products feed TSV/CSV column headers.', 'smarty-google-feed-generator') . '</p>';
+		echo '</div>';
 	}
 
 	/**
-     * Callback function for rendering the TSV/CSV mapping fields.
-     * 
+	 * Callback function for rendering the TSV/CSV mapping fields.
+	 * 
+	 * @since    1.0.0
+	 */
+	public function render_mapping_fields_cb($options_name, $args) {
+		$column = $args['column'];
+		$options = get_option($options_name, array());
+		$new_value = isset($options[$column]) ? $options[$column] : '';
+		echo '<div class="mapping-field">';
+		echo '<input type="text" id="' . esc_attr($options_name) . '_' . esc_attr($column) . '" name="' . esc_attr($options_name) . '[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
+		echo '</div>';
+	}
+
+	/**
      * @since 1.0.0
      */
     public function csv_mapping_fields_cb($args) {
-        $column = $args['column'];
-        $options = get_option('smarty_gfg_settings_mapping', array());
-        $new_value = isset($options[$column]) ? $options[$column] : '';
-		echo '<input type="text" id="smarty_gfg_settings_mapping_' . esc_attr($column) . '" name="smarty_gfg_settings_mapping[' . esc_attr($column) . ']" value="' . esc_attr($new_value) . '" class="regular-text" />';
-	}
-
-	/**
-	 * Callback function for the Bing section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public function section_tab_bing_feed_cb() {
-		echo '<p>' . __('Main column options for the Bing Shopping feed.', 'smarty-google-feed-generator') . '</p>';
+		$this->render_mapping_fields_cb('smarty_gfg_settings_mapping', $args);
 	}
 
 	/**
@@ -1682,8 +1662,16 @@ class Smarty_Gfg_Admin {
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
 	
+		// Ensure these options are arrays
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
+	
 		return in_array($field, $exclude_xml_columns) && in_array($field, $exclude_csv_columns);
-	}
+	}	
 
     /**
      * Callback function for the API key field.

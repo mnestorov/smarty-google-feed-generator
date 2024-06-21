@@ -1196,6 +1196,16 @@ class Smarty_Gfg_Public {
 
         $brand = get_bloginfo('name');
         $data['seller_name'] = htmlspecialchars($brand);
+
+        if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
+            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            if (!empty($shopping_ads_excluded_country)) {
+                $countries = explode(',', $shopping_ads_excluded_country);
+                foreach ($countries as $country) {
+                    $data['shopping_ads_excluded_country'][] = htmlspecialchars(trim($country));
+                }
+            }
+        }
     
         if (!in_array('Shipping', $excluded_columns)) {
             $shipping_cost = $this->get_shipping_cost();
@@ -1222,6 +1232,10 @@ class Smarty_Gfg_Public {
                     $shipping_element->appendChild($shipping_country);
                     $shipping_element->appendChild($shipping_service);
                     $item->appendChild($shipping_element);
+                } elseif ($key === 'shopping_ads_excluded_country') {
+                    foreach ($value as $country) {
+                        $item->appendChild($output->ownerDocument->createElement($key, $country));
+                    }
                 } else {
                     $item->appendChild($output->ownerDocument->createElement($key, $value));
                 }
@@ -1232,6 +1246,8 @@ class Smarty_Gfg_Public {
             foreach ($data as $key => $value) {
                 if ($key === 'shipping' && is_array($value)) {
                     $row[] = implode('|', $value);
+                } elseif ($key === 'shopping_ads_excluded_country') {
+                    $row[] = implode(',', $value);
                 } else {
                     $row[] = $value;
                 }
