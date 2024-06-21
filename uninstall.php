@@ -35,11 +35,17 @@ $timestamp = wp_next_scheduled('smarty_generate_google_feed_event');
 wp_unschedule_event($timestamp, 'smarty_generate_google_feed_event');
 
 // Remove generated files
-$feed_file_path = WP_content_dir() . '/uploads/smarty_google_feed.xml';
-if (file_exists($feed_file_path)) {
-    unlink($feed_file_path);
+$google_feed_file_path = WP_content_dir() . '/uploads/smarty_google_feed.xml';
+if (file_exists($google_feed_file_path)) {
+    unlink($google_feed_file_path);
+}
+
+$bing_feed_file_path = WP_content_dir() . '/uploads/smarty_bing_feed.xml';
+if (file_exists($bing_feed_file_path)) {
+    unlink($bing_feed_file_path);
 }
 
 // Remove all transients
 delete_transient('smarty_google_feed');
 delete_transient('smarty_google_reviews_feed');
+delete_transient('smarty_bing_feed');
