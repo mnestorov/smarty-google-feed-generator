@@ -29,6 +29,27 @@
 
     $(document).ready(function ($) {
         //console.log('Document is ready');
+
+        $('#delete-logs-button').on('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to delete all logs?')) {
+                $.post(
+                    smartyFeedGenerator.ajaxUrl,
+                    {
+                        action: 'smarty_clear_logs',
+                        nonce: smartyFeedGenerator.nonce,
+                    },
+                    function(response) {
+                        if (response.success) {
+                            alert('Logs cleared.');
+                            location.reload();
+                        } else {
+                            alert('Failed to clear logs.');
+                        }
+                    }
+                );
+            }
+        });
         
         $('.smarty-convert-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission

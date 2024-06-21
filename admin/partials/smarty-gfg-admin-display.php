@@ -35,37 +35,9 @@
 			<?php elseif ($current_tab == 'google-feed') : ?>
 				<?php settings_fields('smarty_gfg_options_google_feed'); ?>
 				<?php do_settings_sections('smarty_gfg_options_google_feed'); ?>
-			<?php elseif ($current_tab == 'compatibility') : ?>
-				<?php $compatibility = call_user_func('Smarty_Gfg_Admin::section_tab_compatibility_cb'); ?>
-				<div class="flex-container">
-					<!-- WordPress Version -->
-					<div class="flex-item">
-						<strong><?php echo esc_html__('WordPress Version', 'smarty-google-feed-generator'); ?></strong>
-						<div><?php echo esc_html($compatibility['wp_version']); ?></div>
-					</div>
-
-					<!-- WooCommerce Version -->
-					<div class="flex-item">
-						<strong><?php echo esc_html__('WooCommerce Version', 'smarty-google-feed-generator'); ?></strong>
-						<div><?php echo esc_html($compatibility['wc_version']); ?></div>
-					</div>
-
-					<!-- PHP Version -->
-					<div class="flex-item">
-						<strong><?php echo esc_html__('PHP Version', 'smarty-google-feed-generator'); ?></strong>
-						<div><?php echo esc_html($compatibility['php_version']); ?></div>
-					</div>
-
-					<!-- Status -->
-					<div class="flex-item">
-						<strong><?php echo esc_html__('Status', 'smarty-google-feed-generator'); ?></strong>
-						<div>
-							<span class="smarty-compatibility-status <?php echo ($compatibility['wp_compatible'] && $compatibility['php_compatible'] && $compatibility['wc_compatible']) ? 'smarty-compatibility-yes' : 'smarty-compatibility-no'; ?>">
-								<small><?php echo ($compatibility['wp_compatible'] && $compatibility['php_compatible'] && $compatibility['wc_compatible']) ? esc_html__('Compatible', 'smarty-google-feed-generator') : esc_html__('Incompatible', 'smarty-google-feed-generator'); ?></small>
-							</span>
-						</div>
-					</div>
-				</div>
+			<?php elseif ($current_tab == 'activity-logging') : ?>
+				<?php settings_fields('smarty_gfg_options_activity_logging'); ?>
+				<?php do_settings_sections('smarty_gfg_options_activity_logging'); ?>
 			<?php elseif ($current_tab == 'license') : ?>
 				<?php settings_fields('smarty_gfg_options_license'); ?>
 				<?php do_settings_sections('smarty_gfg_options_license'); ?>

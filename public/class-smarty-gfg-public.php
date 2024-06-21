@@ -157,6 +157,9 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      */
     public function generate_google_feed() {
+        // Add log entries
+        Smarty_Gfg_Admin::add_activity_log('Generated Google Products Feed');
+
         // Start output buffering to prevent any unwanted output
         ob_start();
 
@@ -483,6 +486,9 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      */
     public function generate_google_reviews_feed() {
+        // Add log entries
+        Smarty_Gfg_Admin::add_activity_log('Generated Google Reviews Feed');
+
         // Set the content type to XML for the output
         header('Content-Type: application/xml; charset=utf-8');
 
@@ -545,6 +551,9 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      */
     public function generate_csv_export() {
+        // Add log entries
+        Smarty_Gfg_Admin::add_activity_log('Generated CSV Export File');
+
         // Set headers to force download and define the file name
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="woocommerce-products.csv"');
@@ -979,12 +988,18 @@ class Smarty_Gfg_Public {
     
         // Set headers and open the handle based on the format
         if ($format === 'xml') {
+            // Add log entries
+            Smarty_Gfg_Admin::add_activity_log('Generated Bing XML Feed');
+
             header('Content-Type: application/xml; charset=utf-8');
             $dom = new DOMDocument('1.0', 'UTF-8');
             $dom->formatOutput = true;
             $feed = $dom->createElement('feed');
             $dom->appendChild($feed);
         } else if ($format === 'txt') {
+            // Add log entries
+            Smarty_Gfg_Admin::add_activity_log('Generated Bing TXT Feed');
+
             header('Content-Type: text/plain; charset=utf-8');
             header('Content-Disposition: attachment; filename="bing-shopping-feed.txt"');
             $handle = fopen('php://output', 'w');
@@ -1364,6 +1379,9 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      */
     public function regenerate_google_feed() {
+        // Add log entries
+        Smarty_Gfg_Admin::add_activity_log('Regenerated Google Products Feed');
+
         // Fetch products from WooCommerce that are published and in stock
         $products = wc_get_products(array(
             'status'        => 'publish',
@@ -1536,6 +1554,9 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      */
     public static function regenerate_bing_feed() {
+        // Add log entries
+        Smarty_Gfg_Admin::add_activity_log('Regenerated Bing Feed');
+
         // Fetch products from WooCommerce that are published and in stock
         $products = wc_get_products(array(
             'status'        => 'publish',
