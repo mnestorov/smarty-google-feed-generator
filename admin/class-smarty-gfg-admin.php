@@ -167,10 +167,17 @@ class Smarty_Gfg_Admin {
 	 */
 	private function get_settings_tabs() {
 		return array(
-			'general' 			=> __('General', 'smarty-google-feed-generator'),
-			'google-feed'   	=> __('Google Products Feed', 'smarty-google-feed-generator'),
-			'activity-logging'  => __('Activity & Logging', 'smarty-google-feed-generator'),
-			'license' 			=> __('License', 'smarty-google-feed-generator')
+			'general' 				 => __('General', 'smarty-google-feed-generator'),
+			'google-feed'   		 => __('Google Products Feed', 'smarty-google-feed-generator'),
+			'google-mp-feed'		 => __('Google Merchant Promotions Feed', 'smarty-google-feed-generator'), 		// Merchant Promotions
+			'google-rp-feed'   		 => __('Google Remarketing Promotions Feed', 'smarty-google-feed-generator'), 	// Remarketing Promotions
+			'google-dsa-feed'   	 => __('Google DSA Feed', 'smarty-google-feed-generator'), 						// Dynamic Search Ads
+			'google-lp-feed'   	 	 => __('Google Local Products Feed', 'smarty-google-feed-generator'), 			// Local Products
+			'google-lpi-feed'   	 => __('Google Local Products Inventory Feed', 'smarty-google-feed-generator'), // Local Products Invetory
+			'bing-products-feed'   	 => __('Bing Products Feed', 'smarty-google-feed-generator'),
+			'facebook-products-feed' => __('Facebook Products Feed', 'smarty-google-feed-generator'),
+			'activity-logging'  	 => __('Activity & Logging', 'smarty-google-feed-generator'),
+			'license' 				 => __('License', 'smarty-google-feed-generator')
 		);
 	}
 
@@ -510,6 +517,14 @@ class Smarty_Gfg_Admin {
 
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
+
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+	
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
 
 		$csv_columns = array(
 			'MPN', 																// Example custom value: SKU
@@ -926,6 +941,13 @@ class Smarty_Gfg_Admin {
 	public function included_destination_cb() {
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
+
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
 	
 		// Check if Included Destination is excluded in both XML and CSV
 		if (in_array('Included Destination', $exclude_xml_columns) && in_array('Included Destination', $exclude_csv_columns)) {
@@ -948,6 +970,13 @@ class Smarty_Gfg_Admin {
 	public function excluded_countries_cb() {
 		$exclude_xml_columns = get_option('smarty_exclude_xml_columns', array());
 		$exclude_csv_columns = get_option('smarty_exclude_csv_columns', array());
+
+		if (!is_array($exclude_xml_columns)) {
+			$exclude_xml_columns = array();
+		}
+		if (!is_array($exclude_csv_columns)) {
+			$exclude_csv_columns = array();
+		}
 	
 		// Check if Excluded Countries for Shopping Ads is excluded in both XML and CSV
 		if (in_array('Excluded Countries for Shopping Ads', $exclude_xml_columns) && in_array('Excluded Countries for Shopping Ads', $exclude_csv_columns)) {
