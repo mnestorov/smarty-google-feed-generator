@@ -74,3 +74,32 @@ textarea[name="smarty_exclude_patterns"].large-text {
     background: #fff0f4 !important;
     color: #c51244 !important;
 }
+
+.user-friendly-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.user-friendly-table th,
+.user-friendly-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.user-friendly-table th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.user-friendly-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.user-friendly-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.smarty-google-category-select {
+    width: 100%;
+}
