@@ -174,6 +174,7 @@ class Smarty_Gfg_Admin {
 			'google-dsa-feed'   	 => __('Google DSA Feed', 'smarty-google-feed-generator'), 						// Dynamic Search Ads
 			'google-lp-feed'   	 	 => __('Google Local Products Feed', 'smarty-google-feed-generator'), 			// Local Products
 			'google-lpi-feed'   	 => __('Google Local Products Inventory Feed', 'smarty-google-feed-generator'), // Local Products Invetory
+			'google-reviews-feed'  	 => __('Google Reviews Feed', 'smarty-google-feed-generator'),
 			'bing-products-feed'   	 => __('Bing Products Feed', 'smarty-google-feed-generator'),
 			'facebook-products-feed' => __('Facebook Products Feed', 'smarty-google-feed-generator'),
 			'activity-logging'  	 => __('Activity & Logging', 'smarty-google-feed-generator'),
