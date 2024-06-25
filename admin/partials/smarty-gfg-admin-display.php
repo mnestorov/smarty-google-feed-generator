@@ -18,13 +18,19 @@
 
 <div class="wrap">
 	<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
+	
+	<?php if ($current_tab == 'google-feed') : ?>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_google_feed"><?php echo __('Google Products XML Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_csv_export"><?php echo __('Google Products CSV Feed', 'smarty-google-feed-generator'); ?></button>
+	<?php endif; ?>
+
 	<h2 class="nav-tab-wrapper">
-	<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
-            <?php $active = ($current_tab == $tab_key) ? 'nav-tab-active' : ''; ?>
-            <a class="nav-tab <?php echo $active; ?>" href="<?php echo admin_url('options-general.php?page=smarty-gfg-settings&tab=' . $tab_key); ?>">
-                <?php echo $tab_caption; ?>
-            </a>
-        <?php endforeach; ?>
+			<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
+			<?php $active = ($current_tab == $tab_key) ? 'nav-tab-active' : ''; ?>
+			<a class="nav-tab <?php echo $active; ?>" href="<?php echo admin_url('options-general.php?page=smarty-gfg-settings&tab=' . $tab_key); ?>">
+				<?php echo $tab_caption; ?>
+			</a>
+		<?php endforeach; ?>
 	</h2>
 
 	<?php if ($this->is_valid_api_key($api_key)) : ?>

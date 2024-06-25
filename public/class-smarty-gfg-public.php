@@ -545,7 +545,7 @@ class Smarty_Gfg_Public {
         exit; // Ensure the script stops here to prevent further output that could corrupt the feed
     }
 
-	/**
+    /**
      * Generates a CSV file export of products for Google Merchant Center or similar services.
      * 
      * This function handles generating a downloadable CSV file that includes details about products
@@ -556,11 +556,11 @@ class Smarty_Gfg_Public {
     public function generate_csv_export() {
         // Add log entries
         Smarty_Gfg_Admin::add_activity_log('Generating CSV Export File');
-    
+
         // Set headers to force download and define the file name
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="woocommerce-products.csv"');
-    
+
         // Open PHP output stream as a writable file
         $handle = fopen('php://output', 'w');
         
@@ -568,40 +568,38 @@ class Smarty_Gfg_Public {
         if ($handle === false) {
             wp_die('Failed to open output stream for CSV export'); // Kill the script and display message if handle is invalid
         }
-    
-        // Fetch user-defined column mappings
-        $mappings = get_option('smarty_gfg_settings_mapping', array());
-    
+
         // Get excluded columns from settings
         $excluded_columns = get_option('smarty_exclude_csv_columns', array());
-    
+
         // Define the columns and map headers based on user settings
         $csv_columns = array(
-            'ID', 'MPN', 'Title', 'Description', 'Product Type', 'Link', 'Mobile Link', 'Image Link',
+            'ID', 'MPN', 'GTIN', 'Title', 'Description', 'Product Type', 'Link', 'Mobile Link', 'Image Link',
             'Additional Image Link', 'Google Product Category', 'Price', 'Sale Price', 'Bundle', 'Brand',
             'Condition', 'Multipack', 'Color', 'Gender', 'Material', 'Size', 'Size Type', 'Size System',
             'Availability', 'Custom Label 0', 'Custom Label 1', 'Custom Label 2', 'Custom Label 3', 
             'Custom Label 4', 'Excluded Destination', 'Included Destination', 'Excluded Countries for Shopping Ads', 'Shipping'
         );
-    
+
+        // Create the header row for the CSV
         $headers = array();
         foreach ($csv_columns as $column) {
             if (!in_array($column, $excluded_columns)) {
-                $headers[] = isset($mappings[$column]) && !empty($mappings[$column]) ? $mappings[$column] : $column;
+                $headers[] = $column;
             }
         }
-    
+
         // Write the header row to the CSV file
         fputcsv($handle, $headers);
-        //error_log('CSV Headers: ' . print_r($headers, true));
-    
+        error_log('CSV Headers: ' . print_r($headers, true));
+
         // Get excluded categories from settings
         $excluded_categories = get_option('smarty_excluded_categories', array());
-        //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+        error_log('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Check if including product variations is enabled
         $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
-    
+
         // Prepare arguments for querying products excluding specific categories
         $args = array(
             'status'        => 'publish', // Only fetch published products
@@ -619,33 +617,33 @@ class Smarty_Gfg_Public {
                 ),
             ),
         );
-    
+
         // Retrieve products using the defined arguments
         $products = wc_get_products($args);
-        //error_log('Product Query Args: ' . print_r($args, true));
-        //error_log('Products: ' . count($products) . ' products fetched');
-    
+        error_log('Product Query Args: ' . print_r($args, true));
+        error_log('Products: ' . count($products) . ' products fetched');
+
         // Get exclude patterns from settings and split into array
         $exclude_patterns = preg_split('/\r\n|\r|\n/', get_option('smarty_exclude_patterns'));
-    
+
         // Check if Google category should be ID
         $google_category_as_id = get_option('smarty_google_category_as_id', false);
-    
+
         // Iterate through each product
         foreach ($products as $product) {
             // Retrieve the product URL
             $product_link = get_permalink($product->get_id());
-    
+
             // Skip products whose URL contains any of the excluded patterns
             foreach ($exclude_patterns as $pattern) {
                 if (strpos($product_link, $pattern) !== false) {
                     continue 2; // Continue to the next product
                 }
             }
-    
+
             // Convert the first WebP image to PNG if needed
             Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
-    
+
             // Prepare product data for the CSV
             $id = $product->get_id();
             $regular_price = $product->get_regular_price();
@@ -654,14 +652,14 @@ class Smarty_Gfg_Public {
             $categories = !empty($categories) ? implode(', ', $categories) : '';
             $image_id = $product->get_image_id();
             $image_link = $image_id ? wp_get_attachment_url($image_id) : '';
-    
+
             // Get the first additional image link if available
             $gallery_ids = $product->get_gallery_image_ids();
             $additional_image_link = '';
             if (!empty($gallery_ids)) {
                 $additional_image_link = wp_get_attachment_url(reset($gallery_ids));
             }
-    
+
             // Custom meta fields for title and description if set
             $meta_title = get_post_meta($id, get_option('smarty_meta_title_field', 'meta-title'), true);
             $meta_description = get_post_meta($id, get_option('smarty_meta_description_field', 'meta-description'), true);
@@ -669,45 +667,45 @@ class Smarty_Gfg_Public {
             $description = !empty($meta_description) ? htmlspecialchars(strip_tags($meta_description)) : htmlspecialchars(strip_tags($product->get_short_description()));
             $description = preg_replace('/\s+/', ' ', $description); // Normalize whitespace in descriptions
             $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
-    
+
             // Get Google category as ID or name
             $google_product_category = $this->get_cleaned_google_product_category(); // Get Google category from plugin settings
-            //error_log('Google Product Category: ' . $google_product_category); // Debugging line
+            error_log('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
-                //error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
+                error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
-    
+
             // Check if the product has the "bundle" tag
             $is_bundle = 'no';
             $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
             if (in_array('bundle', $product_tags)) {
                 $is_bundle = 'yes';
             }
-    
+
             $brand = get_bloginfo('name');
-    
+
             // Use the condition value from the settings
             $condition = get_option('smarty_condition', 'new');
-    
+
             // Use the size system value from the settings
             $size_system = get_option('smarty_size_system', '');
-    
+
             // Custom Labels
             $custom_label_0 = $this->get_custom_label_0($product);
             $custom_label_1 = $this->get_custom_label_1($product);
             $custom_label_2 = $this->get_custom_label_2($product);
             $custom_label_3 = $this->get_custom_label_3($product);
             $custom_label_4 = $this->get_custom_label_4($product);
-    
+
             $excluded_destinations = get_option('smarty_excluded_destination', []);
             $included_destinations = get_option('smarty_included_destination', []);
             $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
-    
+
             // Get shipping cost
             $shipping_cost = $this->get_shipping_cost();
             $base_country = WC()->countries->get_base_country(); // Get the store's base country
-    
+
             // Check for variable type to handle variations
             if ($product->is_type('variable')) {
                 // Handle variations separately if product is variable
@@ -939,13 +937,13 @@ class Smarty_Gfg_Public {
                 }
                 error_log('Simple Product Row Data: ' . print_r($row, true));
             }
-    
+
             // Only output the row if the SKU is set (some products may not have variations correctly set)
             if (!empty($sku)) {
                 fputcsv($handle, $row);
             }
         }
-    
+
         fclose($handle);
         exit;
     }

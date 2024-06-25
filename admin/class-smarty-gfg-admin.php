@@ -795,6 +795,7 @@ class Smarty_Gfg_Admin {
 		$excluded_destinations = get_option('smarty_excluded_destination', array());
 		$included_destinations = get_option('smarty_included_destination', array());
 		$excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+		$size_system = get_option('smarty_size_system', '');
 	
 		// Ensure arrays are properly formatted
 		if (!is_array($excluded_destinations)) {
@@ -803,6 +804,13 @@ class Smarty_Gfg_Admin {
 		if (!is_array($included_destinations)) {
 			$included_destinations = array();
 		}
+
+		// Condition options
+		$condition_options = [
+			'new' => __('New', 'smarty-google-feed-generator'),
+			'refurbished' => __('Refurbished', 'smarty-google-feed-generator'),
+			'used' => __('Used', 'smarty-google-feed-generator'),
+		];
 	
 		// WooCommerce countries
 		$woocommerce_countries = WC()->countries->get_countries();
@@ -821,16 +829,12 @@ class Smarty_Gfg_Admin {
 		echo '<tr>';
 		echo '<td>' . __('Condition', 'smarty-google-feed-generator') . '</td>';
 		echo '<td>';
-		echo '<select name="smarty_condition" class="smarty-condition">';
-		$options = array(
-			'new'  => __('New', 'smarty-google-feed-generator'),
-			'refurbished' => __('Refurbished', 'smarty-google-feed-generator'),
-			'used' => __('Used', 'smarty-google-feed-generator')
-		);
-		foreach ($options as $value => $label) {
-			echo '<option value="' . esc_attr($value) . '" ' . selected($condition, $value, false) . '>' . esc_html($label) . '</option>';
+		echo '<table><tr>';
+		foreach ($condition_options as $value => $label) {
+			$checked = $condition === $value ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_condition[]" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
 		}
-		echo '</select>';
+		echo '</tr></table>';
 		echo '</td>';
 		echo '</tr>';
 	
@@ -838,12 +842,20 @@ class Smarty_Gfg_Admin {
 		echo '<tr>';
 		echo '<td>' . __('Excluded Destination', 'smarty-google-feed-generator') . '</td>';
 		echo '<td>';
-		echo '<select name="smarty_excluded_destination[]" multiple="multiple" class="smarty-excluded-destination">';
-		foreach ($destinations as $destination) {
-			$selected = in_array($destination, $excluded_destinations) ? 'selected' : '';
-			echo '<option value="' . esc_attr($destination) . '" ' . $selected . '>' . esc_html($destination) . '</option>';
+		$half_count = ceil(count($destinations) / 2);
+		echo '<table><tr>';
+		for ($i = 0; $i < $half_count; $i++) {
+			$destination = $destinations[$i];
+			$checked = in_array($destination, $excluded_destinations) ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
 		}
-		echo '</select>';
+		echo '</tr><tr>';
+		for ($i = $half_count; $i < count($destinations); $i++) {
+			$destination = $destinations[$i];
+			$checked = in_array($destination, $excluded_destinations) ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+		}
+		echo '</tr></table>';
 		echo '</td>';
 		echo '</tr>';
 	
@@ -851,12 +863,19 @@ class Smarty_Gfg_Admin {
 		echo '<tr>';
 		echo '<td>' . __('Included Destination', 'smarty-google-feed-generator') . '</td>';
 		echo '<td>';
-		echo '<select name="smarty_included_destination[]" multiple="multiple" class="smarty-included-destination">';
-		foreach ($destinations as $destination) {
-			$selected = in_array($destination, $included_destinations) ? 'selected' : '';
-			echo '<option value="' . esc_attr($destination) . '" ' . $selected . '>' . esc_html($destination) . '</option>';
+		echo '<table><tr>';
+		for ($i = 0; $i < $half_count; $i++) {
+			$destination = $destinations[$i];
+			$checked = in_array($destination, $included_destinations) ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
 		}
-		echo '</select>';
+		echo '</tr><tr>';
+		for ($i = $half_count; $i < count($destinations); $i++) {
+			$destination = $destinations[$i];
+			$checked = in_array($destination, $included_destinations) ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+		}
+		echo '</tr></table>';
 		echo '</td>';
 		echo '</tr>';
 	
@@ -878,12 +897,20 @@ class Smarty_Gfg_Admin {
 		echo '<tr>';
 		echo '<td>' . __('Size System', 'smarty-google-feed-generator') . '</td>';
 		echo '<td>';
-		echo '<select name="smarty_size_system" class="smarty-size-system">';
-		foreach ($size_systems as $system) {
-			$selected = $system === $size_system ? 'selected' : '';
-			echo '<option value="' . esc_attr($system) . '" ' . $selected . '>' . esc_html($system) . '</option>';
+		$half_count = ceil(count($size_systems) / 2);
+		echo '<table><tr>';
+		for ($i = 0; $i < $half_count; $i++) {
+			$system = $size_systems[$i];
+			$checked = $system === $size_system ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_size_system[]" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
 		}
-		echo '</select>';
+		echo '</tr><tr>';
+		for ($i = $half_count; $i < count($size_systems); $i++) {
+			$system = $size_systems[$i];
+			$checked = $system === $size_system ? 'checked' : '';
+			echo '<td><label><input type="checkbox" name="smarty_size_system[]" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+		}
+		echo '</tr></table>';
 		echo '</td>';
 		echo '</tr>';
 	
@@ -1316,9 +1343,7 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_feed" style="display: inline-block;">' . __('Google Products Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Google Reviews Feed', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block;">' . __('Google CSV Export', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-block; margin: 0 10px;">' . __('Bing Shopping Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed" style="display: inline-block;">' . __('Bing TXT Feed', 'smarty-google-feed-generator') . '</button>';
 	}
@@ -1382,45 +1407,46 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function render_columns_cb($option_name, $columns, $disabled_columns, $type) {
-        $options = get_option($option_name, array());
-
-        // Ensure $options is an array
-        if (!is_array($options)) {
-            $options = array();
-        }
-
+		$options = get_option($option_name, array());
+	
+		// Ensure $options is an array
+		if (!is_array($options)) {
+			$options = array();
+		}
+	
 		echo '<p>' . __('Exclude columns from the TSV/CSV and XML feeds.', 'smarty-google-feed-generator') . '</p>';
-        echo '<table class="form-table user-friendly-table"><tbody>';
-        echo '<tr><th>' . __('Column', 'smarty-google-feed-generator') . '</th><th>' . __('Exclude', 'smarty-google-feed-generator') . '</th><th>' . __('Column', 'smarty-google-feed-generator') . '</th><th>' . __('Exclude', 'smarty-google-feed-generator') . '</th></tr>';
-
-        $column_count = count($columns);
-        for ($i = 0; $i < $column_count; $i += 2) {
-            $column1 = $columns[$i];
-            $checked1 = in_array($column1, $options) ? 'checked' : '';
-            $disabled1 = in_array($column1, $disabled_columns) ? 'disabled' : '';
-            $description1 = isset($this->column_descriptions[$column1]) ? $this->column_descriptions[$column1] : '';
-
-            $column2 = $i + 1 < $column_count ? $columns[$i + 1] : null;
-            $checked2 = $column2 && in_array($column2, $options) ? 'checked' : '';
-            $disabled2 = $column2 && in_array($column2, $disabled_columns) ? 'disabled' : '';
-            $description2 = $column2 ? (isset($this->column_descriptions[$column2]) ? $this->column_descriptions[$column2] : '') : '';
-
-            echo '<tr>';
-            echo '<td>' . esc_html($column1) . '<span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description1) . '</span></span></td>';
-            echo '<td><label><input type="checkbox" id="' . esc_attr($column1) . '" name="' . esc_attr($option_name) . '[]" value="' . esc_attr($column1) . '" ' . $checked1 . ' ' . $disabled1 . '></label></td>';
-
-            if ($column2) {
-                echo '<td>' . esc_html($column2) . '<span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description2) . '</span></span></td>';
-                echo '<td><label><input type="checkbox" id="' . esc_attr($column2) . '" name="' . esc_attr($option_name) . '[]" value="' . esc_attr($column2) . '" ' . $checked2 . ' ' . $disabled2 . '></label></td>';
-            } else {
-                echo '<td></td><td></td>';
-            }
-
-            echo '</tr>';
-        }
-
-        echo '</tbody></table>';
-    }
+		echo '<table class="form-table user-friendly-table"><tbody>';
+		echo '<tr><th>' . __('Columns', 'smarty-google-feed-generator') . '</th></tr>';
+	
+		$column_count = count($columns);
+		$columns_per_row = 5; // Adjust this value to change the number of columns per row
+	
+		echo '<tr><td>';
+		echo '<table>';
+	
+		for ($i = 0; $i < $column_count; $i += $columns_per_row) {
+			echo '<tr>';
+			for ($j = 0; $j < $columns_per_row; $j++) {
+				$index = $i + $j;
+				if ($index < $column_count) {
+					$column = $columns[$index];
+					$checked = in_array($column, $options) ? 'checked' : '';
+					$disabled = in_array($column, $disabled_columns) ? 'disabled' : '';
+					$description = isset($this->column_descriptions[$column]) ? $this->column_descriptions[$column] : '';
+	
+					echo '<td><span class="tooltip dashicons dashicons-info"><span class="tooltiptext">' . esc_html($description) . '</span></span><label><input type="checkbox" id="' . esc_attr($column) . '" name="' . esc_attr($option_name) . '[]" value="' . esc_attr($column) . '" ' . $checked . ' ' . $disabled . '> ' . esc_html($column) . '</label></td>';
+				} else {
+					echo '<td></td>'; // Fill empty cells if columns are less than columns_per_row
+				}
+			}
+			echo '</tr>';
+		}
+	
+		echo '</table>';
+		echo '</td></tr>';
+	
+		echo '</tbody></table>';
+	}
 
 	/**
      * @since    1.0.0
@@ -1540,8 +1566,8 @@ class Smarty_Gfg_Admin {
 			'PHP Max POST Size' => esc_html(ini_get('post_max_size')),
 			'PHP Max Upload Size' => esc_html(ini_get('upload_max_filesize')),
 			'PHP Memory Limit' => esc_html(ini_get('memory_limit')),
-			'PHP DateTime Class' => class_exists('DateTime') ? '<span style="color: #709168;">Available</span>' : '<span style="color: #F4CCCC;">Not Available</span>',
-			'PHP Curl' => function_exists('curl_version') ? '<span style="color: #709168;">Available</span>' : '<span style="color: #F4CCCC;">Not Available</span>',
+			'PHP DateTime Class' => class_exists('DateTime') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
+			'PHP Curl' => function_exists('curl_version') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
 		);
 		
 		return $system_info;
@@ -1567,15 +1593,16 @@ class Smarty_Gfg_Admin {
 		$logs = get_option('smarty_activity_log', array());
 
 		if (empty($logs)) {
-			echo '<ul><li><span style="color: #c51244;">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
+			echo '<ul><li><span style="color: #c82333;">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
+			echo '<button id="delete-logs-button" class="btn btn-danger disabled" disabled>' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
 		} else {
 			echo '<ul>';
 			foreach ($logs as $log) {
 				echo '<li>' . esc_html($log) . '</li>';
 			}
 			echo '</ul>';
+			echo '<button id="delete-logs-button" class="btn btn-danger">' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
 		}
-		echo '<button id="delete-logs-button" class="button secondary">' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
 	}
 
 	/**

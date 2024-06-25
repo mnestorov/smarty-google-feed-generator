@@ -3,11 +3,13 @@
  */
 
 /* Change width of the Exclude Patterns textarea */
+
 textarea[name="smarty_exclude_patterns"].large-text {
     width: 50% !important;
 }
 
-/* Fix width of Select2 field */
+/* Select2 */
+
 .select2.select2-container.select2-container--default {
 	width: 50% !important;
 }
@@ -23,8 +25,47 @@ textarea[name="smarty_exclude_patterns"].large-text {
     cursor: default;
 }
 
+.smarty-google-category-select {
+    width: 100%;
+}
+
+/* Tables */
+
+.user-friendly-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.user-friendly-table th,
+.user-friendly-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.user-friendly-table th {
+    background-color: #E4E4E4;
+    text-align: left;
+}
+
+.user-friendly-table tr {
+    background-color: #f4f4f4;
+}
+
+/* Custom Labels */
+
+.custom-label-logic {
+    width: 100%;
+}
+
+.custom-label-logic + .regular-text {
+    width: 100%;
+}
+
+/* Tooltips */
+
 .dashicons, .dashicons-before:before {
-    font-size: 17px;
+    font-size: 18px;
 }
 
 .tooltip {
@@ -33,6 +74,7 @@ textarea[name="smarty_exclude_patterns"].large-text {
     cursor: pointer;
     color: #0073aa;
     vertical-align: middle;
+    margin-right: 5px;
 }
 
 .tooltip .tooltiptext {
@@ -58,7 +100,7 @@ textarea[name="smarty_exclude_patterns"].large-text {
     position: absolute;
     top: 100%; /* At the bottom of the tooltip */
     left: 50%;
-    margin-left: -5px;
+    margin: 0 5px 0 -5px;
     border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
@@ -69,45 +111,61 @@ textarea[name="smarty_exclude_patterns"].large-text {
     opacity: 1;
 }
 
-/* Helper classes */
+/* Buttons */
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: .85rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-success {
+    display: inline-block;
+    margin: 20px 5px;
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.btn-success:hover {
+    color: #fff;
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn.disabled, .btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+/* Helpers */
+
 .smarty-error {
     background: #fff0f4 !important;
     color: #c51244 !important;
-}
-
-.user-friendly-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.user-friendly-table th,
-.user-friendly-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-.user-friendly-table th {
-    background-color: #f4f4f4;
-    text-align: left;
-}
-
-.user-friendly-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.user-friendly-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-.smarty-google-category-select {
-    width: 100%;
-}
-
-.custom-label-logic {
-    width: 100%;
-}
-
-.custom-label-logic + .regular-text {
-    width: 100%;
 }
