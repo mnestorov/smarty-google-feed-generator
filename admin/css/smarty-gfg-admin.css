@@ -103,3 +103,11 @@ textarea[name="smarty_exclude_patterns"].large-text {
 .smarty-google-category-select {
     width: 100%;
 }
+
+.custom-label-logic {
+    width: 100%;
+}
+
+.custom-label-logic + .regular-text {
+    width: 100%;
+}
