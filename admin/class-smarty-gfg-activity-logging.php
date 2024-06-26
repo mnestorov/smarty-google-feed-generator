@@ -56,7 +56,7 @@ class Smarty_Gfg_Activity_Logging {
     }
 
     /**
-	 * Callback function for the Activity & Logging section field.
+	 * Callback function for the Activity & Logging main section.
 	 *
 	 * @since    1.0.0
 	 */
