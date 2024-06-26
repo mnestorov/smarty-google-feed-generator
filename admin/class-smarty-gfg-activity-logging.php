@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * The Activity Logging-specific functionality of the plugin.
+ *
+ * @link       https://smartystudio.net
+ * @since      1.0.0
+ *
+ * @package    Smarty_Google_Feed_Generator
+ * @subpackage Smarty_Google_Feed_Generator/admin
+ * @author     Smarty Studio | Martin Nestorov
+ */
 class Smarty_Gfg_Activity_Logging {
 
     /**
