@@ -49,6 +49,22 @@ class Smarty_Gfg_Admin {
 	private $column_descriptions = array();
 	
 	/**
+	 * Instance of Smarty_Gfg_Google_Reviews_Feed.
+	 * 
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private $reviews_feed;
+
+	/**
+	 * Instance of Smarty_Gfg_Activity_Logging.
+	 * 
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private $activity_logging;
+	
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -94,6 +110,12 @@ class Smarty_Gfg_Admin {
 			'Excluded Countries for Shopping Ads' 	=> __('A setting that allows you to exclude countries where your products are advertised on Shopping ads.', 'smarty-google-feed-generator'),
 			'Shipping'								=> __('Your products shipping cost, shipping speeds, and the locations your product ships to.', 'smarty-google-feed-generator'),
 		);
+
+		// Include and instantiate the Google Reviews Feed class
+		$this->reviews_feed = new Smarty_Gfg_Google_Reviews_Feed();
+		
+		// Include and instantiate the Activity Logging class
+		$this->activity_logging = new Smarty_Gfg_Activity_Logging();
 	}
 
 	/**
@@ -250,9 +272,11 @@ class Smarty_Gfg_Admin {
 			}
 		}
 
-		// Activity & Logging Settings
-		register_setting('smarty_gfg_options_activity_logging', 'smarty_gfg_settings_activity_logging');
-		register_setting('smarty_gfg_options_activity_logging', 'smarty_gfg_settings_activity_log');
+		// Google Reviews Feed settings
+        $this->reviews_feed->settings_init();
+
+		// Activity & Logging settings
+		$this->activity_logging->settings_init();
 
 		// License Settings
 		register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'sanitize_license_settings'));
@@ -364,19 +388,19 @@ class Smarty_Gfg_Admin {
 		// Fields
 
 		add_settings_field(
-            'smarty_feed_country',
-            __('Country', 'smarty-google-feed-generator'),
-            array($this, 'feed_country_cb'),
-            'smarty_gfg_options_google_feed',
-            'smarty_gfg_section_google_feed'
+            'smarty_feed_country',												// ID of the field
+            __('Country', 'smarty-google-feed-generator'),						// Title of the field
+            array($this, 'feed_country_cb'),									// Callback function to display the field
+            'smarty_gfg_options_google_feed',									// Page on which to add the field
+            'smarty_gfg_section_google_feed'									// Section to which this field belongs
         );
 
 		add_settings_field(
-            'smarty_include_product_variations',
-            __('Include Product Variations', 'smarty-google-feed-generator'),
-            array($this, 'include_product_variations_cb'),
-            'smarty_gfg_options_google_feed',
-            'smarty_gfg_section_google_feed'
+            'smarty_include_product_variations',								// ID of the field
+            __('Include Product Variations', 'smarty-google-feed-generator'),	// Title of the field
+            array($this, 'include_product_variations_cb'),						// Callback function to display the field
+            'smarty_gfg_options_google_feed',									// Page on which to add the field
+            'smarty_gfg_section_google_feed'									// Section to which this field belongs
         );
 
 		add_settings_field(
@@ -412,17 +436,17 @@ class Smarty_Gfg_Admin {
 		);
 
 		add_settings_field(
-            'smarty_category_mapping',
-            __('Category Mapping', 'smarty-google-feed-generator'),
-            array($this, 'category_mapping_field_cb'),
-            'smarty_gfg_options_google_feed',
-            'smarty_gfg_section_google_feed'
+            'smarty_category_mapping',											// ID of the field
+            __('Category Mapping', 'smarty-google-feed-generator'),				// Title of the section
+            array($this, 'category_mapping_field_cb'),							// Callback function to display the field
+            'smarty_gfg_options_google_feed',									// Page on which to add the section
+            'smarty_gfg_section_google_feed'									// Section to which this field belongs
         );
 
 		add_settings_field(
 			'smarty_exclude_xml_columns', 										// ID of the field
 			__('XML Columns', 'smarty-google-feed-generator'),  				// Title of the section
-			array($this,'exclude_xml_columns_cb'), 								// Callback function that fills the section with the desired content
+			array($this,'exclude_xml_columns_cb'), 								// Callback function to display the field
 			'smarty_gfg_options_google_feed', 									// Page on which to add the section
 			'smarty_gfg_section_google_feed'									// Section to which this field belongs
 		);
@@ -436,48 +460,19 @@ class Smarty_Gfg_Admin {
 		);
 
 		add_settings_field(
-			'smarty_optional_attributes_table',
-			__('Optional Attributes', 'smarty-google-feed-generator'),
-			array($this, 'optional_attributes_table_cb'),
-			'smarty_gfg_options_google_feed',
-			'smarty_gfg_section_google_feed'
+			'smarty_optional_attributes_table',									// ID of the field
+			__('Optional Attributes', 'smarty-google-feed-generator'),			// Title of the field
+			array($this, 'optional_attributes_table_cb'),						// Callback function to display the field
+			'smarty_gfg_options_google_feed',									// Page on which to add the field
+			'smarty_gfg_section_google_feed'									// Section to which this field belongs
 		);
 
 		add_settings_field(
-			'smarty_custom_labels_table',                                      // ID of the field
-			__('Custom Labels', 'smarty-google-feed-generator'),               // Title of the field
-			array($this, 'custom_labels_table_cb'),                            // Callback function to display the field
-			'smarty_gfg_options_google_feed',                                  // Page on which to add the field
+			'smarty_custom_labels_table',                                      	// ID of the field
+			__('Custom Labels', 'smarty-google-feed-generator'),               	// Title of the field
+			array($this, 'custom_labels_table_cb'),                            	// Callback function to display the field
+			'smarty_gfg_options_google_feed',                                  	// Page on which to add the field
 			'smarty_gfg_section_google_feed'                                 	// Section to which this field belongs
-		);
-
-		/*
-		 * ACTIVITY & LOGGING TAB
-		 */
-
-		// Sections
-
-		add_settings_section(
-			'smarty_gfg_section_activity_logging',								// ID of the section
-			__('Activity & Logging', 'smarty-google-feed-generator'),    		// Title of the section  		
-			array($this, 'section_tab_activity_logging_cb'),                	// Callback function that fills the section with the desired content	
-			'smarty_gfg_options_activity_logging'                   			// Page on which to add the section   		
-		);
-
-		add_settings_field(
-            'smarty_system_info', 												// ID of the field
-            __('System Info', 'smarty-google-feed-generator'), 					// Title of the field
-            array($this, 'system_info_cb'), 									// Callback function to display the field
-            'smarty_gfg_options_activity_logging', 								// Page on which to add the field
-            'smarty_gfg_section_activity_logging' 								// Section to which this field belongs
-        );
-
-		add_settings_field(
-			'smarty_activity_log',												// ID of the section
-			__('Activity Log', 'smarty-google-feed-generator'),    				// Title of the section  		
-			array($this, 'activity_log_cb'),                					// Callback function that fills the section with the desired content	
-			'smarty_gfg_options_activity_logging',                   			// Page on which to add the section
-			'smarty_gfg_section_activity_logging'								// Section to which this field belongs  		
 		);
 		
 		/*
@@ -1340,7 +1335,6 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function generate_feed_buttons_cb() {
-		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Google Reviews Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-block; margin: 0 10px;">' . __('Bing Shopping Feed', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed" style="display: inline-block;">' . __('Bing TXT Feed', 'smarty-google-feed-generator') . '</button>';
 	}
@@ -1524,133 +1518,6 @@ class Smarty_Gfg_Admin {
 		);
 	
 		return array($columns, $disabled_columns);
-	}
-
-	/**
-	 * Callback function for the Activity & Logging section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function section_tab_activity_logging_cb() {
-		echo '<p>' . __('View and manage the activity logs for the plugin.', 'smarty-google-feed-generator') . '</p>';
-	}
-
-	/**
-     * Callback function to display the system info.
-     *
-     * @since    1.0.0
-     */
-    public function system_info_cb() {
-		$system_info = $this->get_system_info();
-		echo '<ul>';
-		foreach ($system_info as $key => $value) {
-			echo '<li><strong>' . esc_html($key) . ':</strong> ' . wp_kses($value, array('span' => array('style' => array()))) . '</li>';
-		}
-		echo '</ul>';
-	}
-
-	/**
-     * Get system information.
-     *
-     * @since    1.0.0
-     * @return string System information.
-     */
-    private function get_system_info() {
-		$system_info = array(
-			'User Agent' => esc_html($_SERVER['HTTP_USER_AGENT']),
-			'Web Server' => esc_html($_SERVER['SERVER_SOFTWARE']),
-			'PHP Version' => esc_html(PHP_VERSION),
-			'PHP Max POST Size' => esc_html(ini_get('post_max_size')),
-			'PHP Max Upload Size' => esc_html(ini_get('upload_max_filesize')),
-			'PHP Memory Limit' => esc_html(ini_get('memory_limit')),
-			'PHP DateTime Class' => class_exists('DateTime') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
-			'PHP Curl' => function_exists('curl_version') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
-		);
-		
-		return $system_info;
-	}
-
-	/**
-	 * Callback function for the Activity & Logging section field.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activity_log_cb() {
-		$instance = new self('Smarty_Gfg_Admin', '1.0.0');
-		$instance->display_activity_log();
-	}
-
-	/**
-	 * Display the activity log.
-	 *
-	 * @since    1.0.0
-	 */
-	public function display_activity_log() {
-		// Retrieve log entries from the database or file
-		$logs = get_option('smarty_activity_log', array());
-
-		if (empty($logs)) {
-			echo '<ul><li><span style="color: #c82333;">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
-			echo '<button id="delete-logs-button" class="btn btn-danger disabled" disabled>' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
-		} else {
-			echo '<ul>';
-			foreach ($logs as $log) {
-				echo '<li>' . esc_html($log) . '</li>';
-			}
-			echo '</ul>';
-			echo '<button id="delete-logs-button" class="btn btn-danger">' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
-		}
-	}
-
-	/**
-	 * Add an entry to the activity log.
-	 *
-	 * @since    1.0.0
-	 * @param string $message The log message.
-	 */
-	public static function add_activity_log($message) {
-		$logs = get_option('smarty_activity_log', array());
-		
-		// Get the current time in the specified format
-		$time_format = 'Y-M-d H:i:s';  // PHP date format
-		$current_time = current_time($time_format);
-	
-		// Get the timezone
-		$timezone = new DateTimeZone(get_option('timezone_string') ?: 'UTC');
-		$datetime = new DateTime(null, $timezone);
-		$timezone_name = $datetime->format('T');  // Gets the timezone abbreviation, e.g., GMT
-	
-		// Combine time, timezone, and message
-		$log_entry = sprintf("[%s %s] - %s", $current_time, $timezone_name, $message);
-		$logs[] = $log_entry;
-	
-		// Save the updated logs back to the database
-		update_option('smarty_activity_log', $logs);
-	}
-
-	/**
-	 * Clear the activity log.
-	 *
-	 * @since    1.0.0
-	 */
-	public function clear_activity_log() {
-		update_option('smarty_activity_log', array());
-	}
-
-	/**
-	 * Handle the AJAX request to clear the logs.
-	 *
-	 * @since    1.0.0
-	 */
-	public function handle_ajax_clear_logs() {
-		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
-
-		if (!current_user_can('manage_options')) {
-			wp_send_json_error('You do not have sufficient permissions to access this page.');
-		}
-
-		$this->clear_activity_log();
-		wp_send_json_success(__('Logs cleared.', 'smarty-google-feed-generator'));
 	}
 
     /**

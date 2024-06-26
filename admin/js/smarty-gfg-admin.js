@@ -154,7 +154,7 @@
             window.open(redirectUrl, '_blank');
         });
 
-        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination, .smarty-excluded-countries, .smarty-condition, .smarty-size-system').select2({
+        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination, .smarty-excluded-countries, .smarty-condition, .smarty-size-system, .smarty-reviews-ratings').select2({
             width: '100%' // need to override the changed default
         });
 
