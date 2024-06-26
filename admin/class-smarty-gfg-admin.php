@@ -66,7 +66,7 @@ class Smarty_Gfg_Admin {
         $this->column_descriptions = array(
             'ID'                        			=> __('Your products unique identifier.', 'smarty-google-feed-generator'),
             'MPN'                       			=> __('The Manufacturer Part Number for the product.', 'smarty-google-feed-generator'),
-            'GTIN'									=> __('', 'smarty-google-feed-generator'),
+            'GTIN'									=> __('A Global Trade Item Number (GTIN) is a unique and internationally recognized identifier for a product.', 'smarty-google-feed-generator'),
 			'Title'                     			=> __('The title of the product.', 'smarty-google-feed-generator'),
             'Description'               			=> __('The description of the product.', 'smarty-google-feed-generator'),
             'Product Type'              			=> __('The product type or category.', 'smarty-google-feed-generator'),
