@@ -31,7 +31,7 @@ class Smarty_Gfg_License {
     }
 
     /**
-	 * Initializes the Google Reviews Feed settings by registering the settings, sections, and fields.
+	 * Initializes the License settings by registering the settings, sections, and fields.
 	 *
 	 * @since    1.0.0
 	 */
