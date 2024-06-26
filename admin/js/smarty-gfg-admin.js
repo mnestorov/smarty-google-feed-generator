@@ -180,6 +180,8 @@
                 },
                 cache: true
             },
+            allowClear: true,
+            placeholder: "Select a Google Category",
             minimumInputLength: 1,
             width: 'resolve'
         });
@@ -189,31 +191,34 @@
                 var logic = $(this).val();
                 var inputField = $(this).closest('tr').find('.custom-label-input');
                 var label = $(this).closest('tr').find('td:first').text().trim().toLowerCase().replace(/\s+/g, '_');
-        
+                var days = $('input[name="smarty_' + label + '_days"]').val();
+                var value = $('input[name="smarty_' + label + '_value"]').val();
+                var categories = $('select[name="smarty_' + label + '_categories[]"]').val() || [];
+
                 switch (logic) {
                     case 'older_than_days':
                     case 'not_older_than_days':
                     case 'most_ordered_days':
-                        inputField.html('<input type="number" name="smarty_' + label + '_days" value="" class="small-text" />');
+                        inputField.html('<input type="number" name="smarty_' + label + '_days" value="' + (days || '') + '" class="small-text" />');
                         break;
                     case 'high_rating_value':
                         inputField.html('<label>...</label>');
-                        break;
+                            break;
                     case 'has_sale_price':
                         inputField.html('<label>...</label>');
                         break;
                     case 'category':
-                        inputField.html('<select name="smarty_' + label + '_categories[]" multiple="multiple" class="select2" style="width:50%;"></select>');
-                        populateCategories(label);
+                        inputField.html('<select name="smarty_' + label + '_categories[]" multiple="multiple" style="width:50%;"></select>');
+                        populateCategories(label, categories);
                         break;
                     default:
-                        inputField.html('<input type="text" name="smarty_' + label + '_default" value="" class="regular-text" />');
+                        inputField.html('<input type="text" name="smarty_' + label + '_default" value="' + (value || '') + '" class="regular-text" />');
                         break;
                 }
             });
         }
         
-        function populateCategories(label) {
+        function populateCategories(label, selectedCategories) {
             var select = $('select[name="smarty_' + label + '_categories[]"]');
             $.ajax({
                 url: smartyFeedGenerator.ajaxUrl,
@@ -226,7 +231,8 @@
                     if (response.success) {
                         select.empty();
                         $.each(response.data, function(index, category) {
-                            select.append('<option value="' + category.term_id + '">' + category.name + '</option>');
+                            var selected = selectedCategories.includes(category.term_id.toString()) ? 'selected' : '';
+                            select.append('<option value="' + category.term_id + '" ' + selected + '>' + category.name + '</option>');
                         });
                         select.select2();
                     }
@@ -235,7 +241,7 @@
         }
         
         updateCustomLabelInputs();
-        
+
         $(document).on('change', '.custom-label-logic', function() {
             updateCustomLabelInputs();
         });        

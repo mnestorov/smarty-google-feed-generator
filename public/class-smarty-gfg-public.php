@@ -317,11 +317,25 @@ class Smarty_Gfg_Public {
         $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
         $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
 		
-        // Add product categories
+        // Add product categories and category mapping
         $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+        $category_mapping = get_option('smarty_category_mapping', array());
+        $mapped_category = '';
+
         if (!empty($categories) && !is_wp_error($categories)) {
-            $category_names = array_map(function($term) { return $term->name; }, $categories);
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
+            foreach ($categories as $category) {
+                if (isset($category_mapping[$category->term_id])) {
+                    $mapped_category = $category_mapping[$category->term_id];
+                    break;
+                }
+            }
+            
+            if (!empty($mapped_category)) {
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars($mapped_category)));
+            } else {
+                $category_names = array_map(function($term) { return $term->name; }, $categories);
+                $item->appendChild($dom->createElementNS($gNamespace, 'g:product_type', htmlspecialchars(join(' > ', $category_names))));
+            }
         }
 
         // Add product link
@@ -415,23 +429,23 @@ class Smarty_Gfg_Public {
 
 		// Add custom labels
 		if (!in_array('Custom Label 0', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label_0($product)));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', $this->get_custom_label($product, 'custom_label_0')));
         }
 
         if (!in_array('Custom Label 1', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label_1($product)));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', $this->get_custom_label($product, 'custom_label_1')));
         }
 
         if (!in_array('Custom Label 2', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label_2($product)));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', $this->get_custom_label($product, 'custom_label_2')));
         }
 
         if (!in_array('Custom Label 3', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label_3($product)));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', $this->get_custom_label($product, 'custom_label_3')));
         }
         
         if (!in_array('Custom Label 4', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label_4($product)));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', $this->get_custom_label($product, 'custom_label_4')));
         }
 
         // Add excluded destinations
@@ -624,7 +638,11 @@ class Smarty_Gfg_Public {
         error_log('Products: ' . count($products) . ' products fetched');
 
         // Get exclude patterns from settings and split into array
-        $exclude_patterns = preg_split('/\r\n|\r|\n/', get_option('smarty_exclude_patterns'));
+        $exclude_patterns_raw = get_option('smarty_exclude_patterns');
+        $exclude_patterns = !empty($exclude_patterns_raw) ? preg_split('/\r\n|\r|\n/', $exclude_patterns_raw) : array();
+
+        // Get category mappings from settings
+        $category_mapping = get_option('smarty_category_mapping', array());
 
         // Check if Google category should be ID
         $google_category_as_id = get_option('smarty_google_category_as_id', false);
@@ -648,8 +666,27 @@ class Smarty_Gfg_Public {
             $id = $product->get_id();
             $regular_price = $product->get_regular_price();
             $sale_price = $product->get_sale_price() ?: ''; // Fallback to empty string if no sale price
-            $categories = wp_get_post_terms($id, 'product_cat', array('fields' => 'names'));
-            $categories = !empty($categories) ? implode(', ', $categories) : '';
+
+            // Check if category mappings exist for the product categories
+            $product_categories = wp_get_post_terms($id, 'product_cat', array('fields' => 'ids'));
+            $mapped_category = '';
+            foreach ($product_categories as $cat_id) {
+                if (isset($category_mapping[$cat_id]) && !empty($category_mapping[$cat_id])) {
+                    error_log('Category Mappings: ' . print_r($category_mapping, true));
+                    $mapped_category = $category_mapping[$cat_id];
+                    break;
+                }
+            }
+
+            // Use mapped category if found, otherwise use product categories
+            if (!empty($mapped_category)) {
+                $google_product_category_mapped = $mapped_category;
+            } else {
+                $categories = wp_get_post_terms($id, 'product_cat', array('fields' => 'names'));
+                $categories = !empty($categories) ? implode(', ', $categories) : '';
+                $google_product_category_mapped = $categories;
+            }
+
             $image_id = $product->get_image_id();
             $image_link = $image_id ? wp_get_attachment_url($image_id) : '';
 
@@ -692,11 +729,11 @@ class Smarty_Gfg_Public {
             $size_system = get_option('smarty_size_system', '');
 
             // Custom Labels
-            $custom_label_0 = $this->get_custom_label_0($product);
-            $custom_label_1 = $this->get_custom_label_1($product);
-            $custom_label_2 = $this->get_custom_label_2($product);
-            $custom_label_3 = $this->get_custom_label_3($product);
-            $custom_label_4 = $this->get_custom_label_4($product);
+            $custom_label_0 = $this->get_custom_label($product, 'custom_label_0');
+            $custom_label_1 = $this->get_custom_label($product, 'custom_label_1');
+            $custom_label_2 = $this->get_custom_label($product, 'custom_label_2');
+            $custom_label_3 = $this->get_custom_label($product, 'custom_label_3');
+            $custom_label_4 = $this->get_custom_label($product, 'custom_label_4');
 
             $excluded_destinations = get_option('smarty_excluded_destination', []);
             $included_destinations = get_option('smarty_included_destination', []);
@@ -738,7 +775,7 @@ class Smarty_Gfg_Public {
                                     $row[] = $description;
                                     break;
                                 case 'Product Type':
-                                    $row[] = $categories;
+                                    $row[] = $google_product_category_mapped;
                                     break;
                                 case 'Link':
                                 case 'Mobile Link':
@@ -849,7 +886,7 @@ class Smarty_Gfg_Public {
                                 $row[] = $description;
                                 break;
                             case 'Product Type':
-                                $row[] = $categories;
+                                $row[] = $google_product_category_mapped;
                                 break;
                             case 'Link':
                             case 'Mobile Link':
@@ -1168,23 +1205,23 @@ class Smarty_Gfg_Public {
         $data['availability'] = $availability;
     
         if (!in_array('Custom Label 0', $excluded_columns)) {
-            $data['custom_label_0'] = $this->get_custom_label_0($product);
+            $data['custom_label_0'] = $this->get_custom_label($product, 'custom_label_0');
         }
     
         if (!in_array('Custom Label 1', $excluded_columns)) {
-            $data['custom_label_1'] = $this->get_custom_label_1($product);
+            $data['custom_label_1'] = $this->get_custom_label($product, 'custom_label_1');
         }
     
         if (!in_array('Custom Label 2', $excluded_columns)) {
-            $data['custom_label_2'] = $this->get_custom_label_2($product);
+            $data['custom_label_2'] = $this->get_custom_label($product, 'custom_label_2');
         }
     
         if (!in_array('Custom Label 3', $excluded_columns)) {
-            $data['custom_label_3'] = $this->get_custom_label_3($product);
+            $data['custom_label_3'] = $this->get_custom_label($product, 'custom_label_3');
         }
     
         if (!in_array('Custom Label 4', $excluded_columns)) {
-            $data['custom_label_4'] = $this->get_custom_label_4($product);
+            $data['custom_label_4'] = $this->get_custom_label($product, 'custom_label_4');
         }
 
         $brand = get_bloginfo('name');
@@ -1371,6 +1408,9 @@ class Smarty_Gfg_Public {
     
         // Initialize XML structure with a root element and namespace attribute
         $xml = new SimpleXMLElement('<feed xmlns:g="http://base.google.com/ns/1.0"/>');
+
+        // Retrieve category mapping from settings
+        $category_mapping = get_option('smarty_category_mapping', array());
     
         // Iterate through each product to populate the feed
         foreach ($products as $product) {
@@ -1401,9 +1441,21 @@ class Smarty_Gfg_Public {
 
                     // Categories: Compile a list from the product's categories
                     $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+                    $mapped_category = '';
                     if (!empty($categories) && !is_wp_error($categories)) {
-                        $category_names = array_map(function($term) { return $term->name; }, $categories);
-                        $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                        foreach ($categories as $category) {
+                            if (isset($category_mapping[$category->term_id])) {
+                                $mapped_category = $category_mapping[$category->term_id];
+                                break;
+                            }
+                        }
+                        
+                        if (!empty($mapped_category)) {
+                            $item->addChild('g:product_type', htmlspecialchars($mapped_category), $gNamespace);
+                        } else {
+                            $category_names = array_map(function($term) { return $term->name; }, $categories);
+                            $item->addChild('g:product_type', htmlspecialchars(join(' > ', $category_names)), $gNamespace);
+                        }
                     }
 
                     // Product link
@@ -1433,11 +1485,11 @@ class Smarty_Gfg_Public {
                     }
 
                     // Custom labels
-                    $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
-                    $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
-                    $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
-                    $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
-                    $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
+                    $item->addChild('g:custom_label_0', $this->get_custom_label($product, 'custom_label_0'), $gNamespace);
+                    $item->addChild('g:custom_label_1', $this->get_custom_label($product, 'custom_label_1'), $gNamespace);
+                    $item->addChild('g:custom_label_2', $this->get_custom_label($product, 'custom_label_2'), $gNamespace);
+                    $item->addChild('g:custom_label_3', $this->get_custom_label($product, 'custom_label_3'), $gNamespace);
+                    $item->addChild('g:custom_label_4', $this->get_custom_label($product, 'custom_label_4'), $gNamespace);
 
                     // Shipping
                     $shipping_cost = $this->get_shipping_cost();
@@ -1496,11 +1548,11 @@ class Smarty_Gfg_Public {
                 }
     
                 // Custom labels
-                $item->addChild('g:custom_label_0', $this->get_custom_label_0($product), $gNamespace);
-                $item->addChild('g:custom_label_1', $this->get_custom_label_1($product), $gNamespace);
-                $item->addChild('g:custom_label_2', $this->get_custom_label_2($product), $gNamespace);
-                $item->addChild('g:custom_label_3', $this->get_custom_label_3($product), $gNamespace);
-                $item->addChild('g:custom_label_4', $this->get_custom_label_4($product), $gNamespace);
+                $item->addChild('g:custom_label_0', $this->get_custom_label($product, 'custom_label_0'), $gNamespace);
+                $item->addChild('g:custom_label_1', $this->get_custom_label($product, 'custom_label_1'), $gNamespace);
+                $item->addChild('g:custom_label_2', $this->get_custom_label($product, 'custom_label_2'), $gNamespace);
+                $item->addChild('g:custom_label_3', $this->get_custom_label($product, 'custom_label_3'), $gNamespace);
+                $item->addChild('g:custom_label_4', $this->get_custom_label($product, 'custom_label_4'), $gNamespace);
 
                 // Shipping
                 $shipping_cost = $this->get_shipping_cost();
@@ -1607,11 +1659,11 @@ class Smarty_Gfg_Public {
                     }
 
                     // Custom labels
-                    $item->addChild('custom_label_0', $this->get_custom_label_0($product));
-                    $item->addChild('custom_label_1', $this->get_custom_label_1($product));
-                    $item->addChild('custom_label_2', $this->get_custom_label_2($product));
-                    $item->addChild('custom_label_3', $this->get_custom_label_3($product));
-                    $item->addChild('custom_label_4', $this->get_custom_label_4($product));
+                    $item->addChild('custom_label_0', $this->get_custom_label($product, 'custom_label_0'));
+                    $item->addChild('custom_label_1', $this->get_custom_label($product, 'custom_label_1'));
+                    $item->addChild('custom_label_2', $this->get_custom_label($product, 'custom_label_2'));
+                    $item->addChild('custom_label_3', $this->get_custom_label($product, 'custom_label_3'));
+                    $item->addChild('custom_label_4', $this->get_custom_label($product, 'custom_label_4'));
 
                     // Shipping
                     $shipping_cost = $this->get_shipping_cost();
@@ -1669,11 +1721,11 @@ class Smarty_Gfg_Public {
                 }
 
                 // Custom labels
-                $item->addChild('custom_label_0', $this->get_custom_label_0($product));
-                $item->addChild('custom_label_1', $this->get_custom_label_1($product));
-                $item->addChild('custom_label_2', $this->get_custom_label_2($product));
-                $item->addChild('custom_label_3', $this->get_custom_label_3($product));
-                $item->addChild('custom_label_4', $this->get_custom_label_4($product));
+                $item->addChild('custom_label_0', $this->get_custom_label($product, 'custom_label_0'));
+                $item->addChild('custom_label_1', $this->get_custom_label($product, 'custom_label_1'));
+                $item->addChild('custom_label_2', $this->get_custom_label($product, 'custom_label_2'));
+                $item->addChild('custom_label_3', $this->get_custom_label($product, 'custom_label_3'));
+                $item->addChild('custom_label_4', $this->get_custom_label($product, 'custom_label_4'));
 
                 // Shipping
                 $shipping_cost = $this->get_shipping_cost();
@@ -1740,175 +1792,107 @@ class Smarty_Gfg_Public {
     }
 
 	/**
-     * Custom Label 0: Older Than X Days & Not Older Than Y Days.
+     * Get custom label value based on the logic defined in the settings.
      * 
      * @since    1.0.0
      * @param WC_Product $product The WooCommerce product instance.
-     * @return string The custom label 0 value.
-     */ 
-    public function get_custom_label_0($product) {
-        $date_created = $product->get_date_created();
-        $now = new DateTime();
-        
-        // Older Than X Days
-        $older_than_days = get_option('smarty_custom_label_0_older_than_days', 30);
-        $older_than_value = get_option('smarty_custom_label_0_older_than_value', 'established');
-        if ($date_created && $now->diff($date_created)->days > $older_than_days) {
-            return $older_than_value;
-        }
-
-        // Not Older Than Y Days
-        $not_older_than_days = get_option('smarty_custom_label_0_not_older_than_days', 30);
-        $not_older_than_value = get_option('smarty_custom_label_0_not_older_than_value', 'new');
-        if ($date_created && $now->diff($date_created)->days <= $not_older_than_days) {
-            return $not_older_than_value;
-        }
-
-        return '';
-    }
-
-	/**
-     * Custom Label 1: Most Ordered in Last Z Days.
-     * 
-     * @since    1.0.0
-     * @param WC_Product $product The WooCommerce product instance.
-     * @return string The custom label 1 value.
-     */ 
-    public function get_custom_label_1($product) {
-        $most_ordered_days = get_option('smarty_custom_label_1_most_ordered_days', 30);
-        $most_ordered_value = get_option('smarty_custom_label_1_most_ordered_value', 'bestseller');
-
-        $args = [
-            'post_type'      => 'shop_order',
-            'post_status'    => ['wc-completed', 'wc-processing'],
-            'posts_per_page' => -1,
-            'date_query'     => [
-                'after' => date('Y-m-d', strtotime("-$most_ordered_days days")),
-            ],
-        ];
-
-        $orders = get_posts($args);
-
-        foreach ($orders as $order_post) {
-            $order = wc_get_order($order_post->ID);
-            foreach ($order->get_items() as $item) {
-                if ($item->get_product_id() == $product->get_id() || $item->get_variation_id() == $product->get_id()) {
-                    return $most_ordered_value;
-                }
-            }
-        }
-
-        return '';
-    }
-
-	/**
-     * Custom Label 2: High Rating.
-     * 
-     * @since    1.0.0
-     * @param WC_Product $product The WooCommerce product instance.
-     * @return string The custom label 2 value.
+     * @param string $label The custom label key (e.g., 'custom_label_0').
+     * @return string The custom label value.
      */
-    public function get_custom_label_2($product) {
-        $average_rating = $product->get_average_rating();
-        $high_rating_value = get_option('smarty_custom_label_2_high_rating_value', 'high_rating');
-        if ($average_rating >= 4) {
-            return $high_rating_value;
-        }
-        return '';
-    }
+    public function get_custom_label($product, $label) {
+        $logic_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic';
+        $days_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days';
+        $value_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value';
+        $categories_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories';
 
-	/**
-     * Custom Label 3: In Selected Category.
-     * 
-     * @since    1.0.0
-     * @param WC_Product $product The WooCommerce product instance.
-     * @return string The custom label 3 value.
-     */
-    public function get_custom_label_3($product) {
-        // Retrieve selected categories and their values from options
-        $selected_categories = get_option('smarty_custom_label_3_category', []);
-        $selected_category_values = get_option('smarty_custom_label_3_category_value', 'category_selected');
-        
-        // Ensure selected categories and values are arrays and strip any whitespace
-        if (!is_array($selected_categories)) {
-            $selected_categories = array_map('trim', explode(',', $selected_categories));
-        } else {
-            $selected_categories = array_map('trim', $selected_categories);
+        $custom_label_logic = get_option($logic_option, '');
+        $days = get_option($days_option, '');
+        $value = get_option($value_option, '');
+        $categories = get_option($categories_option, []);
+
+        if (!is_array($categories)) {
+            $categories = explode(',', $categories);
         }
 
-        if (!is_array($selected_category_values)) {
-            $selected_category_values = array_map('trim', explode(',', $selected_category_values));
-        } else {
-            $selected_category_values = array_map('trim', $selected_category_values);
-        }
+        switch ($custom_label_logic) {
+            case 'older_than_days':
+            case 'not_older_than_days':
+                $date_created = $product->get_date_created();
+                $now = new DateTime();
+                $interval = $now->diff($date_created)->days;
 
-        // Retrieve the product's categories
-        $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', ['fields' => 'ids']);
-
-        // Initialize an array to hold the values to be returned
-        $matched_values = [];
-
-        // Check each selected category
-        foreach ($selected_categories as $index => $category) {
-            if (in_array($category, $product_categories)) {
-                // Add the corresponding value to the matched values array
-                if (isset($selected_category_values[$index])) {
-                    $matched_values[] = $selected_category_values[$index];
+                if ($custom_label_logic === 'older_than_days' && $interval > $days) {
+                    return $value;
+                } elseif ($custom_label_logic === 'not_older_than_days' && $interval <= $days) {
+                    return $value;
                 }
-            }
-        }
+                break;
 
-        // Remove duplicates
-        $matched_values = array_unique($matched_values);
+            case 'most_ordered_days':
+                $args = [
+                    'post_type'      => 'shop_order',
+                    'post_status'    => ['wc-completed', 'wc-processing'],
+                    'posts_per_page' => -1,
+                    'date_query'     => [
+                        'after' => date('Y-m-d', strtotime("-$days days")),
+                    ],
+                ];
 
-        // Return the matched values as a comma-separated string
-        return implode(', ', $matched_values);
-    }
+                $orders = get_posts($args);
 
-	/**
-     * Custom Label 4: Has Sale Price.
-     * 
-     * @since    1.0.0
-     * @param WC_Product $product The WooCommerce product instance.
-     * @return string The custom label 4 value.
-     */
-    public function get_custom_label_4($product) {
-        $excluded_categories = get_option('smarty_excluded_categories', array()); // Get excluded categories from settings
-        $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'ids'));
-
-        // Check if product is in excluded categories
-        $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
-
-        // Log debug information
-        //error_log('Product ID: ' . $product->get_id());
-        //error_log('Product is on sale: ' . ($product->is_on_sale() ? 'yes' : 'no'));
-        //error_log('Product sale price: ' . $product->get_sale_price());
-        //error_log('Excluded categories: ' . print_r($excluded_categories, true));
-        //error_log('Product categories: ' . print_r($product_categories, true));
-        //error_log('Is product excluded: ' . ($is_excluded ? 'yes' : 'no'));
-
-        if ($is_excluded) {
-            return '';
-        }
-
-        // Handle single products
-        if ($product->is_type('simple')) {
-            if ($product->is_on_sale() && !empty($product->get_sale_price())) {
-                return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
-            }
-        }
-
-        // Handle variable products
-        if ($product->is_type('variable')) {
-            $variations = $product->get_children();
-            if (!empty($variations)) {
-                $first_variation_id = $variations[0]; // Check only the first variation
-                $variation = wc_get_product($first_variation_id);
-                //error_log('First Variation ID: ' . $variation->get_id() . ' is on sale: ' . ($variation->is_on_sale() ? 'yes' : 'no') . ' Sale price: ' . $variation->get_sale_price());
-                if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
-                    return get_option('smarty_custom_label_4_sale_price_value', 'on_sale');
+                foreach ($orders as $order_post) {
+                    $order = wc_get_order($order_post->ID);
+                    foreach ($order->get_items() as $item) {
+                        if ($item->get_product_id() == $product->get_id() || $item->get_variation_id() == $product->get_id()) {
+                            return $value;
+                        }
+                    }
                 }
-            }
+                break;
+
+            case 'high_rating_value':
+                $average_rating = $product->get_average_rating();
+
+                if ($average_rating >= 4) {
+                    return $value;
+                }
+                break;
+
+            case 'category':
+                $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', ['fields' => 'ids']);
+                $matched_values = [];
+
+                foreach ($categories as $index => $category) {
+                    if (in_array($category, $product_categories)) {
+                        $matched_values[] = $value;
+                    }
+                }
+
+                $matched_values = array_unique($matched_values);
+                return implode(', ', $matched_values);
+
+            case 'has_sale_price':
+                if ($product->is_type('simple')) {
+                    if ($product->is_on_sale() && !empty($product->get_sale_price())) {
+                        return $value;
+                    }
+                }
+
+                if ($product->is_type('variable')) {
+                    $variations = $product->get_children();
+                    if (!empty($variations)) {
+                        $first_variation_id = $variations[0];
+                        $variation = wc_get_product($first_variation_id);
+
+                        if ($variation->is_on_sale() && !empty($variation->get_sale_price())) {
+                            return $value;
+                        }
+                    }
+                }
+                break;
+
+            default:
+                return '';
         }
 
         return '';

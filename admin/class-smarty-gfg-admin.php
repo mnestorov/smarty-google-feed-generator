@@ -229,37 +229,26 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_google_feed', 'smarty_category_mapping', array($this, 'sanitize_category_mapping'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_xml_columns');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_exclude_csv_columns');
-		register_setting('smarty_gfg_options_google_feed', 'smarty_condition', array($this, 'sanitize_text_field'));
+		register_setting('smarty_gfg_options_google_feed', 'smarty_condition');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_size_system');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_included_destination', array($this, 'sanitize_included_destination'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_countries_for_shopping_ads', array($this, 'sanitize_excluded_countries'));
 		
 		$custom_labels = [
-			'Custom Label 0' => ['older_than_days', 'older_than_value', 'not_older_than_days', 'not_older_than_value'],
-			'Custom Label 1' => ['most_ordered_days', 'most_ordered_value'],
-			'Custom Label 2' => ['high_rating_value'],
-			'Custom Label 3' => ['category', 'category_value'],
-			'Custom Label 4' => ['has_sale_price', 'sale_price_value'],
+			'Custom Label 0' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 1' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 2' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 3' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 4' => ['logic', 'value', 'days', 'categories'],
 		];
-	
+		
 		foreach ($custom_labels as $label => $fields) {
 			foreach ($fields as $field) {
 				$option_name = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_' . $field;
 				register_setting('smarty_gfg_options_google_feed', $option_name);
 			}
 		}
-
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_0_older_than_days', array($this,'sanitize_number_field'));
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_0_not_older_than_days', array($this,'sanitize_number_field'));
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_0_not_older_than_value', 'sanitize_text_field');
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_1_most_ordered_days', array($this,'sanitize_number_field'));
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_1_most_ordered_value', 'sanitize_text_field');
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_2_high_rating_value', 'sanitize_text_field');
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_3_category');
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_3_category_value', array($this,'sanitize_category_values'));
-		//register_setting('smarty_gfg_options_google_feed', 'smarty_custom_label_4_sale_price_value', 'sanitize_text_field');
 
 		// Activity & Logging Settings
 		register_setting('smarty_gfg_options_activity_logging', 'smarty_gfg_settings_activity_logging');
@@ -832,7 +821,7 @@ class Smarty_Gfg_Admin {
 		echo '<table><tr>';
 		foreach ($condition_options as $value => $label) {
 			$checked = $condition === $value ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_condition[]" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_condition" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
@@ -902,13 +891,13 @@ class Smarty_Gfg_Admin {
 		for ($i = 0; $i < $half_count; $i++) {
 			$system = $size_systems[$i];
 			$checked = $system === $size_system ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_size_system[]" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
 		}
 		echo '</tr><tr>';
 		for ($i = $half_count; $i < count($size_systems); $i++) {
 			$system = $size_systems[$i];
 			$checked = $system === $size_system ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_size_system[]" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
@@ -1280,22 +1269,25 @@ class Smarty_Gfg_Admin {
 		echo '<p class="description">' . __('Select product categories to exclude from the feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 
+	/**
+     * @since    1.0.0
+     */
 	public function custom_labels_table_cb() {
 		$logics = [
-			'older_than_days' => __('Older Than Days', 'smarty-google-feed-generator'),
-			'not_older_than_days' => __('Not Older Than Days', 'smarty-google-feed-generator'),
-			'most_ordered_days' => __('Most Ordered in Last Days', 'smarty-google-feed-generator'),
-			'high_rating_value' => __('High Rating Value', 'smarty-google-feed-generator'),
-			'category' => __('In Selected Category', 'smarty-google-feed-generator'),
-			'has_sale_price' => __('Has Sale Price', 'smarty-google-feed-generator'),
+			'older_than_days'       => __('Older Than Days', 'smarty-google-feed-generator'),
+			'not_older_than_days'   => __('Not Older Than Days', 'smarty-google-feed-generator'),
+			'most_ordered_days'     => __('Most Ordered in Last Days', 'smarty-google-feed-generator'),
+			'high_rating_value'     => __('High Rating Value', 'smarty-google-feed-generator'),
+			'category'              => __('In Selected Category', 'smarty-google-feed-generator'),
+			'has_sale_price'        => __('Has Sale Price', 'smarty-google-feed-generator'),
 		];
 	
 		$custom_labels = [
-			'Custom Label 0' => ['logic' => '', 'value_field' => '', 'input_field' => ''],
-			'Custom Label 1' => ['logic' => '', 'value_field' => '', 'input_field' => ''],
-			'Custom Label 2' => ['logic' => '', 'value_field' => '', 'input_field' => ''],
-			'Custom Label 3' => ['logic' => '', 'value_field' => '', 'input_field' => ''],
-			'Custom Label 4' => ['logic' => '', 'value_field' => '', 'input_field' => ''],
+			'Custom Label 0' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 1' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 2' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 3' => ['logic', 'value', 'days', 'categories'],
+			'Custom Label 4' => ['logic', 'value', 'days', 'categories'],
 		];
 	
 		echo '<p>' . __('Configure the logic and values for custom labels.', 'smarty-google-feed-generator') . '</p>';
@@ -1303,22 +1295,43 @@ class Smarty_Gfg_Admin {
 		echo '<tr><th>' . __('Label Names', 'smarty-google-feed-generator') . '</th><th>' . __('Predefined Logic', 'smarty-google-feed-generator') . '</th><th>' . __('Parameter Fields', 'smarty-google-feed-generator') . '</th><th>' . __('Value Fields', 'smarty-google-feed-generator') . '</th></tr>';
 	
 		foreach ($custom_labels as $label => $details) {
-			$selected_logic = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic', '');
+			$logic_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic', '');
+			$value_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value', '');
+			$days_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days', '');
+			$categories_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories', []);
+	
+			// Ensure $categories_option is an array
+			if (!is_array($categories_option)) {
+				$categories_option = explode(',', $categories_option);
+			}
 	
 			echo '<tr>';
 			echo '<td>' . esc_html($label) . '</td>';
 			echo '<td>';
 			echo '<select name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic" class="custom-label-logic">';
 			foreach ($logics as $key => $logic) {
-				$selected = $selected_logic == $key ? 'selected' : '';
+				$selected = $logic_option == $key ? 'selected' : '';
 				echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($logic) . '</option>';
 			}
 			echo '</select>';
 			echo '</td>';
 			echo '<td class="custom-label-input">';
+			if (in_array($logic_option, ['older_than_days', 'not_older_than_days', 'most_ordered_days'])) {
+				echo '<input type="number" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days" value="' . esc_attr($days_option) . '" class="small-text" />';
+			} elseif (in_array($logic_option, ['high_rating_value', 'has_sale_price'])) {
+				echo '<input type="number" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="small-text" />';
+			} elseif ($logic_option === 'category') {
+				echo '<select name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories[]" multiple="multiple" class="select2" style="width:50%;">';
+				foreach (get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]) as $category) {
+					$selected = in_array($category->term_id, $categories_option) ? 'selected' : '';
+					echo '<option value="' . esc_attr($category->term_id) . '" ' . $selected . '>' . esc_html($category->name) . '</option>';
+				}
+				echo '</select>';
+			} else {
+				echo '<input type="text" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_default" value="' . esc_attr($value_option) . '" class="regular-text" />';
+			}
 			echo '</td>';
 			echo '<td class="custom-label-value">';
-			$value_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value', '');
 			echo '<input type="text" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="regular-text" />';
 			echo '</td>';
 			echo '</tr>';
