@@ -13,15 +13,6 @@
 class Smarty_Gfg_Google_Reviews_Feed {
 
     /**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 */
-    public function __construct() {
-        add_action('admin_init', array($this, 'settings_init'));
-    }
-
-    /**
 	 * Initializes the Google Reviews Feed settings by registering the settings, sections, and fields.
 	 *
 	 * @since    1.0.0

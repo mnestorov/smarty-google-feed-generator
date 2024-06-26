@@ -113,9 +113,14 @@ class Smarty_Gfg_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-google-reviews-feed.php';
 
 		/**
-		 * The class responsible for Activity Log functionality in the admin area.
+		 * The class responsible for Activity & Logging functionality in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-activity-logging.php';
+
+		/**
+		 * The class responsible for License functionality in the admin area.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-license.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing side of the site.
@@ -150,6 +155,9 @@ class Smarty_Gfg_Locator {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin = new Smarty_Gfg_Admin($this->get_plugin_name(), $this->get_version());
+		
+		$plugin_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed();
+		$plugin_license = new Smarty_Gfg_License();
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -162,8 +170,14 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('wp_ajax_get_woocommerce_categories', $plugin_admin, 'handle_ajax_get_woocommerce_categories');
 		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);
 		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
-		$this->loader->add_action('admin_notices', $plugin_admin, 'admin_notice');
-		$this->loader->add_action('updated_option', $plugin_admin, 'handle_license_status_check', 10, 3);
+
+		// Register hooks for Google Reviews Feed
+		$this->loader->add_action('admin_init', $plugin_reviews_feed, 'settings_init');
+
+		// Register hooks for License management
+		$this->loader->add_action('admin_init', $plugin_license, 'settings_init');
+		$this->loader->add_action('updated_option', $plugin_license, 'handle_license_status_check', 10, 3);
+		$this->loader->add_action('admin_notices', $plugin_license, 'admin_notice');
 	}
 
 	/**

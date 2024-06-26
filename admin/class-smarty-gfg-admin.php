@@ -33,14 +33,6 @@ class Smarty_Gfg_Admin {
 	private $version;
 
 	/**
-     * Instance of Smarty_Gfg_API.
-	 * 
-     * @since    1.0.0
-     * @var Smarty_Gfg_API
-     */
-    private $api_instance;
-
-	/**
 	 * The tsv/csv columns description.
 	 * 
 	 * @since    1.0.0
@@ -63,6 +55,14 @@ class Smarty_Gfg_Admin {
 	 * @access   private
 	 */
 	private $activity_logging;
+
+	/**
+	 * Instance of Smarty_Gfg_License.
+	 * 
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private $license;
 	
 	/**
 	 * Initialize the class and set its properties.
@@ -74,9 +74,6 @@ class Smarty_Gfg_Admin {
 	public function __construct($plugin_name, $version) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
-		// Instantiate the API class
-        $this->api_instance = new Smarty_Gfg_API(CK_KEY, CS_KEY);
 
 		// Initialize column descriptions with translations
         $this->column_descriptions = array(
@@ -116,6 +113,9 @@ class Smarty_Gfg_Admin {
 		
 		// Include and instantiate the Activity Logging class
 		$this->activity_logging = new Smarty_Gfg_Activity_Logging();
+
+		// Include and instantiate the License class
+		$this->license = new Smarty_Gfg_License();
 	}
 
 	/**
@@ -278,14 +278,8 @@ class Smarty_Gfg_Admin {
 		// Activity & Logging settings
 		$this->activity_logging->settings_init();
 
-		// License Settings
-		register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'sanitize_license_settings'));
-
-		/*
-		 * GENERAL TAB
-		 */
-
-		// Sections
+		// License settings
+		$this->license->settings_init();
 
 		add_settings_section(
 			'smarty_gfg_section_general',                                   	// ID of the section
@@ -321,8 +315,6 @@ class Smarty_Gfg_Admin {
 			array($this,'section_settings_cb'),                         		// Callback function that fills the section with the desired content
 			'smarty_gfg_options_general'                                		// Page on which to add the section
 		);
-
-		// Fields
 	
 		add_settings_field(
 			'smarty_convert_images',                                        	// ID of the field
@@ -474,29 +466,6 @@ class Smarty_Gfg_Admin {
 			'smarty_gfg_options_google_feed',                                  	// Page on which to add the field
 			'smarty_gfg_section_google_feed'                                 	// Section to which this field belongs
 		);
-		
-		/*
-		 * LICENSE TAB
-		 */
-
-		// Sections
-	
-		add_settings_section(
-			'smarty_gfg_section_license',										// ID of the section
-			__('License', 'smarty-google-feed-generator'),						// Title of the section  
-			array($this, 'section_tab_license_cb'),								// Callback function that fills the section with the desired content
-			'smarty_gfg_options_license'										// Page on which to add the section
-		);
-
-		// Fields
-
-		add_settings_field(
-			'smarty_api_key',													// ID of the field
-			__('API Key', 'smarty-google-feed-generator'),						// Title of the field
-			array($this, 'field_api_key_cb'),									// Callback function to display the field
-			'smarty_gfg_options_license',										// Page on which to add the field
-			'smarty_gfg_section_license'										// Section to which this field belongs
-		);
 	}
 	
 	/**
@@ -528,23 +497,6 @@ class Smarty_Gfg_Admin {
 			$sanitized_input[$key] = sanitize_text_field($value);
 		}
 		return $sanitized_input;
-	}
-
-    /**
-     * Sanitizes the plugin License settings.
-     *
-     * Validates and sanitizes user input for the settings.
-     *
-	 * @since    1.0.0
-     * @param array $input The input settings array.
-     * @return array Sanitized settings.
-     */
-	public function sanitize_license_settings($input) {
-		$new_input = array();
-		if (isset($input['api_key'])) {
-			$new_input['api_key'] = sanitize_text_field($input['api_key']);
-		}
-		return $new_input;
 	}
 
 	/**
@@ -1059,67 +1011,6 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
-     * Check if the API key is valid.
-     * 
-     * @since    1.0.0
-     * @param string $api_key The API key to validate.
-     * @return bool True if the API key is valid, false otherwise.
-     */
-    private function is_valid_api_key($api_key) {
-		$response = $this->api_instance->validate_license($api_key);
-	
-		if (isset($response['success']) && $response['success']) {
-			$isActive = false;
-			$activations = $response['data']['activationData'] ?? [];
-	
-			foreach ($activations as $activation) {
-				if (empty($activation['deactivated_at'])) {
-					$isActive = true;
-					break;
-				}
-			}
-	
-			//error_log('Checking API key validity: ' . $api_key);
-			//error_log('API Response: ' . print_r($response, true));
-			//error_log('License is ' . ($isActive ? 'active' : 'inactive'));
-			return $isActive;
-		}
-	
-		return false;
-	}
-
-	/**
-     * Handle license status check.
-     * 
-     * @since    1.0.0
-     * @param string $option_name The name of the option.
-     * @param mixed $old_value The old value of the option.
-     * @param mixed $value The new value of the option.
-     */
-	public function handle_license_status_check($option_name, $old_value, $value) {
-		if (!$this->api_instance) {
-			// Handle the error
-			return;
-		}
-	
-		if ($option_name == 'smarty_gfg_settings_license' && isset($value['api_key'])) {
-			$api_key = $value['api_key'];
-	
-			// Check the license status
-			$isValid = $this->is_valid_api_key($api_key);
-	
-			// Add an admin notice based on the validity of the license
-			if ($isValid) {
-				// Add query arg or admin notice for valid license
-				add_query_arg('license-valid', 'true');
-			} else {
-				// Add query arg or admin notice for invalid license
-				add_query_arg('license-invalid', 'true');
-			}
-		}
-	}
-
-	/**
      * Callback function for the General section.
      * 
      * @since    1.0.0
@@ -1520,20 +1411,6 @@ class Smarty_Gfg_Admin {
 		return array($columns, $disabled_columns);
 	}
 
-    /**
-     * Callback function for the License section.
-     * 
-     * @since    1.0.0
-     * @param array $args Arguments for the callback.
-     */
-	public function section_tab_license_cb($args) {
-		?>
-		<p id="<?php echo esc_attr($args['id']); ?>">
-			<?php echo esc_html__('Enter your API key to enable advanced features.', 'smarty-google-feed-generator'); ?>
-		</p>
-		<?php
-	}
-
 	/**
      * @since    1.0.0
      */
@@ -1550,22 +1427,6 @@ class Smarty_Gfg_Admin {
 		}
 	
 		return in_array($field, $exclude_xml_columns) && in_array($field, $exclude_csv_columns);
-	}	
-
-    /**
-     * Callback function for the API key field.
-     * 
-     * @since    1.0.0
-     * @param array $args Arguments for the callback.
-     */
-	public function field_api_key_cb($args) {
-		$options = get_option('smarty_gfg_settings_license');
-		?>
-		<input type="text" id="smarty_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
-		<p class="description">
-			<?php echo esc_html__('Enter a valid API key.', 'smarty-google-feed-generator'); ?>
-		</p>
-		<?php
 	}
 
     /**
@@ -1584,21 +1445,4 @@ class Smarty_Gfg_Admin {
 			delete_transient('smarty_gfg_settings_updated');
 		}
 	}
-
-    /**
-     * Function to check for transients and other conditions to display admin notice.
-     *
-     * @since    1.0.0
-     */
-    public function admin_notice() {
-        $options = get_option('smarty_gfg_settings_general');
-		
-		if (isset($_GET['license-activated']) && $_GET['license-activated'] == 'true') {
-			?>
-			<div class="notice notice-success smarty-auto-hide-notice">
-				<p><?php echo esc_html__('License activated successfully.', 'smarty-google-feed-generator'); ?></p>
-			</div>
-			<?php
-		}
-    }
 }
