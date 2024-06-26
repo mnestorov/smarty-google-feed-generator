@@ -110,17 +110,17 @@ class Smarty_Gfg_Locator {
 		/**
 		 * The class responsible for Google Reviews Feed functionality in the admin area.
 		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-google-reviews-feed.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-google-reviews-feed.php';
 
 		/**
 		 * The class responsible for Activity & Logging functionality in the admin area.
 		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-activity-logging.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-activity-logging.php';
 
 		/**
 		 * The class responsible for License functionality in the admin area.
 		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-license.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-license.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing side of the site.
