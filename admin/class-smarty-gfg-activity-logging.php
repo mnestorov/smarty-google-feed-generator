@@ -23,7 +23,7 @@ class Smarty_Gfg_Activity_Logging {
     }
 
     /**
-	 * Initializes the Google Reviews Feed settings by registering the settings, sections, and fields.
+	 * Initializes the Activity Logging settings by registering the settings, sections, and fields.
 	 *
 	 * @since    1.0.0
 	 */
