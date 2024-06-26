@@ -233,7 +233,7 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_google_feed', 'smarty_size_system');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_destination', array($this, 'sanitize_excluded_destination'));
 		register_setting('smarty_gfg_options_google_feed', 'smarty_included_destination', array($this, 'sanitize_included_destination'));
-		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_countries_for_shopping_ads', array($this, 'sanitize_excluded_countries'));
+		register_setting('smarty_gfg_options_google_feed', 'smarty_excluded_countries_for_shopping_ads');
 		
 		$custom_labels = [
 			'Custom Label 0' => ['logic', 'value', 'days', 'categories'],
@@ -594,22 +594,6 @@ class Smarty_Gfg_Admin {
 	}
 
 	/**
-	 * Sanitize the "Excluded Countries for Shopping Ads" option.
-	 *
-	 * @since 1.0.0
-	 * @param string $input The input value.
-	 * @return string Sanitized value.
-	 */
-	public function sanitize_excluded_countries($input) {
-		$input = strtoupper(trim($input));
-		if (preg_match('/^[A-Z]{2}$/', $input)) {
-			return $input;
-		}
-		add_settings_error('smarty_excluded_countries', 'invalid_country_code', __('Please enter a valid 2-character ISO 3166-1 alpha-2 country code.', 'smarty-google-feed-generator'));
-		return '';
-	}
-
-	/**
      * Handle AJAX request to convert images.
      * 
      * @since    1.0.0
@@ -836,13 +820,13 @@ class Smarty_Gfg_Admin {
 		for ($i = 0; $i < $half_count; $i++) {
 			$destination = $destinations[$i];
 			$checked = in_array($destination, $excluded_destinations) ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html(str_replace('_', ' ', $destination)) . '</label></td>';
 		}
 		echo '</tr><tr>';
 		for ($i = $half_count; $i < count($destinations); $i++) {
 			$destination = $destinations[$i];
 			$checked = in_array($destination, $excluded_destinations) ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+			echo '<td><label><input type="checkbox" name="smarty_excluded_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html(str_replace('_', ' ', $destination)) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
@@ -856,13 +840,13 @@ class Smarty_Gfg_Admin {
 		for ($i = 0; $i < $half_count; $i++) {
 			$destination = $destinations[$i];
 			$checked = in_array($destination, $included_destinations) ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html(str_replace('_', ' ', $destination)) . '</label></td>';
 		}
 		echo '</tr><tr>';
 		for ($i = $half_count; $i < count($destinations); $i++) {
 			$destination = $destinations[$i];
 			$checked = in_array($destination, $included_destinations) ? 'checked' : '';
-			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html($destination) . '</label></td>';
+			echo '<td><label><input type="checkbox" name="smarty_included_destination[]" value="' . esc_attr($destination) . '" ' . $checked . '> ' . esc_html(str_replace('_', ' ', $destination)) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
