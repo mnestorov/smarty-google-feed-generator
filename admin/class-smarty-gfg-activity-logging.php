@@ -13,16 +13,6 @@
 class Smarty_Gfg_Activity_Logging {
 
     /**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 */
-    public function __construct() {
-        add_action('admin_init', array($this, 'settings_init'));
-        add_action('wp_ajax_smarty_clear_logs', array($this, 'handle_ajax_clear_logs'));
-    }
-
-    /**
 	 * Initializes the Activity Logging settings by registering the settings, sections, and fields.
 	 *
 	 * @since    1.0.0

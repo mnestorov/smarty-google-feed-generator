@@ -157,6 +157,7 @@ class Smarty_Gfg_Locator {
 		$plugin_admin = new Smarty_Gfg_Admin($this->get_plugin_name(), $this->get_version());
 		
 		$plugin_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed();
+		$plugin_activity_logging = new Smarty_Gfg_Activity_Logging();
 		$plugin_license = new Smarty_Gfg_License();
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
@@ -173,6 +174,10 @@ class Smarty_Gfg_Locator {
 
 		// Register hooks for Google Reviews Feed
 		$this->loader->add_action('admin_init', $plugin_reviews_feed, 'settings_init');
+
+		// Register hooks for Activity & Logging
+		$this->loader->add_action('admin_init', $plugin_activity_logging, 'settings_init');
+        $this->loader->add_action('wp_ajax_smarty_clear_logs', $plugin_activity_logging, 'handle_ajax_clear_logs');
 
 		// Register hooks for License management
 		$this->loader->add_action('admin_init', $plugin_license, 'settings_init');
