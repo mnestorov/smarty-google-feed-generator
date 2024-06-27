@@ -13,8 +13,18 @@
 trait Smarty_Gfg_Woo_Category_Mapping_Trait {
 
     /**
+     * Initialize the trait and set up AJAX handlers.
+     * 
+     * @since    1.0.0
+     */
+    public function init_woo_category_mapping_trait() {
+        add_action('wp_ajax_smarty_get_woocommerce_categories', array($this, 'handle_ajax_get_woocommerce_categories'));
+    }
+
+    /**
      * Register settings and fields related to WooCommerce Product Category.
      * 
+     * @since    1.0.0
      * @param string $options_group The options group name.
      * @param string $section_id The section ID for settings fields.
      * @param string $page The settings page where fields are displayed.
@@ -80,17 +90,21 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
 	 * @since    1.0.0
 	 */
 	public function handle_ajax_get_woocommerce_categories() {
-		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
-	
-		if (!current_user_can('manage_options')) {
-			wp_send_json_error('You do not have sufficient permissions to access this page.');
-		}
-	
-		$categories = get_terms([
-			'taxonomy' => 'product_cat',
-			'hide_empty' => false,
-		]);
-	
-		wp_send_json_success($categories);
-	}
+        check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
+    
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('You do not have sufficient permissions to access this page.');
+        }
+    
+        $categories = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+        ]);
+    
+        if (is_wp_error($categories)) {
+            wp_send_json_error('Error fetching categories');
+        }
+    
+        wp_send_json_success($categories);
+    }
 }

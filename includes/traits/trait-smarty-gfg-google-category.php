@@ -14,7 +14,8 @@ trait Smarty_Gfg_Google_Category_Trait {
 
 	/**
      * Register settings and fields related to Google Category.
-     * 
+	 * 
+	 * @since    1.0.0
      * @param string $options_group The options group name.
      * @param string $section_id The section ID for settings fields.
      * @param string $page The settings page where fields are displayed.
@@ -72,7 +73,7 @@ trait Smarty_Gfg_Google_Category_Trait {
 	public function google_category_as_id_cb() {
 		$option = get_option('smarty_google_category_as_id');
 		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
-		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
+		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.<br><em><b>Important:</b> <span class="smarty-text-danger">This also works for Bing Products feed.</em></span>', 'smarty-google-feed-generator') . '</p>';
 	}
 
 	/**

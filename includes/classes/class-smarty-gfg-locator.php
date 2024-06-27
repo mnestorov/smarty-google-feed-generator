@@ -113,6 +113,11 @@ class Smarty_Gfg_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . 'traits/trait-smarty-gfg-woo-category-mapping.php';
 
 		/**
+		 * Trait to handle Custom Labels-related functionality for product feeds.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'traits/trait-smarty-gfg-custom-labels.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-admin.php';

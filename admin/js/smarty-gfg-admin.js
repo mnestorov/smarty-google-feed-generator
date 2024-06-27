@@ -154,7 +154,7 @@
             window.open(redirectUrl, '_blank');
         });
 
-        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination, .smarty-excluded-countries, .smarty-condition, .smarty-size-system, .smarty-reviews-ratings').select2({
+        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination, .smarty-excluded-countries, .smarty-condition, .smarty-size-system, .smarty-reviews-ratings, .smarty-select2-ajax').select2({
             width: '100%' // need to override the changed default
         });
 
@@ -224,7 +224,7 @@
                 url: smartyFeedGenerator.ajaxUrl,
                 method: 'GET',
                 data: {
-                    action: 'get_woocommerce_categories',
+                    action: 'smarty_get_woocommerce_categories',
                     nonce: smartyFeedGenerator.nonce
                 },
                 success: function(response) {
