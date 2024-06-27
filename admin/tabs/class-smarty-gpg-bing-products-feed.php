@@ -69,7 +69,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 		register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_exclude_csv_columns');
         register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_condition');
 		register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_size_system');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_excluded_countries_for_shopping_ads');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_shopping_ads_excluded_country');
 
         add_settings_section(
 			'smarty_gfg_section_bing_feed',									    // ID of the section
@@ -128,6 +128,14 @@ class Smarty_Gfg_Bing_Products_Feed {
 			array($this,'bing_exclude_csv_columns_cb'), 						// Callback function to display the field
 			'smarty_gfg_options_bing_feed', 									// Page on which to add the field
 			'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
+		);
+
+		add_settings_field(
+			'smarty_bing_optional_attributes_table',							// ID of the field
+			__('Optional Attributes', 'smarty-google-feed-generator'),			// Title of the field
+			array($this, 'bing_optional_attributes_table_cb'),					// Callback function to display the field
+			'smarty_gfg_options_bing_feed',										// Page on which to add the field
+			'smarty_gfg_section_bing_feed'										// Section to which this field belongs
 		);
 
         $this->register_custom_labels_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
@@ -263,6 +271,83 @@ class Smarty_Gfg_Bing_Products_Feed {
 		$feed_type = get_option('smarty_feed_type', 'bing');
 		list($columns, $disabled_columns) = $this->bing_get_feed_columns($feed_type);
 		$this->bing_render_columns('smarty_bing_exclude_csv_columns', $columns, $disabled_columns, 'csv');
+	}
+
+	/**
+	 *  @since    1.0.0
+	 */
+	public function bing_optional_attributes_table_cb() {
+		// Fetch current options
+		$condition = get_option('smarty_bing_condition', 'new');
+		$excluded_country = get_option('smarty_bing_shopping_ads_excluded_country', '');
+		$size_system = get_option('smarty_bing_size_system', '');
+
+		// Condition options
+		$condition_options = [
+			'new' => __('New', 'smarty-google-feed-generator'),
+			'refurbished' => __('Refurbished', 'smarty-google-feed-generator'),
+			'used' => __('Used', 'smarty-google-feed-generator'),
+		];
+	
+		// WooCommerce countries
+		$woocommerce_countries = WC()->countries->get_countries();
+	
+		// Size system options
+		$size_systems = ['US', 'UK', 'EU', 'DE', 'FR', 'JP', 'CN', 'IT', 'BR', 'MEX', 'AU'];
+		
+		echo '<p>' . __('Manage additional optional attributes for Bing Products feed.', 'smarty-google-feed-generator') . '</p>';
+		echo '<table class="form-table user-friendly-table"><tbody>';
+		echo '<tr><th>' . __('Attributes', 'smarty-google-feed-generator') . '</th><th>' . __('Values', 'smarty-google-feed-generator') . '</th></tr>';
+
+		// Condition
+		echo '<tr>';
+		echo '<td>' . __('Condition', 'smarty-google-feed-generator') . '</td>';
+		echo '<td>';
+		echo '<table><tr>';
+		foreach ($condition_options as $value => $label) {
+			$checked = $condition === $value ? 'checked' : '';
+			echo '<td><label><input type="radio" name="smarty_bing_condition" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
+		}
+		echo '</tr></table>';
+		echo '</td>';
+		echo '</tr>';
+	
+		// Shopping Ads Excluded Country
+		echo '<tr>';
+		echo '<td>' . __('Shopping Ads Excluded Country', 'smarty-google-feed-generator') . '</td>';
+		echo '<td>';
+		echo '<select name="smarty_bing_shopping_ads_excluded_country" class="smarty-excluded-countries">';
+		echo '<option value="">' . __('Select a Country', 'smarty-google-feed-generator') . '</option>';
+		foreach ($woocommerce_countries as $code => $name) {
+			$selected = $code === $excluded_country ? 'selected' : '';
+			echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_html($name) . '</option>';
+		}
+		echo '</select>';
+		echo '</td>';
+		echo '</tr>';
+	
+		// Size System
+		echo '<tr>';
+		echo '<td>' . __('Size System', 'smarty-google-feed-generator') . '</td>';
+		echo '<td>';
+		$half_count = ceil(count($size_systems) / 2);
+		echo '<table><tr>';
+		for ($i = 0; $i < $half_count; $i++) {
+			$system = $size_systems[$i];
+			$checked = $system === $size_system ? 'checked' : '';
+			echo '<td><label><input type="radio" name="smarty_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+		}
+		echo '</tr><tr>';
+		for ($i = $half_count; $i < count($size_systems); $i++) {
+			$system = $size_systems[$i];
+			$checked = $system === $size_system ? 'checked' : '';
+			echo '<td><label><input type="radio" name="smarty_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+		}
+		echo '</tr></table>';
+		echo '</td>';
+		echo '</tr>';
+	
+		echo '</tbody></table>';
 	}
 
     /**
