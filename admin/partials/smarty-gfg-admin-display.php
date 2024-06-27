@@ -24,6 +24,9 @@
 		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_csv_export"><?php echo __('Google Products CSV Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php elseif ($current_tab == 'google-reviews-feed') : ?>
 		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_reviews_feed"><?php echo  __('Google Reviews Feed', 'smarty-google-feed-generator'); ?></button>
+	<?php elseif ($current_tab == 'bing-products-feed') : ?>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_bing_feed"><?php echo __('Bing Products XML Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed"><?php echo __('Bing Products TXT Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php endif; ?>
 
 	<h2 class="nav-tab-wrapper">
@@ -46,6 +49,9 @@
 			<?php elseif ($current_tab == 'google-reviews-feed') : ?>
 				<?php settings_fields('smarty_gfg_options_google_reviews_feed'); ?>
 				<?php do_settings_sections('smarty_gfg_options_google_reviews_feed'); ?>
+			<?php elseif ($current_tab == 'bing-products-feed') : ?>
+				<?php settings_fields('smarty_gfg_options_bing_feed'); ?>
+				<?php do_settings_sections('smarty_gfg_options_bing_feed'); ?>
 			<?php elseif ($current_tab == 'activity-logging') : ?>
 				<?php settings_fields('smarty_gfg_options_activity_logging'); ?>
 				<?php do_settings_sections('smarty_gfg_options_activity_logging'); ?>

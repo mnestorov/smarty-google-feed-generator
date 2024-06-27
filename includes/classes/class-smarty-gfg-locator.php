@@ -103,14 +103,34 @@ class Smarty_Gfg_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-api.php';
 
 		/**
+		 * Trait to handle Google Products category-related functionality for product feeds.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'traits/trait-smarty-gfg-google-category.php';
+
+		/**
+		 * Trait to handle WooCommerce category mapping-related functionality for product feeds.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'traits/trait-smarty-gfg-woo-category-mapping.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-gfg-admin.php';
 
 		/**
+		 * The class responsible for Google Products Feed functionality in the admin area.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-google-products-feed.php';
+
+		/**
 		 * The class responsible for Google Reviews Feed functionality in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-google-reviews-feed.php';
+
+		/**
+		 * The class responsible for Google Reviews Feed functionality in the admin area.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-gfg-bing-products-feed.php';
 
 		/**
 		 * The class responsible for Activity & Logging functionality in the admin area.
@@ -156,7 +176,9 @@ class Smarty_Gfg_Locator {
 	private function define_admin_hooks() {
 		$plugin_admin = new Smarty_Gfg_Admin($this->get_plugin_name(), $this->get_version());
 		
-		$plugin_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed();
+		$plugin_google_products_feed = new Smarty_Gfg_Google_Products_Feed();
+		$plugin_google_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed();
+		$plugin_bing_products_feed = new Smarty_Gfg_Bing_Products_Feed();
 		$plugin_activity_logging = new Smarty_Gfg_Activity_Logging();
 		$plugin_license = new Smarty_Gfg_License();
 
@@ -166,14 +188,17 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
 		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
 		$this->loader->add_action('wp_ajax_smarty_convert_all_webp_images_to_png', $plugin_admin, 'handle_ajax_convert_all_images');
-		$this->loader->add_action('wp_ajax_smarty_generate_feed', $plugin_admin, 'handle_ajax_generate_feed');
-		$this->loader->add_action('wp_ajax_smarty_load_google_categories', $plugin_admin, 'handle_ajax_load_google_categories');
-		$this->loader->add_action('wp_ajax_get_woocommerce_categories', $plugin_admin, 'handle_ajax_get_woocommerce_categories');
 		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);
 		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
 
+		// Register hooks for Google Products Feed
+		$this->loader->add_action('admin_init', $plugin_google_products_feed, 'settings_init');
+
 		// Register hooks for Google Reviews Feed
-		$this->loader->add_action('admin_init', $plugin_reviews_feed, 'settings_init');
+		$this->loader->add_action('admin_init', $plugin_google_reviews_feed, 'settings_init');
+
+		// Register hooks for Bing Products Feed
+		$this->loader->add_action('admin_init', $plugin_bing_products_feed, 'settings_init');
 
 		// Register hooks for Activity & Logging
 		$this->loader->add_action('admin_init', $plugin_activity_logging, 'settings_init');

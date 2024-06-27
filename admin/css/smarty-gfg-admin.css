@@ -167,5 +167,9 @@ textarea[name="smarty_exclude_patterns"].large-text {
 
 .smarty-error {
     background: #fff0f4 !important;
-    color: #c51244 !important;
+    color: #dc3545 !important;
+}
+
+.smarty-text-danger  {
+    color: #dc3545;
 }
