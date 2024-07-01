@@ -164,13 +164,74 @@ textarea[name="smarty_bing_exclude_patterns"].large-text {
     cursor: not-allowed;
 }
 
+/* The switch - the box around the slider */
+
+.smarty-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+/* Hide default HTML checkbox */
+
+.smarty-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+
+.smarty-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.smarty-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .smarty-slider {
+    background-color: #2196F3;
+}
+
+input:checked + .smarty-slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+
+.smarty-slider.round {
+    border-radius: 34px;
+}
+
+.smarty-slider.round:before {
+    border-radius: 50%;
+}
+
 /* Helpers */
 
 .smarty-error {
     background: #fff0f4 !important;
-    color: #dc3545 !important;
+    color: #c51244 !important;
 }
 
 .smarty-text-danger  {
-    color: #dc3545;
+    color: #c51244;
 }

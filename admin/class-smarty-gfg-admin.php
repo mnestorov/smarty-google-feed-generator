@@ -407,9 +407,12 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function clear_cache_cb() {
+		echo '<label class="smarty-toggle-switch">';
 		$option = get_option('smarty_clear_cache');
 		echo '<input type="checkbox" name="smarty_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
-		echo '<p class="description">' . __('Check to clear the cache each time the feed is generated. <br><small><em><b>Important:</b> <span style="color: #c51244;">Remove this in production to utilize caching.</span></em></small>', 'smarty-google-feed-generator') . '</p>';
+		echo '<span class="smarty-slider round"></span>';
+        echo '</label>';
+		echo '<p class="description">' . __('Check to clear the cache each time the feed is generated. <br><em><b>Important:</b> <span class="smarty-text-danger">Remove this in production to utilize caching.</span></em>', 'smarty-google-feed-generator') . '</p>';
 	}
 	
 	/**

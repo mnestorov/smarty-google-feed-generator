@@ -71,8 +71,11 @@ trait Smarty_Gfg_Google_Category_Trait {
      * @since    1.0.0
      */
 	public function google_category_as_id_cb() {
+		echo '<label class="smarty-toggle-switch">';
 		$option = get_option('smarty_google_category_as_id');
 		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
+		echo '<span class="smarty-slider round"></span>';
+        echo '</label>';
 		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.<br><em><b>Important:</b> <span class="smarty-text-danger">This also works for Bing Products feed.</em></span>', 'smarty-google-feed-generator') . '</p>';
 	}
 
