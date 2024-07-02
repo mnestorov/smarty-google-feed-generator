@@ -48,7 +48,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             // Get excluded categories and columns from settings
             $excluded_categories = get_option('smarty_excluded_categories', array());
             $excluded_columns = get_option('smarty_exclude_xml_columns', array());
-            //error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+            //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Check if including product variations is enabled
             $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
@@ -73,8 +73,8 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
             // Fetch products using WooCommerce function
             $products = wc_get_products($args);
-            //error_log('Product Query Args: ' . print_r($args, true));
-            //error_log('Products: ' . print_r($products, true));
+            //_gfg_write_logs('Product Query Args: ' . print_r($args, true));
+            //_gfg_write_logs('Products: ' . print_r($products, true));
 
             // Initialize the XML structure
             $dom = new DOMDocument('1.0', 'UTF-8');
@@ -88,7 +88,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
             // Loop through each product to add details to the feed
             foreach ($products as $product) {
-                //error_log('Processing Product: ' . print_r($product->get_data(), true));
+                //_gfg_write_logs('Processing Product: ' . print_r($product->get_data(), true));
                 if ($product->is_type('variable')) {
                     // Get all variations if product is variable
                     $variations = $product->get_children();
@@ -120,7 +120,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
             // Save and output the XML
             $feed_content = $dom->saveXML();
-            //error_log('Feed Content: ' . $feed_content);
+            //_gfg_write_logs('Feed Content: ' . $feed_content);
 
             if ($feed_content) {
                 $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
@@ -131,7 +131,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                 exit; // Ensure the script stops here to prevent further output that could corrupt the feed
             } else {
                 ob_end_clean();
-                //error_log('Failed to generate feed content.');
+                //_gfg_write_logs('Failed to generate feed content.');
                 echo '<error>Failed to generate feed content.</error>';
                 exit;
             }
@@ -404,11 +404,11 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Write the header row to the CSV file
         fputcsv($handle, $headers);
-        error_log('CSV Headers: ' . print_r($headers, true));
+        //_gfg_write_logs('CSV Headers: ' . print_r($headers, true));
 
         // Get excluded categories from settings
         $excluded_categories = get_option('smarty_excluded_categories', array());
-        error_log('Excluded Categories: ' . print_r($excluded_categories, true));
+        //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Check if including product variations is enabled
         $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
@@ -433,8 +433,8 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Retrieve products using the defined arguments
         $products = wc_get_products($args);
-        error_log('Product Query Args: ' . print_r($args, true));
-        error_log('Products: ' . count($products) . ' products fetched');
+        //_gfg_write_logs('Product Query Args: ' . print_r($args, true));
+        //_gfg_write_logs('Products: ' . count($products) . ' products fetched');
 
         // Get exclude patterns from settings and split into array
         $exclude_patterns_raw = get_option('smarty_exclude_patterns');
@@ -471,7 +471,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             $mapped_category = '';
             foreach ($product_categories as $cat_id) {
                 if (isset($category_mapping[$cat_id]) && !empty($category_mapping[$cat_id])) {
-                    error_log('Category Mappings: ' . print_r($category_mapping, true));
+                    //_gfg_write_logs('Category Mappings: ' . print_r($category_mapping, true));
                     $mapped_category = $category_mapping[$cat_id];
                     break;
                 }
@@ -506,10 +506,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
             // Get Google category as ID or name
             $google_product_category = self::get_cleaned_google_product_category(); // Get Google category from plugin settings
-            error_log('Google Product Category: ' . $google_product_category); // Debugging line
+            //_gfg_write_logs('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
-                error_log('Google Product Category ID: ' . $google_product_category); // Debugging line
+                //_gfg_write_logs('Google Product Category ID: ' . $google_product_category); // Debugging line
             }
 
             // Check if the product has the "bundle" tag
@@ -660,7 +660,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                             }
                         }
                     }
-                    error_log('Variable Product Row Data: ' . print_r($row, true));
+                    //_gfg_write_logs('Variable Product Row Data: ' . print_r($row, true));
                 }
             } else {
                 // Prepare row for a simple product
@@ -771,7 +771,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                         }
                     }
                 }
-                error_log('Simple Product Row Data: ' . print_r($row, true));
+                //_gfg_write_logs('Simple Product Row Data: ' . print_r($row, true));
             }
 
             // Only output the row if the SKU is set (some products may not have variations correctly set)
@@ -1057,17 +1057,20 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @since    1.0.0
      */
     public function schedule_google_products_feed_generation() {
-        $interval = get_option('smarty_google_feed_interval', 'no_refresh');
+        $interval = get_option('smarty_google_feed_interval', 'daily');
+        _gfg_write_logs('Google Products Feed Interval: ' . get_option('smarty_google_feed_interval'));
         
         // Clear any existing scheduled events
         $timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
         if ($timestamp) {
             wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
+            _gfg_write_logs('Unscheduled existing Google Products Feed event.');
         }
 
         // Schedule a new event based on the selected interval
         if ($interval !== 'no_refresh') {
             wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
+            _gfg_write_logs('Scheduled new Google Products Feed event.');
         }
     }
 }

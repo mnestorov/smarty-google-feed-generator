@@ -120,16 +120,19 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      */
     public function schedule_google_reviews_feed_generation() {
         $interval = get_option('smarty_reviews_feed_interval', 'no_refresh');
+        _gfg_write_logs('Google Reviews Feed Interval: ' . get_option('smarty_google_feed_interval'));
         
         // Clear any existing scheduled events
         $timestamp = wp_next_scheduled('smarty_generate_google_reviews_feed');
         if ($timestamp) {
             wp_unschedule_event($timestamp, 'smarty_generate_google_reviews_feed');
+            _gfg_write_logs('Unscheduled existing Google Reviews Feed event.');
         }
 
         // Schedule a new event based on the selected interval
         if ($interval !== 'no_refresh') {
             wp_schedule_event(time(), $interval, 'smarty_generate_google_reviews_feed');
+            _gfg_write_logs('Scheduled new Google Reviews Feed event.');
         }
     }
 }

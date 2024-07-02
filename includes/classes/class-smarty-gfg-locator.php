@@ -249,6 +249,7 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
 		$this->loader->add_action('save_post_product', $plugin_public, 'handle_product_change');
 		$this->loader->add_action('deleted_post', $plugin_public, 'handle_product_change');
+		$this->loader->add_filter('cron_schedules', $plugin_public, 'gfg_custom_cron_intervals');
 	
 		// Register hooks for Google Products Feed
 		$this->loader->add_action('init', $plugin_google_products_feed, 'schedule_google_products_feed_generation');

@@ -92,8 +92,8 @@ class Smarty_Gfg_Activity_Logging {
 			'PHP Max POST Size'   => esc_html(ini_get('post_max_size')),
 			'PHP Max Upload Size' => esc_html(ini_get('upload_max_filesize')),
 			'PHP Memory Limit' 	  => esc_html(ini_get('memory_limit')),
-			'PHP DateTime Class'  => class_exists('DateTime') ? '<span class="smarty-text-success">Available</span>' : '<span class="smarty-text-danger">Not Available</span>',
-			'PHP Curl' 			  => function_exists('curl_version') ? '<span class="smarty-text-success">Available</span>' : '<span class="smarty-text-danger">Not Available</span>',
+			'PHP DateTime Class'  => class_exists('DateTime') ? '<span style="color:#28a745;">Available</span>' : '<span style="color:#c51244;">Not Available</span>',
+			'PHP Curl' 			  => function_exists('curl_version') ? '<span style="color:#28a745;">Available</span>' : '<span style="color:#c51244;">Not Available</span>',
 		);
 		
 		return $system_info;

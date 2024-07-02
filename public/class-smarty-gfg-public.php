@@ -408,5 +408,28 @@ class Smarty_Gfg_Public {
     
         //error_log('No flat rate shipping method found'); // Debug
         return false;
-    }      
+    }
+
+    /**
+     * Adds custom intervals to the WordPress cron schedules.
+     *
+     * @since 1.0.0
+     * @param array $schedules The existing cron schedules.
+     * @return array The modified cron schedules.
+     */
+    function gfg_custom_cron_intervals($schedules) {
+        $schedules['hourly'] = array(
+            'interval' => HOUR_IN_SECONDS,
+            'display' => __('Hourly')
+        );
+        $schedules['twicedaily'] = array(
+            'interval' => 12 * HOUR_IN_SECONDS,
+            'display' => __('Twice Daily')
+        );
+        $schedules['daily'] = array(
+            'interval' => DAY_IN_SECONDS,
+            'display' => __('Daily')
+        );
+        return $schedules;
+    }
 }

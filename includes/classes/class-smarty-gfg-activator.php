@@ -20,9 +20,6 @@ class Smarty_Gfg_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-		// Check plugin compatibility
-		smarty_check_compatibility();
-
         if (!class_exists('WooCommerce')) {
             wp_die('This plugin requires WooCommerce to be installed and active.');
         }
