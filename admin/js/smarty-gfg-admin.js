@@ -30,13 +30,13 @@
     $(document).ready(function ($) {
         //console.log('Document is ready');
 
-        $('#delete-logs-button').on('click', function(e) {
+        $('#smarty-gfg-delete-logs-button').on('click', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to delete all logs?')) {
                 $.post(
                     smartyFeedGenerator.ajaxUrl,
                     {
-                        action: 'smarty_clear_logs',
+                        action: 'smarty_gfg_clear_logs',
                         nonce: smartyFeedGenerator.nonce,
                     },
                     function(response) {

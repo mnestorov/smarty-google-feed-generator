@@ -109,15 +109,15 @@ class Smarty_Gfg_Activity_Logging {
 		$logs = get_option('smarty_gfg_activity_log', array());
 
 		if (empty($logs)) {
-			echo '<ul><li><span style="color: #c82333;">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
-			echo '<button id="delete-logs-button" class="btn btn-danger disabled" disabled>' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
+			echo '<ul><li><span class="smarty-text-danger">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
+			echo '<button id="smarty-gfg-delete-logs-button" class="btn btn-danger disabled" disabled>' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
 		} else {
 			echo '<ul>';
 			foreach ($logs as $log) {
 				echo '<li>' . esc_html($log) . '</li>';
 			}
 			echo '</ul>';
-			echo '<button id="delete-logs-button" class="btn btn-danger">' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
+			echo '<button id="smarty-gfg-delete-logs-button" class="btn btn-danger">' . esc_html__('Delete Logs', 'smarty-google-feed-generator') . '</button>';
 		}
 	}
 

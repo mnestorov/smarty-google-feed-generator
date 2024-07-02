@@ -222,7 +222,7 @@ class Smarty_Gfg_Locator {
 
 		// Register hooks for Activity & Logging
 		$this->loader->add_action('admin_init', $plugin_activity_logging, 'settings_init');
-        $this->loader->add_action('wp_ajax_smarty_clear_logs', $plugin_activity_logging, 'handle_ajax_clear_logs');
+        $this->loader->add_action('wp_ajax_smarty_gfg_clear_logs', $plugin_activity_logging, 'handle_ajax_clear_logs');
 
 		// Register hooks for License management
 		$this->loader->add_action('admin_init', $plugin_license, 'settings_init');

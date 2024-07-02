@@ -232,10 +232,10 @@ input:checked + .smarty-slider:before {
     color: #c51244 !important;
 }
 
-.smarty-text-success  {
-    color:  #28a745;
+.smarty-text-success {
+    color: #28a745;
 }
 
-.smarty-text-danger  {
+.smarty-text-danger {
     color: #c51244;
 }
