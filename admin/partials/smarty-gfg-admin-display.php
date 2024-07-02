@@ -30,9 +30,9 @@
 	<?php endif; ?>
 
 	<h2 class="nav-tab-wrapper">
-			<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
-			<?php $active = ($current_tab == $tab_key) ? 'nav-tab-active' : ''; ?>
-			<a class="nav-tab <?php echo $active; ?>" href="<?php echo admin_url('options-general.php?page=smarty-gfg-settings&tab=' . $tab_key); ?>">
+		<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
+			<?php $active = $current_tab == $tab_key ? 'nav-tab-active' : ''; ?>
+			<a class="nav-tab <?php echo $active; ?>" href="?page=smarty-gfg-settings&tab=<?php echo $tab_key; ?>">
 				<?php echo $tab_caption; ?>
 			</a>
 		<?php endforeach; ?>

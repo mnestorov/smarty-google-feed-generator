@@ -157,12 +157,13 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	public function add_settings_page() {
-		add_options_page(
-			'Google Feed Generator | Settings',         // Page title
-			'Google Feed Generator',                    // Menu title
-			'manage_options',                           // Capability required to access this page
-			'smarty-gfg-settings',           			// Menu slug
-			array($this, 'display_settings_page')  		// Callback function to display the page content
+		add_submenu_page(
+			'woocommerce',
+			__('Google Feed Generator | Settings', 'smarty-google-feed-generator'), // Page title
+			__('Google Feed Generator', 'smarty-google-feed-generator'), 			// Menu title                   
+			'manage_options',                           							// Capability required to access this page
+			'smarty-gfg-settings',           										// Menu slug
+			array($this, 'display_settings_page')  									// Callback function to display the page content
 		);
 	}
 
