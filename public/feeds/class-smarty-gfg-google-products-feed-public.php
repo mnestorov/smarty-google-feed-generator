@@ -1058,19 +1058,23 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      */
     public function schedule_google_products_feed_generation() {
         $interval = get_option('smarty_google_feed_interval', 'daily');
-        _gfg_write_logs('Google Products Feed Interval: ' . get_option('smarty_google_feed_interval'));
-        
-        // Clear any existing scheduled events
-        $timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
-        if ($timestamp) {
-            wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
-            _gfg_write_logs('Unscheduled existing Google Products Feed event.');
-        }
+        _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed Interval: ' . $interval);
 
-        // Schedule a new event based on the selected interval
-        if ($interval !== 'no_refresh') {
-            wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
-            _gfg_write_logs('Scheduled new Google Products Feed event.');
+        $timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
+
+        // Only reschedule if the interval has changed or the event is not scheduled
+        if (!$timestamp || wp_get_schedule('smarty_generate_google_products_feed') !== $interval) {
+            if ($timestamp) {
+                wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
+                _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Unscheduled existing Google Products Feed event.');
+            }
+
+            if ($interval !== 'no_refresh') {
+                wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
+                _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Scheduled new Google Products Feed event.');
+            }
+        } else {
+            _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed event is already scheduled with the correct interval.');
         }
     }
 }

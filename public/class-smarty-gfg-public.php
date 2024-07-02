@@ -419,15 +419,15 @@ class Smarty_Gfg_Public {
      */
     function gfg_custom_cron_intervals($schedules) {
         $schedules['hourly'] = array(
-            'interval' => HOUR_IN_SECONDS,
+            'interval' => 3600,
             'display' => __('Hourly')
         );
         $schedules['twicedaily'] = array(
-            'interval' => 12 * HOUR_IN_SECONDS,
+            'interval' => 12 * 3600,
             'display' => __('Twice Daily')
         );
         $schedules['daily'] = array(
-            'interval' => DAY_IN_SECONDS,
+            'interval' => 24 * 3600,
             'display' => __('Daily')
         );
         return $schedules;
