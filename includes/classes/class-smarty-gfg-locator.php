@@ -239,22 +239,29 @@ class Smarty_Gfg_Locator {
 	 */
 	private function define_public_hooks() {
 		$plugin_public = new Smarty_Gfg_Public($this->get_plugin_name(), $this->get_version());
+
+		$plugin_google_products_feed = new Smarty_Gfg_Google_Products_Feed_Public();
+		$plugin_google_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed_Public();
+		$plugin_bing_products_feed = new Smarty_Gfg_Bing_Products_Feed_Public();
 		
 		$this->loader->add_action('template_redirect', $plugin_public, 'handle_template_redirect');
 		$this->loader->add_action('init', $plugin_public, 'add_rewrite_rules');
 		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
-		$this->loader->add_action('smarty_generate_google_feed', $plugin_public, 'generate_google_feed');
-		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_public, 'generate_google_reviews_feed');
-		$this->loader->add_action('smarty_generate_bing_feed',  $plugin_public, 'generate_bing_feed');
-		$this->loader->add_action('woocommerce_new_product', $plugin_public, 'invalidate_feed_cache');
-    	$this->loader->add_action('woocommerce_update_product', $plugin_public, 'invalidate_feed_cache');
-		$this->loader->add_action('before_delete_post', $plugin_public, 'invalidate_feed_cache_on_delete');
-		$this->loader->add_action('comment_post', $plugin_public, 'invalidate_review_feed_cache', 10, 2);
-		$this->loader->add_action('edit_comment', $plugin_public, 'invalidate_review_feed_cache');
-		$this->loader->add_action('deleted_comment', $plugin_public, 'invalidate_review_feed_cache');
-		$this->loader->add_action('wp_set_comment_status', $plugin_public, 'invalidate_review_feed_cache');
 		$this->loader->add_action('save_post_product', $plugin_public, 'handle_product_change');
 		$this->loader->add_action('deleted_post', $plugin_public, 'handle_product_change');
+	
+		$this->loader->add_action('smarty_generate_google_products_feed', $plugin_google_products_feed, 'generate_google_products_feed');
+		$this->loader->add_action('woocommerce_new_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
+    	$this->loader->add_action('woocommerce_update_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
+		$this->loader->add_action('before_delete_post', $plugin_google_products_feed, 'invalidate_google_products_feed_cache_on_delete');
+		
+		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_google_reviews_feed, 'generate_google_reviews_feed');
+		$this->loader->add_action('comment_post', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache', 10, 2);
+		$this->loader->add_action('edit_comment', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
+		$this->loader->add_action('deleted_comment', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
+		$this->loader->add_action('wp_set_comment_status', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
+
+		$this->loader->add_action('smarty_generate_bing_products_feed', $plugin_bing_products_feed, 'generate_bing_products_feed');	
 	}
 
 	/**

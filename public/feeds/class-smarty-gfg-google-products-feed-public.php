@@ -6,8 +6,8 @@
  * @link       https://smartystudio.net
  * @since      1.0.0
  *
- * @package    Smarty_Google_Feed_Generator
- * @subpackage Smarty_Google_Feed_Generator/admin/tabs
+ * @package    smarty_google_products_feed_Generator
+ * @subpackage smarty_google_products_feed_Generator/admin/tabs
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Gfg_Google_Products_Feed_Public {
@@ -32,11 +32,11 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Check if the clear cache option is enabled
         if (get_option('smarty_clear_cache')) {
-            delete_transient('smarty_google_feed');
+            delete_transient('smarty_google_products_feed');
         }
 
         // Attempt to retrieve the cached version of the feed
-        $cached_feed = get_transient('smarty_google_feed');
+        $cached_feed = get_transient('smarty_google_products_feed');
         if ($cached_feed !== false) {
             echo $cached_feed; // Output the cached feed and stop processing if it exists
             ob_end_flush();
@@ -124,7 +124,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
             if ($feed_content) {
                 $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-                set_transient('smarty_google_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);
+                set_transient('smarty_google_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);
 
                 echo $feed_content;
                 ob_end_flush();
@@ -980,7 +980,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @since    1.0.0
      * @param int $product_id The ID of the product that has been created, updated, or deleted.
      */
-    public static function invalidate_google_products_feed_cache($product_id) {
+    public function invalidate_google_products_feed_cache($product_id) {
+        // Add log entries
+        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Products Feed');
+
         // Check if the post is a 'product'
         if (get_post_type($product_id) === 'product') {
             // Invalidate Google feed cache
@@ -1001,6 +1004,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @param int $post_id The ID of the post (product) being deleted.
      */
     public function invalidate_google_products_feed_cache_on_delete($post_id) {
+        // Add log entries
+        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Products Feed on delete');
+
         // Check if the post being deleted is a product
         if (get_post_type($post_id) === 'product') {
             // Invalidate Google feed cache

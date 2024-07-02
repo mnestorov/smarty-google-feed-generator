@@ -85,6 +85,9 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      * @param string $comment_approved The approval status of the comment.
      */
     public function invalidate_google_reviews_feed_cache($comment_id, $comment_approved = '') {
+        // Add log entries
+        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Reviews Feed');
+
         $comment = get_comment($comment_id);
         $post_id = $comment->comment_post_ID;
         
