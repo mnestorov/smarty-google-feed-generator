@@ -29,7 +29,7 @@ class Smarty_Gfg_Activity_Logging {
 		);
 
 		add_settings_field(
-            'smarty_system_info', 												// ID of the field
+            'smarty_gfg_system_info', 												// ID of the field
             __('System Info', 'smarty-google-feed-generator'), 					// Title of the field
             array($this, 'system_info_cb'), 									// Callback function to display the field
             'smarty_gfg_options_activity_logging', 								// Page on which to add the field
@@ -37,7 +37,7 @@ class Smarty_Gfg_Activity_Logging {
         );
 
 		add_settings_field(
-			'smarty_activity_log',												// ID of the section
+			'smarty_gfg_activity_log',												// ID of the section
 			__('Activity Log', 'smarty-google-feed-generator'),    				// Title of the section  		
 			array($this, 'activity_log_cb'),                					// Callback function that fills the section with the desired content	
 			'smarty_gfg_options_activity_logging',                   			// Page on which to add the section
@@ -86,14 +86,14 @@ class Smarty_Gfg_Activity_Logging {
      */
     private function get_system_info() {
 		$system_info = array(
-			'User Agent' => esc_html($_SERVER['HTTP_USER_AGENT']),
-			'Web Server' => esc_html($_SERVER['SERVER_SOFTWARE']),
-			'PHP Version' => esc_html(PHP_VERSION),
-			'PHP Max POST Size' => esc_html(ini_get('post_max_size')),
+			'User Agent' 		  => esc_html($_SERVER['HTTP_USER_AGENT']),
+			'Web Server' 		  => esc_html($_SERVER['SERVER_SOFTWARE']),
+			'PHP Version' 		  => esc_html(PHP_VERSION),
+			'PHP Max POST Size'   => esc_html(ini_get('post_max_size')),
 			'PHP Max Upload Size' => esc_html(ini_get('upload_max_filesize')),
-			'PHP Memory Limit' => esc_html(ini_get('memory_limit')),
-			'PHP DateTime Class' => class_exists('DateTime') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
-			'PHP Curl' => function_exists('curl_version') ? '<span style="color: #28a745;">Available</span>' : '<span style="color: #c82333;">Not Available</span>',
+			'PHP Memory Limit' 	  => esc_html(ini_get('memory_limit')),
+			'PHP DateTime Class'  => class_exists('DateTime') ? '<span class="smarty-text-success">Available</span>' : '<span class="smarty-text-danger">Not Available</span>',
+			'PHP Curl' 			  => function_exists('curl_version') ? '<span class="smarty-text-success">Available</span>' : '<span class="smarty-text-danger">Not Available</span>',
 		);
 		
 		return $system_info;
@@ -106,7 +106,7 @@ class Smarty_Gfg_Activity_Logging {
 	 */
 	public function display_activity_log() {
 		// Retrieve log entries from the database or file
-		$logs = get_option('smarty_activity_log', array());
+		$logs = get_option('smarty_gfg_activity_log', array());
 
 		if (empty($logs)) {
 			echo '<ul><li><span style="color: #c82333;">' . esc_html__('Log empty', 'smarty-google-feed-generator') . '</span></li></ul>';
@@ -128,7 +128,7 @@ class Smarty_Gfg_Activity_Logging {
 	 * @param string $message The log message.
 	 */
 	public static function add_activity_log($message) {
-		$logs = get_option('smarty_activity_log', array());
+		$logs = get_option('smarty_gfg_activity_log', array());
 		
 		// Get the current time in the specified format
 		$time_format = 'Y-M-d H:i:s';  // PHP date format
@@ -144,7 +144,7 @@ class Smarty_Gfg_Activity_Logging {
 		$logs[] = $log_entry;
 	
 		// Save the updated logs back to the database
-		update_option('smarty_activity_log', $logs);
+		update_option('smarty_gfg_activity_log', $logs);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Smarty_Gfg_Activity_Logging {
 	 * @since    1.0.0
 	 */
 	public function clear_activity_log() {
-		update_option('smarty_activity_log', array());
+		update_option('smarty_gfg_activity_log', array());
 	}
 
 	/**

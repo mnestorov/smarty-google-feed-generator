@@ -18,6 +18,8 @@
  if (!function_exists('smarty_get_the_product_sku')) {
     /**
      * Helper function to get the product SKU.
+     * 
+     * @since      1.0.0
      */
     function smarty_get_the_product_sku($product_id) {
         return get_post_meta($product_id, '_sku', true);
@@ -25,6 +27,11 @@
 }
 
 if (!function_exists('smarty_check_compatibility')) {
+    /**
+     * Helper function to check compatibility.
+     * 
+     * @since      1.0.0
+     */
     function smarty_check_compatibility() {
         $min_wp_version = MIN_WP_VER; // Minimum WordPress version required
         $min_wc_version = MIN_WC_VER; // Minimum WooCommerce version required
@@ -57,14 +64,15 @@ if (!function_exists('smarty_check_compatibility')) {
     }
 }
 
-if (!function_exists('smarty_write_logs')) {
+if (!function_exists('_gfg_write_logs')) {
 	/**
      * Writes logs for the plugin.
      * 
+     * @since      1.0.0
      * @param string $message Message to be logged.
      * @param mixed $data Additional data to log, optional.
      */
-    function smarty_write_logs($message, $data = null) {
+    function _gfg_write_logs($message, $data = null) {
         $log_entry = '[' . current_time('mysql') . '] ' . $message;
     
         if (!is_null($data)) {

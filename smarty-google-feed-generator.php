@@ -48,36 +48,12 @@ if (!defined('GFG_BASE_DIR')) {
     define('GFG_BASE_DIR', dirname(__FILE__));
 }
 
-// Check if MIN_WP_VER is not already defined
-if (!defined('MIN_WP_VER')) {
-	/**
-	 * WP Version for plugin compatibility
-	 */
-    define('MIN_WP_VER', '5.4');
-}
-
-// Check if MIN_WP_VER is not already defined
-if (!defined('MIN_WC_VER')) {
-	/**
-	 * WP Version for plugin compatibility
-	 */
-    define('MIN_WC_VER', '3.5');
-}
-
-// Check if MIN_PHP_VER is not already defined
-if (!defined('MIN_PHP_VER')) {
-	/**
-	 * PHP Version for plugin compatibility
-	 */
-    define('MIN_PHP_VER', '7.4');
-}
-
 if (!defined('CK_KEY')) {
-    define('CK_KEY', 'ck_f13cfd6c4317a8df1a7a76930a811f7f332b4827');
+    define('CK_KEY', 'ck_555d1faa8a6f705334ed0f32189019ffaf624922');
 }
 
 if (!defined('CS_KEY')) {
-    define('CS_KEY', 'cs_0390e3ec9a9ca787056e28f3db176aeff5f8e29c');
+    define('CS_KEY', 'cs_0c7dbc81992841eb207c648397b406e4c3e5de6f');
 }
 
 /**

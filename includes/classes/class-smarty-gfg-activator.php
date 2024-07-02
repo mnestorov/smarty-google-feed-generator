@@ -17,7 +17,7 @@ class Smarty_Gfg_Activator {
 	/**
 	 * This function will be executed when the plugin is activated.
 	 *
-	 * @since    1.7.0
+	 * @since    1.0.0
 	 */
 	public static function activate() {
 		// Check plugin compatibility

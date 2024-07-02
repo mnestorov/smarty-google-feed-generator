@@ -207,7 +207,7 @@ class Smarty_Gfg_Admin {
 		if (file_exists($partial_file) && is_readable($partial_file)) {
 			include_once $partial_file;
 		} else {
-			//error_log("Unable to include: '$partial_file'");
+			_gfg_write_logs("Unable to include: '$partial_file'");
 		}
 	}
 
@@ -522,7 +522,7 @@ class Smarty_Gfg_Admin {
      */
     public function convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
-            //error_log('GD Library is not installed or does not support WEBP.');
+            _gfg_write_logs('GD Library is not installed or does not support WEBP.');
             return false;
         }
 

@@ -38,7 +38,7 @@
 		<?php endforeach; ?>
 	</h2>
 
-	<?php if ($this->license->is_valid_api_key($api_key)) : ?>
+	<?php if ($this->license->_gfg_is_valid_api_key($api_key)) : ?>
 		<form action="options.php" method="post">
 			<?php if ($current_tab == 'general') : ?>
 				<?php settings_fields('smarty_gfg_options_general'); ?>

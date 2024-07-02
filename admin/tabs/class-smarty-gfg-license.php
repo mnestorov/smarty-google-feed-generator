@@ -46,7 +46,7 @@ class Smarty_Gfg_License {
 		);
 
 		add_settings_field(
-			'smarty_api_key',													// ID of the field
+			'smarty_gfg_api_key',													// ID of the field
 			__('API Key', 'smarty-google-feed-generator'),						// Title of the field
 			array($this, 'field_api_key_cb'),									// Callback function to display the field
 			'smarty_gfg_options_license',										// Page on which to add the field
@@ -78,7 +78,7 @@ class Smarty_Gfg_License {
      * @param string $api_key The API key to validate.
      * @return bool True if the API key is valid, false otherwise.
      */
-    public function is_valid_api_key($api_key) {
+    public function _gfg_is_valid_api_key($api_key) {
 		$response = $this->api_instance->validate_license($api_key);
 	
 		if (isset($response['success']) && $response['success']) {
@@ -92,9 +92,9 @@ class Smarty_Gfg_License {
 				}
 			}
 	
-			error_log('Checking API key validity: ' . $api_key);
-			error_log('API Response: ' . print_r($response, true));
-			error_log('License is ' . ($isActive ? 'active' : 'inactive'));
+			_gfg_write_logs('Checking API key validity: ' . $api_key);
+			_gfg_write_logs('API Response: ' . print_r($response, true));
+			_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
 			return $isActive;
 		}
 	
@@ -119,7 +119,7 @@ class Smarty_Gfg_License {
 			$api_key = $value['api_key'];
 	
 			// Check the license status
-			$isValid = $this->is_valid_api_key($api_key);
+			$isValid = $this->gfg_is_valid_api_key($api_key);
 	
 			// Add an admin notice based on the validity of the license
 			if ($isValid) {
@@ -155,7 +155,7 @@ class Smarty_Gfg_License {
 	public function field_api_key_cb($args) {
 		$options = get_option('smarty_gfg_settings_license');
 		?>
-		<input type="text" id="smarty_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
+		<input type="text" id="smarty_gfg_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
 		<p class="description">
 			<?php echo esc_html__('Enter a valid API key.', 'smarty-google-feed-generator'); ?>
 		</p>
