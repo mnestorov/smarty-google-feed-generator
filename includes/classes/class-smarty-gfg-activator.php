@@ -34,13 +34,15 @@ class Smarty_Gfg_Activator {
         flush_rewrite_rules();
 
         // Schedule Google Feed Event
-        if (!wp_next_scheduled('smarty_generate_google_products_feed')) {
-            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_google_products_feed');
+        $interval = get_option('smarty_google_feed_interval', 'daily');
+        if ($interval !== 'no_refresh' && !wp_next_scheduled('smarty_generate_google_products_feed')) {
+            wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
         }
 
         // Schedule Google Reviews Feed Event
-        if (!wp_next_scheduled('smarty_generate_google_reviews_feed')) {
-            wp_schedule_event(time(), 'daily', 'smarty_generate_google_reviews_feed');
+        $interval = get_option('smarty_reviews_feed_interval', 'daily');
+        if ($interval !== 'no_refresh' && !wp_next_scheduled('smarty_generate_google_reviews_feed')) {
+            wp_schedule_event(time(), $interval, 'smarty_generate_google_reviews_feed');
         }
 
         // Schedule Bing Feed Event

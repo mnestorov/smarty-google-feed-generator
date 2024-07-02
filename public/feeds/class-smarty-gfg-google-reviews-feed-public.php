@@ -24,6 +24,11 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
         // Add log entries
         Smarty_Gfg_Activity_Logging::add_activity_log('Generated Google Reviews Feed');
 
+        $selected_ratings = get_option('smarty_reviews_ratings', []);
+        if (!is_array($selected_ratings)) {
+            $selected_ratings = explode(',', $selected_ratings);
+        }
+
         // Set the content type to XML for the output
         header('Content-Type: application/xml; charset=utf-8');
 
@@ -55,7 +60,9 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
 
             // Iterate through each review of the current product
             foreach ($reviews as $review) {
-                if ($review->comment_approved == '1') { // Check if the review is approved before including it in the feed
+                $rating = get_comment_meta($review->comment_ID, 'rating', true);
+                
+                if ($review->comment_approved == '1' && in_array($rating, $selected_ratings)) { // Check if the review is approved before including it in the feed
                     // Create a new 'entry' element for each review
                     $entry = $dom->createElement('entry');
                     $feed->appendChild($entry);
@@ -73,12 +80,20 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
         }
 
         // Output the final XML content
+        $feed_content = $dom->saveXML();
+        $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+        set_transient('smarty_google_reviews_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS); // Cache the feed using WordPress transients
+        file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_reviews_feed.xml', $feed_content); // Optionally save the feed to a file in the WP uploads directory
+
+        
         echo $dom->saveXML();
         exit; // Ensure the script stops here to prevent further output that could corrupt the feed
     }
 
     /**
      * Invalidate cache or regenerate review feed when reviews are added, updated, or deleted.
+     * 
+     * TODO: We need to made this to run manually.
      * 
      * @since    1.0.0
      * @param int $comment_id The ID of the comment being updated.
@@ -95,6 +110,26 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
         if (get_post_type($post_id) === 'product' && ($comment_approved == 1 || $comment_approved == 'approve')) {
             // Invalidate cache
             delete_transient('smarty_google_reviews_feed');
+        }
+    }
+
+    /**
+     * Handle the cron scheduling of the feed.
+     * 
+     * @since    1.0.0
+     */
+    public function schedule_google_reviews_feed_generation() {
+        $interval = get_option('smarty_reviews_feed_interval', 'no_refresh');
+        
+        // Clear any existing scheduled events
+        $timestamp = wp_next_scheduled('smarty_generate_google_reviews_feed');
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'smarty_generate_google_reviews_feed');
+        }
+
+        // Schedule a new event based on the selected interval
+        if ($interval !== 'no_refresh') {
+            wp_schedule_event(time(), $interval, 'smarty_generate_google_reviews_feed');
         }
     }
 }

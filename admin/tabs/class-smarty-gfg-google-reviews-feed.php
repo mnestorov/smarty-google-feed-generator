@@ -20,6 +20,7 @@ class Smarty_Gfg_Google_Reviews_Feed {
     public function settings_init() {
         register_setting('smarty_gfg_options_google_reviews_feed', 'smarty_reviews_feed_country');
         register_setting('smarty_gfg_options_google_reviews_feed', 'smarty_reviews_ratings');
+        register_setting('smarty_gfg_options_google_reviews_feed', 'smarty_reviews_feed_interval');
 
         add_settings_section(
             'smarty_gfg_section_google_reviews_feed',                           // ID of the section
@@ -40,6 +41,14 @@ class Smarty_Gfg_Google_Reviews_Feed {
             'smarty_reviews_ratings',                                           // ID of the field
             __('Ratings', 'smarty-google-feed-generator'),                      // Title of the field
             array($this, 'reviews_ratings_cb'),                                 // Callback function to display the field
+            'smarty_gfg_options_google_reviews_feed',                           // Page on which to add the field
+            'smarty_gfg_section_google_reviews_feed'                            // Section to which this field belongs
+        );
+
+        add_settings_field(
+            'smarty_reviews_feed_interval',                                     // ID of the field
+            __('Cron Job / Refresh Interval', 'smarty-google-feed-generator'),  // Title of the field
+            array($this, 'reviews_feed_interval_cb'),                           // Callback function to display the field
             'smarty_gfg_options_google_reviews_feed',                           // Page on which to add the field
             'smarty_gfg_section_google_reviews_feed'                            // Section to which this field belongs
         );
@@ -93,5 +102,28 @@ class Smarty_Gfg_Google_Reviews_Feed {
         }
         echo '</select>';
         echo '<p class="description">' . __('Select the review ratings to include in the feed.', 'smarty-google-feed-generator') . '</p>';
+    }
+
+    /**
+     * Callback function for the Google Reviews Feed schedule interval.
+     * 
+     * @since    1.0.0
+     */
+    public function reviews_feed_interval_cb() {
+        $interval = get_option('smarty_reviews_feed_interval', 'no_refresh');
+        $options = [
+            'no_refresh'  => __('No Refresh', 'smarty-google-feed-generator'),
+            'hourly'      => __('Hourly', 'smarty-google-feed-generator'),
+            'daily'       => __('Daily', 'smarty-google-feed-generator'),
+            'twicedaily'  => __('Twice a day', 'smarty-google-feed-generator')
+        ];
+
+        echo '<select name="smarty_reviews_feed_interval">';
+        foreach ($options as $value => $label) {
+            $selected = $value === $interval ? 'selected' : '';
+            echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="description">' . __('Select how often the Google Reviews feed should be refreshed.', 'smarty-google-feed-generator') . '</p>';
     }
 }

@@ -970,12 +970,14 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         // Save the generated XML content to a transient or a file for later use
         $feed_content = $xml->asXML();
         $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-        set_transient('smarty_google_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);  // Cache the feed using WordPress transients
-        file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_products_feed.xml', $feed_content);   // Optionally save the feed to a file in the WP uploads directory
+        set_transient('smarty_google_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS); // Cache the feed using WordPress transients
+        file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_products_feed.xml', $feed_content); // Optionally save the feed to a file in the WP uploads directory
     }
 
     /**
      * Invalidate cache or regenerate feed when a product is created, updated, or deleted.
+     * 
+     * TODO: We need to made this to run manually.
      * 
      * @since    1.0.0
      * @param int $product_id The ID of the product that has been created, updated, or deleted.
@@ -989,8 +991,8 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             // Invalidate Google feed cache
             delete_transient('smarty_google_products_feed');
 
-            // Regenerate the feeds
-            $this->regenerate_google_products_feed();
+            // Regenerate the feeds immediately to update the feed file
+            //$this->regenerate_google_products_feed();
         }
     }
 
@@ -999,6 +1001,8 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * 
      * This function ensures that when a product is deleted from WooCommerce, any cached version of the feed
      * does not continue to include data related to the deleted product.
+     * 
+     * TODO: We need to made this to run manually.
      *
      * @since    1.0.0
      * @param int $post_id The ID of the post (product) being deleted.
@@ -1013,7 +1017,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             delete_transient('smarty_google_products_feed');
             
             // Regenerate the feeds immediately to update the feed file
-            $this->regenerate_google_products_feed();
+            //$this->regenerate_google_products_feed();
         }
     }
 
@@ -1045,5 +1049,25 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // If the string doesn't contain a '-', return the original value or handle as needed
         return $category;
+    }
+
+    /**
+     * Handle the cron scheduling of the feed.
+     * 
+     * @since    1.0.0
+     */
+    public function schedule_google_products_feed_generation() {
+        $interval = get_option('smarty_google_feed_interval', 'no_refresh');
+        
+        // Clear any existing scheduled events
+        $timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
+        }
+
+        // Schedule a new event based on the selected interval
+        if ($interval !== 'no_refresh') {
+            wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
+        }
     }
 }
