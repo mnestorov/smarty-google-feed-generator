@@ -129,17 +129,17 @@
             var redirectUrl = '';
 
             switch (action) {
-                case 'generate_google_feed':
-                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-feed/';
+                case 'generate_google_products_feed':
+                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-products-feed/';
                     break;
-                case 'generate_reviews_feed':
+                case 'generate_google_reviews_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-reviews-feed/';
                     break;
-                case 'generate_csv_export':
-                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-csv-export/';
+                case 'generate_google_csv_export':
+                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-csv-export/';
                     break;
-                case 'generate_bing_feed':
-                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-feed/';
+                case 'generate_bing_products_feed':
+                    redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-products-feed/';
                     break;
                 case 'generate_bing_txt_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-txt-feed/';

@@ -34,8 +34,8 @@ class Smarty_Gfg_Activator {
         flush_rewrite_rules();
 
         // Schedule Google Feed Event
-        if (!wp_next_scheduled('smarty_generate_google_feed')) {
-            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_google_feed');
+        if (!wp_next_scheduled('smarty_generate_google_products_feed')) {
+            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_google_products_feed');
         }
 
         // Schedule Google Reviews Feed Event
@@ -44,8 +44,8 @@ class Smarty_Gfg_Activator {
         }
 
         // Schedule Bing Feed Event
-        if (!wp_next_scheduled('smarty_generate_bing_feed')) {
-            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_bing_feed');
+        if (!wp_next_scheduled('smarty_generate_bing_products_feed')) {
+            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_bing_products_feed');
         }
     }
 }

@@ -38,7 +38,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private $google_products_feedd;
+	private $google_products_feed;
 	
 	/**
 	 * Instance of Smarty_Gfg_Google_Reviews_Feed.
@@ -46,7 +46,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private $google_reviews_feedd;
+	private $google_reviews_feed;
 
 	/**
 	 * Instance of Smarty_Gfg_Bing_Products_Feed.
@@ -54,7 +54,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private $bing_products_feedd;
+	private $bing_products_feed;
 
 	/**
 	 * Instance of Smarty_Gfg_Activity_Logging.

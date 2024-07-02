@@ -152,6 +152,21 @@ class Smarty_Gfg_Locator {
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../public/class-smarty-gfg-public.php';
 
+		/**
+		 * The class responsible for defining all actions that occur in the Google Products feed public-facing side of the site.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../public/feeds/class-smarty-gfg-google-products-feed-public.php';
+
+		/**
+		 * The class responsible for defining all actions that occur in the Google Reviews feed public-facing side of the site.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../public/feeds/class-smarty-gfg-google-reviews-feed-public.php';
+
+		/**
+		 * The class responsible for defining all actions that occur in the Bing Products feed public-facing side of the site.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../public/feeds/class-smarty-gpg-bing-products-feed-public.php';
+
 		// Run the loader
 		$this->loader = new Smarty_Gfg_Loader();
 	}

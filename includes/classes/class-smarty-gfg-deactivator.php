@@ -24,9 +24,9 @@ class Smarty_Gfg_Deactivator {
         flush_rewrite_rules();
 
         // Clear scheduled feed regeneration event
-        $google_feed_timestamp = wp_next_scheduled('smarty_generate_google_feed');
+        $google_feed_timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
         if ($google_feed_timestamp) {
-            wp_unschedule_event($google_feed_timestamp, 'smarty_generate_google_feed');
+            wp_unschedule_event($google_feed_timestamp, 'smarty_generate_google_products_feed');
         }
 
         // Unscheduling the reviews feed event
@@ -36,22 +36,22 @@ class Smarty_Gfg_Deactivator {
         }
 
         // Clear scheduled feed regeneration event
-        $bing_feed_timestamp = wp_next_scheduled('smarty_generate_bing_feed');
+        $bing_feed_timestamp = wp_next_scheduled('smarty_generate_bing_products_feed');
         if ($bing_feed_timestamp) {
-            wp_unschedule_event($bing_feed_timestamp, 'smarty_generate_bing_feed');
+            wp_unschedule_event($bing_feed_timestamp, 'smarty_generate_bing_products_feed');
         }
 
         // Path to the generated XML file
-        $google_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_google_feed.xml';
-        $bing_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_bing_feed.xml';
+        $google_products_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_google_products_feed.xml';
+        $bing_products_feed_file_path = WP_CONTENT_DIR . '/uploads/smarty_bing_products_feed.xml';
 
         // Check if the file exists and delete it
-        if (file_exists($google_feed_file_path)) {
-            unlink($google_feed_file_path);
+        if (file_exists($google_products_feed_file_path)) {
+            unlink($google_products_feed_file_path);
         }
 
-        if (file_exists($bing_feed_file_path)) {
-            unlink($bing_feed_file_path);
+        if (file_exists($bing_products_feed_file_path)) {
+            unlink($bing_products_feed_file_path);
         }
     }
 }

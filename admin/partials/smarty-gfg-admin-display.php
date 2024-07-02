@@ -20,12 +20,12 @@
 	<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
 	
 	<?php if ($current_tab == 'google-feed') : ?>
-		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_google_feed"><?php echo __('Google Products XML Feed', 'smarty-google-feed-generator'); ?></button>
-		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_csv_export"><?php echo __('Google Products CSV Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_google_products_feed"><?php echo __('Google Products XML Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_google_csv_export"><?php echo __('Google Products CSV Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php elseif ($current_tab == 'google-reviews-feed') : ?>
-		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_reviews_feed"><?php echo  __('Google Reviews Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_google_reviews_feed"><?php echo  __('Google Reviews Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php elseif ($current_tab == 'bing-products-feed') : ?>
-		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_bing_feed"><?php echo __('Bing Products XML Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_bing_products_feed"><?php echo __('Bing Products XML Feed', 'smarty-google-feed-generator'); ?></button>
 		<button class="btn btn-success smarty-generate-feed-button" data-feed-action="generate_bing_txt_feed"><?php echo __('Bing Products TXT Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php endif; ?>
 
