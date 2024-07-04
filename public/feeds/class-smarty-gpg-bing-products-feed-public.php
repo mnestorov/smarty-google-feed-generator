@@ -18,7 +18,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * @since    1.0.0
      * @param    string    $format     The format of the feed, either 'xml' or 'txt'.
      */
-    public function generate_bing_products_feed($format = 'xml') {
+    public function gfg_generate_bing_products_feed($format = 'xml') {
         // Check if WooCommerce is active before proceeding
         if (!class_exists('WooCommerce')) {
             echo '<error>WooCommerce is not active.</error>';
@@ -28,7 +28,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         // Set headers and open the handle based on the format
         if ($format === 'xml') {
             // Add log entries
-            Smarty_Gfg_Activity_Logging::add_activity_log('Generated Bing XML Feed');
+            Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Generated Bing XML Feed');
 
             header('Content-Type: application/xml; charset=utf-8');
             $dom = new DOMDocument('1.0', 'UTF-8');
@@ -37,7 +37,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
             $dom->appendChild($feed);
         } else if ($format === 'txt') {
             // Add log entries
-            Smarty_Gfg_Activity_Logging::add_activity_log('Generated Bing TXT Feed');
+            Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Generated Bing TXT Feed');
 
             header('Content-Type: text/plain; charset=utf-8');
             header('Content-Disposition: attachment; filename="bing-shopping-feed.txt"');
@@ -48,11 +48,11 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         }
     
         // Get excluded categories and columns from settings
-        $excluded_categories = get_option('smarty_excluded_categories', array());
-        $excluded_columns = get_option('smarty_exclude_xml_columns', array());
+        $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
+        $excluded_columns = get_option('smarty_gfg_exclude_xml_columns', array());
 
         // Check if including product variations is enabled
-        $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
+        $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
     
         // Set up arguments for querying products, excluding certain categories
         $args = array(
@@ -86,29 +86,29 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
                         $variation = wc_get_product($variation_id);
     
                         // Convert the first WebP image to PNG if needed
-                        Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+                        Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png($product);
     
                         // Add product details based on format
                         if ($format === 'xml') {
                             $item = $dom->createElement('item');
                             $feed->appendChild($item);
-                            $this->add_bing_product_details($item, $product, $variation, $excluded_columns, 'xml');
+                            $this->gfg_add_bing_product_details($item, $product, $variation, $excluded_columns, 'xml');
                         } else if ($format === 'txt') {
-                            $this->add_bing_product_details($handle, $product, $variation, $excluded_columns, 'txt');
+                            $this->gfg_add_bing_product_details($handle, $product, $variation, $excluded_columns, 'txt');
                         }
                     }
                 }
             } else {
                 // Convert the first WebP image to PNG if needed
-                Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+                Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png($product);
     
                 // Add product details based on format
                 if ($format === 'xml') {
                     $item = $dom->createElement('item');
                     $feed->appendChild($item);
-                    $this->add_bing_product_details($item, $product, null, $excluded_columns, 'xml');
+                    $this->gfg_add_bing_product_details($item, $product, null, $excluded_columns, 'xml');
                 } else if ($format === 'txt') {
-                    $this->add_bing_product_details($handle, $product, null, $excluded_columns, 'txt');
+                    $this->gfg_add_bing_product_details($handle, $product, null, $excluded_columns, 'txt');
                 }
             }
         }
@@ -133,7 +133,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * @param array $excluded_columns Columns to be excluded.
      * @param string $format The format of the feed, either 'xml' or 'txt'.
      */
-    public function add_bing_product_details($output, $product, $variation = null, $excluded_columns = array(), $format = 'xml') {
+    public function gfg_add_bing_product_details($output, $product, $variation = null, $excluded_columns = array(), $format = 'xml') {
         $data = [];
     
         if ($variation) {
@@ -160,11 +160,11 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         
         $data['title'] = htmlspecialchars($product->get_name());
         
-        $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
+        $meta_description = get_post_meta($product->get_id(), get_option('smarty_gfg_meta_description_field', 'meta-description'), true);
         $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
         $data['description'] = htmlspecialchars(strip_tags($description));
         
-        $google_product_category = Smarty_Gfg_Google_Products_Feed_Public::get_cleaned_google_product_category();
+        $google_product_category = Smarty_Gfg_Google_Products_Feed_Public::gfg_get_cleaned_google_product_category();
         if ($google_product_category) {
             $data['product_category'] = htmlspecialchars($google_product_category);
         }
@@ -194,7 +194,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         $brand = get_bloginfo('name');
         $data['brand'] = htmlspecialchars($brand);
     
-        $condition = get_option('smarty_condition', 'new');
+        $condition = get_option('smarty_gfg_condition', 'new');
         $data['condition'] = htmlspecialchars($condition);
     
         if (!in_array('Multipack', $excluded_columns)) {
@@ -222,7 +222,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         }
     
         if (!in_array('Size System', $excluded_columns)) {
-            $size_system = get_option('smarty_size_system', '');
+            $size_system = get_option('smarty_gfg_size_system', '');
             if (!empty($size_system)) {
                 $data['size_system'] = htmlspecialchars($size_system);
             }
@@ -232,30 +232,30 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         $data['availability'] = $availability;
     
         if (!in_array('Custom Label 0', $excluded_columns)) {
-            $data['custom_label_0'] = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0');
+            $data['custom_label_0'] = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0');
         }
     
         if (!in_array('Custom Label 1', $excluded_columns)) {
-            $data['custom_label_1'] = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1');
+            $data['custom_label_1'] = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1');
         }
     
         if (!in_array('Custom Label 2', $excluded_columns)) {
-            $data['custom_label_2'] = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2');
+            $data['custom_label_2'] = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2');
         }
     
         if (!in_array('Custom Label 3', $excluded_columns)) {
-            $data['custom_label_3'] = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3');
+            $data['custom_label_3'] = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3');
         }
     
         if (!in_array('Custom Label 4', $excluded_columns)) {
-            $data['custom_label_4'] = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4');
+            $data['custom_label_4'] = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4');
         }
 
         $brand = get_bloginfo('name');
         $data['seller_name'] = htmlspecialchars($brand);
 
         if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
-            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
             if (!empty($shopping_ads_excluded_country)) {
                 $countries = explode(',', $shopping_ads_excluded_country);
                 foreach ($countries as $country) {
@@ -265,7 +265,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         }
     
         if (!in_array('Shipping', $excluded_columns)) {
-            $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+            $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
             if ($shipping_cost !== false) {
                 $shipping_data = [
                     'price' => $shipping_cost . ' ' . get_woocommerce_currency(),
@@ -321,9 +321,9 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public static function regenerate_bing_products_feed() {
+    public static function gfg_regenerate_bing_products_feed() {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Regenerated Bing Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Regenerated Bing Feed');
 
         // Fetch products from WooCommerce that are published and in stock
         $products = wc_get_products(array(
@@ -397,14 +397,14 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
                     }
 
                     // Custom labels
-                    $item->addChild('custom_label_0', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0'));
-                    $item->addChild('custom_label_1', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1'));
-                    $item->addChild('custom_label_2', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2'));
-                    $item->addChild('custom_label_3', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3'));
-                    $item->addChild('custom_label_4', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4'));
+                    $item->addChild('custom_label_0', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0'));
+                    $item->addChild('custom_label_1', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1'));
+                    $item->addChild('custom_label_2', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2'));
+                    $item->addChild('custom_label_3', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3'));
+                    $item->addChild('custom_label_4', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4'));
 
                     // Shipping
-                    $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+                    $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
                     if ($shipping_cost !== false) {
                         $shipping_element = $item->addChild('shipping');
                         $shipping_element->addChild('price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()));
@@ -459,14 +459,14 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
                 }
 
                 // Custom labels
-                $item->addChild('custom_label_0', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0'));
-                $item->addChild('custom_label_1', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1'));
-                $item->addChild('custom_label_2', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2'));
-                $item->addChild('custom_label_3', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3'));
-                $item->addChild('custom_label_4', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4'));
+                $item->addChild('custom_label_0', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0'));
+                $item->addChild('custom_label_1', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1'));
+                $item->addChild('custom_label_2', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2'));
+                $item->addChild('custom_label_3', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3'));
+                $item->addChild('custom_label_4', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4'));
 
                 // Shipping
-                $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+                $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
                 if ($shipping_cost !== false) {
                     $shipping_element = $item->addChild('shipping');
                     $shipping_element->addChild('price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()));
@@ -481,7 +481,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
 
         // Save the generated XML content to a transient or a file for later use
         $feed_content = $xml->asXML();
-        $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+        $cache_duration = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
         set_transient('smarty_bing_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);  // Cache the feed using WordPress transients
         file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_bing_products_feed.xml', $feed_content);   // Optionally save the feed to a file in the WP uploads directory
     }
@@ -492,14 +492,14 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * @since    1.0.0
      * @param int $product_id The ID of the product that has been created, updated, or deleted.
      */
-    public static function invalidate_bing_products_feed_cache($product_id) {
+    public static function gfg_invalidate_bing_products_feed_cache($product_id) {
         // Check if the post is a 'product'
         if (get_post_type($product_id) === 'product') {
             // Invalidate Bing feed cache
             delete_transient('smarty_bing_products_feed');
 
             // Regenerate the feeds
-            $this->regenerate_bing_products_feed();
+            $this->gfg_regenerate_bing_products_feed();
         }
     }
 
@@ -512,14 +512,14 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * @since    1.0.0
      * @param int $post_id The ID of the post (product) being deleted.
      */
-    public function invalidate_bing_products_feed_cache_on_delete($post_id) {
+    public function gfg_gfg_invalidate_bing_products_feed_cache_on_delete($post_id) {
         // Check if the post being deleted is a product
         if (get_post_type($post_id) === 'product') {
             // Invalidate Bing feed cache
             delete_transient('smarty_bing_products_feed');
 
             // Regenerate the feeds immediately to update the feed file
-            $this->regenerate_bing_products_feed();
+            $this->gfg_regenerate_bing_products_feed();
         }
     }
 }

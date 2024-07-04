@@ -21,21 +21,21 @@ trait Smarty_Gfg_Google_Category_Trait {
      * @param string $page The settings page where fields are displayed.
      */
     public function register_google_category_settings($options_group, $section_id, $page) {
-        register_setting('smarty_gfg_options_google_feed', 'smarty_google_product_category');
-		register_setting('smarty_gfg_options_google_feed', 'smarty_google_category_as_id', array($this,'sanitize_checkbox'));
+        register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_google_product_category');
+		register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_google_category_as_id', array($this,'gfg_sanitize_checkbox'));
 
 		add_settings_field(
-			'smarty_google_product_category',                               	// ID of the field
+			'smarty_gfg_google_product_category',                               	// ID of the field
 			__('Google Product Category', 'smarty-google-feed-generator'),  	// Title of the field
-			array($this,'google_product_category_cb'),                      	// Callback function to display the field
+			array($this,'gfg_google_product_category_cb'),                      // Callback function to display the field
 			$page,                                								// Page on which to add the field
 			$section_id                                    						// Section to which this field belongs
 		);
 
 		add_settings_field(
-			'smarty_google_category_as_id',                                		// ID of the field
+			'smarty_gfg_google_category_as_id',                                		// ID of the field
 			__('Use Google Category ID', 'smarty-google-feed-generator'),   	// Title of the field
-			array($this,'google_category_as_id_cb'),                        	// Callback function to display the field
+			array($this,'gfg_google_category_as_id_cb'),                        	// Callback function to display the field
 			$page,                               								// Page on which to add the field
 			$section_id                                							// Section to which this field belongs
 		);
@@ -46,7 +46,7 @@ trait Smarty_Gfg_Google_Category_Trait {
      * 
      * @since    1.0.0
      */
-	public function sanitize_checkbox($input) {
+	public function gfg_sanitize_checkbox($input) {
 		return $input == 1 ? 1 : 0;
 	}
 
@@ -55,9 +55,9 @@ trait Smarty_Gfg_Google_Category_Trait {
      * 
      * @since    1.0.0
      */
-	public function google_product_category_cb() {
-		$option = get_option('smarty_google_product_category');
-		echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
+	public function gfg_google_product_category_cb() {
+		$option = get_option('smarty_gfg_google_product_category');
+		echo '<select name="smarty_gfg_google_product_category" class="smarty-select2-ajax">';
 		if ($option) {
 			echo '<option value="' . esc_attr($option) . '" selected>' . esc_html($option) . '</option>';
 		}
@@ -70,10 +70,10 @@ trait Smarty_Gfg_Google_Category_Trait {
      * 
      * @since    1.0.0
      */
-	public function google_category_as_id_cb() {
+	public function gfg_google_category_as_id_cb() {
 		echo '<label class="smarty-toggle-switch">';
-		$option = get_option('smarty_google_category_as_id');
-		echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
+		$option = get_option('smarty_gfg_google_category_as_id');
+		echo '<input type="checkbox" name="smarty_gfg_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
 		echo '<span class="smarty-slider round"></span>';
         echo '</label>';
 		echo '<p class="description">' . __('Check to use Google Product Category ID in the feed instead of the name.<br><em><b>Important:</b> <span class="smarty-text-danger">This also works for Bing Products feed.</em></span>', 'smarty-google-feed-generator') . '</p>';
@@ -84,9 +84,9 @@ trait Smarty_Gfg_Google_Category_Trait {
 	 * 
 	 * @since    1.0.0
 	 */
-	public function handle_ajax_load_google_categories() {
+	public function gfg_handle_ajax_load_google_categories() {
 		// Add log entries
-		Smarty_Gfg_Activity_Logging::add_activity_log('Load Google Categories');
+		Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Load Google Categories');
 
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
@@ -95,7 +95,7 @@ trait Smarty_Gfg_Google_Category_Trait {
 		}
 	
 		$search = sanitize_text_field($_GET['q']);
-		$google_categories = $this->get_google_product_categories();
+		$google_categories = $this->gfg_get_google_product_categories();
 	
 		$results = array();
 		foreach ($google_categories as $category) {
@@ -113,7 +113,7 @@ trait Smarty_Gfg_Google_Category_Trait {
      * @since    1.0.0
      * @return array Associative array of category IDs and names.
      */
-	public function get_google_product_categories() {
+	public function gfg_get_google_product_categories() {
 		// Check if the categories are already cached
 		$categories = get_transient('smarty_google_product_categories');
 			
@@ -141,8 +141,8 @@ trait Smarty_Gfg_Google_Category_Trait {
 			}
 	
 			// Cache the feed using WordPress transients              
-			$cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-			set_transient('smarty_google_feed', $categories, $cache_duration * HOUR_IN_SECONDS);  
+			$cache_duration = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
+			set_transient('smarty_gfg_google_feed', $categories, $cache_duration * HOUR_IN_SECONDS);  
 		}
 			
 		return $categories;

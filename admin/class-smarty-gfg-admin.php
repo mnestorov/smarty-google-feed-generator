@@ -156,21 +156,21 @@ class Smarty_Gfg_Admin {
 	 * 
 	 * @since    1.0.0
 	 */
-	public function add_settings_page() {
+	public function gfg_add_settings_page() {
 		add_submenu_page(
 			'woocommerce',
 			__('Google Feed Generator | Settings', 'smarty-google-feed-generator'), // Page title
 			__('Google Feed Generator', 'smarty-google-feed-generator'), 			// Menu title                   
 			'manage_options',                           							// Capability required to access this page
 			'smarty-gfg-settings',           										// Menu slug
-			array($this, 'display_settings_page')  									// Callback function to display the page content
+			array($this, 'gfg_display_settings_page')  								// Callback function to display the page content
 		);
 	}
 
 	/**
 	 * @since    1.0.0
 	 */
-	private function get_settings_tabs() {
+	private function gfg_get_settings_tabs() {
 		return array(
 			'general' 				 => __('General', 'smarty-google-feed-generator'),
 			'google-feed'   		 => __('Google Products Feed', 'smarty-google-feed-generator'),
@@ -192,14 +192,14 @@ class Smarty_Gfg_Admin {
 	 * 
 	 * @since    1.0.0
 	 */
-	public function display_settings_page() {
+	public function gfg_display_settings_page() {
 		// Check user capabilities
 		if (!current_user_can('manage_options')) {
 			return;
 		}
 
 		$current_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
-		$tabs = $this->get_settings_tabs();
+		$tabs = $this->gfg_get_settings_tabs();
 	
 		// Define the path to the external file
 		$partial_file = plugin_dir_path(__FILE__) . 'partials/smarty-gfg-admin-display.php';
@@ -216,92 +216,92 @@ class Smarty_Gfg_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function settings_init() {
+	public function gfg_settings_init() {
 		// General Settings
-		register_setting('smarty_gfg_options_general', 'smarty_meta_title_field', 'sanitize_text_field');
-		register_setting('smarty_gfg_options_general', 'smarty_meta_description_field', 'sanitize_text_field');
-		register_setting('smarty_gfg_options_general', 'smarty_clear_cache', array($this,'sanitize_checkbox'));
-		register_setting('smarty_gfg_options_general', 'smarty_cache_duration', array($this,'sanitize_number_field'));
+		register_setting('smarty_gfg_options_general', 'smarty_gfg_meta_title_field', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_gfg_meta_description_field', 'sanitize_text_field');
+		register_setting('smarty_gfg_options_general', 'smarty_gfg_clear_cache', array($this,'gfg_sanitize_checkbox'));
+		register_setting('smarty_gfg_options_general', 'smarty_gfg_cache_duration', array($this,'gfg_sanitize_number_field'));
 
 		// Google Products Feed settings
-        $this->google_products_feed->settings_init();
+        $this->google_products_feed->gfg_settings_init();
 
 		// Google Reviews Feed settings
-        $this->google_reviews_feed->settings_init();
+        $this->google_reviews_feed->gfg_settings_init();
 
 		// Bing Products Feed settings
-        $this->bing_products_feed->settings_init();
+        $this->bing_products_feed->gfg_settings_init();
 
 		// Activity & Logging settings
-		$this->activity_logging->settings_init();
+		$this->activity_logging->gfg_settings_init();
 
 		// License settings
-		$this->license->settings_init();
+		$this->license->gfg_settings_init();
 
 		add_settings_section(
 			'smarty_gfg_section_general',                                   	// ID of the section
 			__('General', 'smarty-google-feed-generator'),                  	// Title of the section
-			array($this,'section_general_cb'),                          		// Callback function that fills the section with the desired content
+			array($this,'gfg_section_general_cb'),                          	// Callback function that fills the section with the desired content
 			'smarty_gfg_options_general'                                		// Page on which to add the section
 		);
 
 		add_settings_section(
 			'smarty_gfg_section_convert_images',                            	// ID of the section
 			__('Convert Images', 'smarty-google-feed-generator'),           	// Title of the section
-			array($this,'section_convert_images_cb'),                   		// Callback function that fills the section with the desired content
+			array($this,'gfg_section_convert_images_cb'),                   	// Callback function that fills the section with the desired content
 			'smarty_gfg_options_general'                                		// Page on which to add the section
 		);
 	
 		add_settings_section(
 			'smarty_gfg_section_meta_fields',                               	// ID of the section
 			__('Custom Meta Fields', 'smarty-google-feed-generator'),           // Title of the section
-			array($this,'section_meta_fields_cb'),                      		// Callback function that fills the section with the desired content
+			array($this,'gfg_section_meta_fields_cb'),                      	// Callback function that fills the section with the desired content
 			'smarty_gfg_options_general'                                		// Page on which to add the section
 		);
 	
 		add_settings_section(
 			'smarty_gfg_section_settings',                                  	// ID of the section
 			__('Cache', 'smarty-google-feed-generator'),                    	// Title of the section
-			array($this,'section_settings_cb'),                         		// Callback function that fills the section with the desired content
+			array($this,'gfg_section_settings_cb'),                         	// Callback function that fills the section with the desired content
 			'smarty_gfg_options_general'                                		// Page on which to add the section
 		);
 	
 		add_settings_field(
-			'smarty_convert_images',                                        	// ID of the field
+			'smarty_gfg_convert_images',                                        // ID of the field
 			__('Convert', 'smarty-google-feed-generator'),                  	// Title of the field
-			array($this,'convert_images_button_cb'),                        	// Callback function to display the field
+			array($this,'gfg_convert_images_button_cb'),                        // Callback function to display the field
 			'smarty_gfg_options_general',                               		// Page on which to add the field
 			'smarty_gfg_section_convert_images'                             	// Section to which this field belongs
 		);
 	
 		add_settings_field(
-			'smarty_meta_title_field',                                      	// ID of the field
+			'smarty_gfg_meta_title_field',                                      // ID of the field
 			__('Meta Title', 'smarty-google-feed-generator'),               	// Title of the field
-			array($this,'meta_title_field_cb'),                             	// Callback function to display the field
+			array($this,'gfg_meta_title_field_cb'),                             // Callback function to display the field
 			'smarty_gfg_options_general',                               		// Page on which to add the field
 			'smarty_gfg_section_meta_fields'                                	// Section to which this field belongs
 		);
 	
 		add_settings_field(
-			'smarty_meta_description_field',                                	// ID of the field
+			'smarty_gfg_meta_description_field',                                // ID of the field
 			__('Meta Description', 'smarty-google-feed-generator'),         	// Title of the field
-			array($this,'meta_description_field_cb'),                       	// Callback function to display the field
+			array($this,'gfg_meta_description_field_cb'),                       // Callback function to display the field
 			'smarty_gfg_options_general',                               		// Page on which to add the field
 			'smarty_gfg_section_meta_fields'                                	// Section to which this field belongs
 		);
 	
 		add_settings_field(
-			'smarty_clear_cache',                                           	// ID of the field
+			'smarty_gfg_clear_cache',                                           // ID of the field
 			__('Clear Cache', 'smarty-google-feed-generator'),              	// Title of the field
-			array($this,'clear_cache_cb'),                                  	// Callback function to display the field
+			array($this,'gfg_clear_cache_cb'),                                  // Callback function to display the field
 			'smarty_gfg_options_general',                               		// Page on which to add the field
 			'smarty_gfg_section_settings'                                   	// Section to which this field belongs
 		);
 	
 		add_settings_field(
-			'smarty_cache_duration',                                        	// ID of the field
+			'smarty_gfg_cache_duration',                                        // ID of the field
 			__('Cache Duration (hours)', 'smarty-google-feed-generator'),   	// Title of the field
-			array($this,'cache_duration_cb'),                               	// Callback function to display the field
+			array($this,'gfg_cache_duration_cb'),                               // Callback function to display the field
 			'smarty_gfg_options_general',                               		// Page on which to add the field
 			'smarty_gfg_section_settings'                                   	// Section to which this field belongs
 		);
@@ -312,7 +312,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function sanitize_checkbox($input) {
+	public function gfg_sanitize_checkbox($input) {
 		return $input == 1 ? 1 : 0;
 	}
 
@@ -321,7 +321,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function sanitize_number_field($input) {
+	public function gfg_sanitize_number_field($input) {
 		return absint($input);
 	}
 
@@ -330,7 +330,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function section_general_cb() {
+	public function gfg_section_general_cb() {
 		echo '<p>' . __('General settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 
@@ -339,7 +339,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function section_convert_images_cb() {
+	public function gfg_section_convert_images_cb() {
 		echo '<p>' . __('Use the buttons below to manually convert the first or all WebP image(s) of each products in to the feed to PNG format.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -348,7 +348,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function section_generate_feeds_cb() {
+	public function gfg_section_generate_feeds_cb() {
 		echo '<p>' . __('Use the buttons below to manually generate the feeds.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -357,7 +357,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function section_meta_fields_cb() {
+	public function gfg_section_meta_fields_cb() {
 		echo '<p>' . __('Use this settings for the Google Feed Generator If custom meta fields exists.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -366,7 +366,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function section_settings_cb() {
+	public function gfg_section_settings_cb() {
 		echo '<p>' . __('Cache settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
 	}
 
@@ -375,7 +375,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function convert_images_button_cb() {
+	public function gfg_convert_images_button_cb() {
 		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block;">' . __('First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
 		echo '<button class="button secondary smarty-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
 	}
@@ -385,9 +385,9 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function meta_title_field_cb() {
-		$option = get_option('smarty_meta_title_field', 'meta-title');
-		echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
+	public function gfg_meta_title_field_cb() {
+		$option = get_option('smarty_gfg_meta_title_field', 'meta-title');
+		echo '<input type="text" name="smarty_gfg_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
 		echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -396,9 +396,9 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function meta_description_field_cb() {
-		$option = get_option('smarty_meta_description_field', 'meta-description');
-		echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
+	public function gfg_meta_description_field_cb() {
+		$option = get_option('smarty_gfg_meta_description_field', 'meta-description');
+		echo '<input type="text" name="smarty_gfg_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
 		echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -407,10 +407,10 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function clear_cache_cb() {
+	public function gfg_clear_cache_cb() {
 		echo '<label class="smarty-toggle-switch">';
-		$option = get_option('smarty_clear_cache');
-		echo '<input type="checkbox" name="smarty_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
+		$option = get_option('smarty_gfg_clear_cache');
+		echo '<input type="checkbox" name="smarty_gfg_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
 		echo '<span class="smarty-slider round"></span>';
         echo '</label>';
 		echo '<p class="description">' . __('Check to clear the cache each time the feed is generated. <br><em><b>Important:</b> <span class="smarty-text-danger">Remove this in production to utilize caching.</span></em>', 'smarty-google-feed-generator') . '</p>';
@@ -421,9 +421,9 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function cache_duration_cb() {
-		$option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
-		echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
+	public function gfg_cache_duration_cb() {
+		$option = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
+		echo '<input type="number" name="smarty_gfg_cache_duration" value="' . esc_attr($option) . '" />';
 		echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
 	}
 
@@ -432,9 +432,9 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function handle_ajax_convert_images() {
+	public function gfg_handle_ajax_convert_images() {
 		// Add log entries
-		self::add_activity_log('Convert the first WebP image to PNG');
+		self::gfg_add_activity_log('Convert the first WebP image to PNG');
 
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
@@ -444,7 +444,7 @@ class Smarty_Gfg_Admin {
 	
 		try {
 			// Attempt to convert images
-			$this->convert_first_webp_image_to_png();
+			$this->gfg_convert_first_webp_image_to_png();
 			wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
 		} catch (Exception $e) {
 			// Handle exceptions by sending a descriptive error message
@@ -457,9 +457,9 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-	public function handle_ajax_convert_all_images() {
+	public function gfg_handle_ajax_convert_all_images() {
 		// Add log entries
-		self::add_activity_log('Convert all WebP images to PNG');
+		self::gfg_add_activity_log('Convert all WebP images to PNG');
 
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
@@ -469,7 +469,7 @@ class Smarty_Gfg_Admin {
 	
 		try {
 			// Attempt to convert images
-			$this->convert_all_webp_images_to_png();
+			$this->gfg_convert_all_webp_images_to_png();
 			wp_send_json_success(__('All images have been converted to PNG.', 'smarty-google-feed-generator'));
 		} catch (Exception $e) {
 			// Handle exceptions by sending a descriptive error message
@@ -483,7 +483,7 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
      * @param WC_Product $product Product object.
      */
-    public function convert_and_update_product_image($product) {
+    public function gfg_convert_and_update_product_image($product) {
         $image_id = $product->get_image_id();
 
         if ($image_id) {
@@ -492,7 +492,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
                 
-                if ($this->convert_webp_to_png($file_path, $new_file_path)) {
+                if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -520,7 +520,7 @@ class Smarty_Gfg_Admin {
      * @param string $destination The destination file path.
      * @return bool True on success, false on failure.
      */
-    public function convert_webp_to_png($source, $destination) {
+    public function gfg_convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
             _gfg_write_logs('GD Library is not installed or does not support WEBP.');
             return false;
@@ -541,7 +541,7 @@ class Smarty_Gfg_Admin {
 	 * 
 	 * @since    1.0.0
      */
-	public static function convert_first_webp_image_to_png() {
+	public static function gfg_convert_first_webp_image_to_png() {
 		$offset = 0;
 		$limit = 50; // Process 50 products at a time
 	
@@ -563,7 +563,7 @@ class Smarty_Gfg_Admin {
 				if ($file_path && preg_match('/\.webp$/', $file_path)) {
 					$new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 	
-					if ($this->convert_webp_to_png($file_path, $new_file_path)) {
+					if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
 						// Update the attachment file type post meta
 						wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
 						update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -588,7 +588,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-    public function convert_all_webp_images_to_png() {
+    public function gfg_convert_all_webp_images_to_png() {
         $offset = 0;
         $limit = 50; // Number of products to process at a time
 
@@ -605,12 +605,12 @@ class Smarty_Gfg_Admin {
 
             foreach ($products as $product) {
                 // Convert the main product image
-                $this->convert_product_image($product->get_image_id());
+                $this->gfg_convert_product_image($product->get_image_id());
 
                 // Convert all gallery images
                 $gallery_ids = $product->get_gallery_image_ids();
                 foreach ($gallery_ids as $gallery_id) {
-                    $this->convert_product_image($gallery_id);
+                    $this->gfg_convert_product_image($gallery_id);
                 }
             }
 
@@ -624,13 +624,13 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 * @param int $image_id The ID of the image to convert.
 	 */
-	private function convert_product_image($image_id) {
+	private function gfg_convert_product_image($image_id) {
 		$file_path = get_attached_file($image_id);
 
 		if ($file_path && preg_match('/\.webp$/', $file_path)) {
 			$new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 			
-			if ($this->convert_webp_to_png($file_path, $new_file_path)) {
+			if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
 				// Update the attachment file type post meta
 				wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
 				update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -650,12 +650,35 @@ class Smarty_Gfg_Admin {
 		return false; // Return false if conversion did not take place
 	}
 
+	/**
+     * Adds custom intervals to the WordPress cron schedules.
+     *
+     * @since 1.0.0
+     * @param array $schedules The existing cron schedules.
+     * @return array The modified cron schedules.
+     */
+    public function gfg_custom_cron_intervals($schedules) {
+        $schedules['hourly'] = array(
+            'interval' => 3600,
+            'display' => __('Hourly')
+        );
+        $schedules['twicedaily'] = array(
+            'interval' => 12 * 3600,
+            'display' => __('Twice Daily')
+        );
+        $schedules['daily'] = array(
+            'interval' => 24 * 3600,
+            'display' => __('Daily')
+        );
+        return $schedules;
+    }
+
     /**
 	 * Function to check for the transient and displays a notice if it's present.
 	 *
 	 * @since    1.0.0
 	 */
-	public function success_notice() {
+	public function gfg_success_notice() {
 		if (get_transient('smarty_gfg_settings_updated')) { 
 			?>
 			<div class="notice notice-success smarty-auto-hide-notice">

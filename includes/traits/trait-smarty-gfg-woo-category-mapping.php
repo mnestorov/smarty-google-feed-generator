@@ -17,8 +17,8 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
      * 
      * @since    1.0.0
      */
-    public function init_woo_category_mapping_trait() {
-        add_action('wp_ajax_smarty_get_woocommerce_categories', array($this, 'handle_ajax_get_woocommerce_categories'));
+    public function gfg_init_woo_category_mapping_trait() {
+        add_action('wp_ajax_smarty_get_woocommerce_categories', array($this, 'gfg_handle_ajax_get_woocommerce_categories'));
     }
 
     /**
@@ -29,13 +29,13 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
      * @param string $section_id The section ID for settings fields.
      * @param string $page The settings page where fields are displayed.
      */
-    public function register_woo_category_settings($options_group, $section_id, $page) {
-        register_setting($options_group, 'smarty_woo_category_mapping', array($this, 'sanitize_category_mapping'));
+    public function gfg_register_woo_category_settings($options_group, $section_id, $page) {
+        register_setting($options_group, 'smarty_gfg_woo_category_mapping', array($this, 'gfg_sanitize_category_mapping'));
 
         add_settings_field(
-            'smarty_woo_category_mapping', 
+            'smarty_gfg_woo_category_mapping', 
             __('Category Mapping', 'smarty-google-feed-generator'), 
-            array($this, 'woo_category_mapping_fields_cb'), 
+            array($this, 'gfg_woo_category_mapping_fields_cb'), 
             $page, 
             $section_id
         );
@@ -46,7 +46,7 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
      * 
 	 * @since    1.0.0
      */
-	public function sanitize_category_mapping($input) {
+	public function gfg_sanitize_category_mapping($input) {
 		$sanitized_input = array();
 		foreach ($input as $key => $value) {
 			$sanitized_input[$key] = sanitize_text_field($value);
@@ -57,8 +57,8 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
     /**
 	 * @since    1.0.0
 	 */
-    public function woo_category_mapping_fields_cb() {
-        $category_mapping = get_option('smarty_woo_category_mapping', array());
+    public function gfg_woo_category_mapping_fields_cb() {
+        $category_mapping = get_option('smarty_gfg_woo_category_mapping', array());
 		echo '<p class="description">' . __('Map your categories to the categories of your selected channel.', 'smarty-google-feed-generator') . '</p>';
         echo '<table class="form-table user-friendly-table"><tbody>';
         echo '<tr><th>' . __('WooCommerce Category', 'smarty-google-feed-generator') . '</th><th>' . __('Google Product Category', 'smarty-google-feed-generator') . '</th></tr>';
@@ -70,9 +70,9 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
             echo '<tr>';
             echo '<td>' . esc_html($category->name) . '</td>';
             echo '<td>';
-            echo '<select name="smarty_category_mapping[' . esc_attr($category->term_id) . ']" class="smarty-select2-ajax">';
+            echo '<select name="smarty_gfg_category_mapping[' . esc_attr($category->term_id) . ']" class="smarty-select2-ajax">';
             echo '<option value="">' . __('Select a Google Category', 'smarty-google-feed-generator') . '</option>';
-            foreach ($this->get_google_product_categories() as $google_cat) {
+            foreach ($this->gfg_get_google_product_categories() as $google_cat) {
                 $selected = $google_category === $google_cat ? 'selected' : '';
                 echo '<option value="' . esc_attr($google_cat) . '" ' . $selected . '>' . esc_html($google_cat) . '</option>';
             }
@@ -89,7 +89,7 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
 	 * 
 	 * @since    1.0.0
 	 */
-	public function handle_ajax_get_woocommerce_categories() {
+	public function gfg_handle_ajax_get_woocommerce_categories() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
     
         if (!current_user_can('manage_options')) {

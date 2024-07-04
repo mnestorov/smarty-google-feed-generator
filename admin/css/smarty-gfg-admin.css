@@ -4,8 +4,8 @@
 
 /* Change width of the Exclude Patterns textarea */
 
-textarea[name="smarty_google_exclude_patterns"].large-text,
-textarea[name="smarty_bing_exclude_patterns"].large-text {
+textarea[name="smarty_gfg_google_exclude_patterns"].large-text,
+textarea[name="smarty_gfg_bing_exclude_patterns"].large-text {
     width: 50% !important;
 }
 
@@ -55,11 +55,11 @@ textarea[name="smarty_bing_exclude_patterns"].large-text {
 
 /* Custom Labels */
 
-.custom-label-logic {
+.smarty-gfg-custom-label-logic  {
     width: 100%;
 }
 
-.custom-label-logic + .regular-text {
+.smarty-gfg-custom-label-logic  + .regular-text {
     width: 100%;
 }
 

@@ -17,29 +17,29 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-    public function settings_init() {
+    public function gfg_al_settings_init() {
         register_setting('smarty_gfg_options_activity_logging', 'smarty_gfg_settings_activity_logging');
 		register_setting('smarty_gfg_options_activity_logging', 'smarty_gfg_settings_activity_log');
 
         add_settings_section(
 			'smarty_gfg_section_activity_logging',								// ID of the section
 			__('Activity & Logging', 'smarty-google-feed-generator'),    		// Title of the section  		
-			array($this, 'section_tab_activity_logging_cb'),                	// Callback function that fills the section with the desired content	
+			array($this, 'gfg_section_tab_activity_logging_cb'),                // Callback function that fills the section with the desired content	
 			'smarty_gfg_options_activity_logging'                   			// Page on which to add the section   		
 		);
 
 		add_settings_field(
-            'smarty_gfg_system_info', 												// ID of the field
+            'smarty_gfg_system_info', 											// ID of the field
             __('System Info', 'smarty-google-feed-generator'), 					// Title of the field
-            array($this, 'system_info_cb'), 									// Callback function to display the field
+            array($this, 'gfg_system_info_cb'), 								// Callback function to display the field
             'smarty_gfg_options_activity_logging', 								// Page on which to add the field
             'smarty_gfg_section_activity_logging' 								// Section to which this field belongs
         );
 
 		add_settings_field(
-			'smarty_gfg_activity_log',												// ID of the section
+			'smarty_gfg_activity_log',											// ID of the section
 			__('Activity Log', 'smarty-google-feed-generator'),    				// Title of the section  		
-			array($this, 'activity_log_cb'),                					// Callback function that fills the section with the desired content	
+			array($this, 'gfg_activity_log_cb'),                				// Callback function that fills the section with the desired content	
 			'smarty_gfg_options_activity_logging',                   			// Page on which to add the section
 			'smarty_gfg_section_activity_logging'								// Section to which this field belongs  		
 		);
@@ -50,7 +50,7 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function section_tab_activity_logging_cb() {
+	public static function gfg_section_tab_activity_logging_cb() {
 		echo '<p>' . __('View and manage the activity logs for the plugin.', 'smarty-google-feed-generator') . '</p>';
 	}
 
@@ -59,9 +59,9 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activity_log_cb() {
+	public static function gfg_activity_log_cb() {
 		$instance = new self('Smarty_Gfg_Admin', '1.0.0');
-		$instance->display_activity_log();
+		$instance->gfg_display_activity_log();
 	}
 
     /**
@@ -69,8 +69,8 @@ class Smarty_Gfg_Activity_Logging {
      *
      * @since    1.0.0
      */
-    public function system_info_cb() {
-		$system_info = $this->get_system_info();
+    public function gfg_system_info_cb() {
+		$system_info = $this->gfg_get_system_info();
 		echo '<ul>';
 		foreach ($system_info as $key => $value) {
 			echo '<li><strong>' . esc_html($key) . ':</strong> ' . wp_kses($value, array('span' => array('style' => array()))) . '</li>';
@@ -84,7 +84,7 @@ class Smarty_Gfg_Activity_Logging {
      * @since    1.0.0
      * @return string System information.
      */
-    private function get_system_info() {
+    private function gfg_get_system_info() {
 		$system_info = array(
 			'User Agent' 		  => esc_html($_SERVER['HTTP_USER_AGENT']),
 			'Web Server' 		  => esc_html($_SERVER['SERVER_SOFTWARE']),
@@ -104,7 +104,7 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-	public function display_activity_log() {
+	public function gfg_display_activity_log() {
 		// Retrieve log entries from the database or file
 		$logs = get_option('smarty_gfg_activity_log', array());
 
@@ -127,7 +127,7 @@ class Smarty_Gfg_Activity_Logging {
 	 * @since    1.0.0
 	 * @param string $message The log message.
 	 */
-	public static function add_activity_log($message) {
+	public static function gfg_add_activity_log($message) {
 		$logs = get_option('smarty_gfg_activity_log', array());
 		
 		// Get the current time in the specified format
@@ -152,7 +152,7 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-	public function clear_activity_log() {
+	public function gfg_clear_activity_log() {
 		update_option('smarty_gfg_activity_log', array());
 	}
 
@@ -161,14 +161,14 @@ class Smarty_Gfg_Activity_Logging {
 	 *
 	 * @since    1.0.0
 	 */
-	public function handle_ajax_clear_logs() {
+	public function gfg_handle_ajax_clear_logs() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
 		if (!current_user_can('manage_options')) {
 			wp_send_json_error('You do not have sufficient permissions to access this page.');
 		}
 
-		$this->clear_activity_log();
+		$this->gfg_clear_activity_log();
 		wp_send_json_success(__('Logs cleared.', 'smarty-google-feed-generator'));
 	}
 }

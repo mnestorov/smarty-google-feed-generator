@@ -120,7 +120,7 @@
             });
         });
 
-        $('.smarty-generate-feed-button').on('click', function (e) {
+        $('.smarty-gfg-generate-feed-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
             //console.log('Generate Feed button clicked');
 
@@ -129,16 +129,16 @@
             var redirectUrl = '';
 
             switch (action) {
-                case 'generate_google_products_feed':
+                case 'gfg_generate_google_products_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-products-feed/';
                     break;
-                case 'generate_google_reviews_feed':
+                case 'gfg_generate_google_reviews_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-reviews-feed/';
                     break;
-                case 'generate_google_csv_export':
+                case 'gfg_generate_google_csv_export':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-google-csv-export/';
                     break;
-                case 'generate_bing_products_feed':
+                case 'gfg_generate_bing_products_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-products-feed/';
                     break;
                 case 'generate_bing_txt_feed':
@@ -154,7 +154,7 @@
             window.open(redirectUrl, '_blank');
         });
 
-        $('.smarty-excluded-categories, .smarty-excluded-destination, .smarty-included-destination, .smarty-excluded-countries, .smarty-condition, .smarty-size-system, .smarty-reviews-ratings, .smarty-select2-ajax').select2({
+        $('.smarty-gfg-excluded-categories, .smarty-gfg-excluded-destination, .smarty-gfg-included-destination, .smarty-gfg-excluded-countries, .smarty-gfg-condition, .smarty-gfg-size-system, .smarty-gfg-reviews-ratings, .smarty-select2-ajax').select2({
             width: '100%' // need to override the changed default
         });
 
@@ -187,7 +187,7 @@
         });
 
         function updateCustomLabelInputs() {
-            $('.custom-label-logic').each(function() {
+            $('.smarty-gfg-custom-label-logic ').each(function() {
                 var logic = $(this).val();
                 var inputField = $(this).closest('tr').find('.custom-label-input');
                 var label = $(this).closest('tr').find('td:first').text().trim().toLowerCase().replace(/\s+/g, '_');
@@ -242,13 +242,13 @@
         
         updateCustomLabelInputs();
 
-        $(document).on('change', '.custom-label-logic', function() {
+        $(document).on('change', '.smarty-gfg-custom-label-logic ', function() {
             updateCustomLabelInputs();
         });        
 
         //console.log('Setting up auto-hide for admin notices');
         setTimeout(function () {
-            $(".smarty-auto-hide-notice").fadeTo(500, 0).slideUp(500, function () {
+            $(".smarty-gfg-auto-hide-notice").fadeTo(500, 0).slideUp(500, function () {
                 $(this).remove();
                 //console.log('Admin notice auto-hidden');
             });

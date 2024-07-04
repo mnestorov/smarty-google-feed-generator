@@ -31,8 +31,8 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 delete_option('smarty_plugin_settings');
 
 // Clear scheduled events
-$timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
-wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
+$timestamp = wp_next_scheduled('smarty_gfg_generate_google_products_feed');
+wp_unschedule_event($timestamp, 'smarty_gfg_generate_google_products_feed');
 
 // Remove generated files
 $google_products_feed_file_path = WP_content_dir() . '/uploads/smarty_google_products_feed.xml';

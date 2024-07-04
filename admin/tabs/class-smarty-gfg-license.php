@@ -35,20 +35,20 @@ class Smarty_Gfg_License {
 	 *
 	 * @since    1.0.0
 	 */
-    public function settings_init() {
-        register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'sanitize_license_settings'));
+    public function gfg_l_settings_init() {
+        register_setting('smarty_gfg_options_license', 'smarty_gfg_settings_license', array($this, 'gfg_sanitize_license_settings'));
 
         add_settings_section(
 			'smarty_gfg_section_license',										// ID of the section
 			__('License', 'smarty-google-feed-generator'),						// Title of the section  
-			array($this, 'section_tab_license_cb'),								// Callback function that fills the section with the desired content
+			array($this, 'gfg_section_tab_license_cb'),							// Callback function that fills the section with the desired content
 			'smarty_gfg_options_license'										// Page on which to add the section
 		);
 
 		add_settings_field(
-			'smarty_gfg_api_key',													// ID of the field
+			'smarty_gfg_api_key',												// ID of the field
 			__('API Key', 'smarty-google-feed-generator'),						// Title of the field
-			array($this, 'field_api_key_cb'),									// Callback function to display the field
+			array($this, 'gfg_field_api_key_cb'),								// Callback function to display the field
 			'smarty_gfg_options_license',										// Page on which to add the field
 			'smarty_gfg_section_license'										// Section to which this field belongs
 		);
@@ -63,7 +63,7 @@ class Smarty_Gfg_License {
      * @param array $input The input settings array.
      * @return array Sanitized settings.
      */
-	public function sanitize_license_settings($input) {
+	public function gfg_sanitize_license_settings($input) {
 		$new_input = array();
 		if (isset($input['api_key'])) {
 			$new_input['api_key'] = sanitize_text_field($input['api_key']);
@@ -78,7 +78,7 @@ class Smarty_Gfg_License {
      * @param string $api_key The API key to validate.
      * @return bool True if the API key is valid, false otherwise.
      */
-    public function _gfg_is_valid_api_key($api_key) {
+    public function gfg_is_valid_api_key($api_key) {
 		$response = $this->api_instance->validate_license($api_key);
 	
 		if (isset($response['success']) && $response['success']) {
@@ -92,9 +92,9 @@ class Smarty_Gfg_License {
 				}
 			}
 	
-			_gfg_write_logs('Checking API key validity: ' . $api_key);
-			_gfg_write_logs('API Response: ' . print_r($response, true));
-			_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
+			//_gfg_write_logs('Checking API key validity: ' . $api_key);
+			//_gfg_write_logs('API Response: ' . print_r($response, true));
+			//_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
 			return $isActive;
 		}
 	
@@ -109,7 +109,7 @@ class Smarty_Gfg_License {
      * @param mixed $old_value The old value of the option.
      * @param mixed $value The new value of the option.
      */
-	public function handle_license_status_check($option_name, $old_value, $value) {
+	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
 		if (!$this->api_instance) {
 			// Handle the error
 			return;
@@ -138,7 +138,7 @@ class Smarty_Gfg_License {
      * @since    1.0.0
      * @param array $args Arguments for the callback.
      */
-	public function section_tab_license_cb($args) {
+	public function gfg_section_tab_license_cb($args) {
 		?>
 		<p id="<?php echo esc_attr($args['id']); ?>">
 			<?php echo esc_html__('Enter your API key to enable advanced features.', 'smarty-google-feed-generator'); ?>
@@ -152,7 +152,7 @@ class Smarty_Gfg_License {
      * @since    1.0.0
      * @param array $args Arguments for the callback.
      */
-	public function field_api_key_cb($args) {
+	public function gfg_field_api_key_cb($args) {
 		$options = get_option('smarty_gfg_settings_license');
 		?>
 		<input type="text" id="smarty_gfg_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
@@ -167,12 +167,12 @@ class Smarty_Gfg_License {
      *
      * @since    1.0.0
      */
-    public function admin_notice() {
+    public function gfg_license_notice() {
         $options = get_option('smarty_gfg_settings_license');
 		
 		if (isset($_GET['license-activated']) && $_GET['license-activated'] == 'true') {
 			?>
-			<div class="notice notice-success smarty-auto-hide-notice">
+			<div class="notice notice-success smarty-gfg-auto-hide-notice">
 				<p><?php echo esc_html__('License activated successfully.', 'smarty-google-feed-generator'); ?></p>
 			</div>
 			<?php

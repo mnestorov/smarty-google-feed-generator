@@ -20,11 +20,11 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function generate_google_reviews_feed() {
+    public function gfg_generate_google_reviews_feed() {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Generated Google Reviews Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Generated Google Reviews Feed');
 
-        $selected_ratings = get_option('smarty_reviews_ratings', []);
+        $selected_ratings = get_option('smarty_gfg_reviews_ratings', []);
         if (!is_array($selected_ratings)) {
             $selected_ratings = explode(',', $selected_ratings);
         }
@@ -81,7 +81,7 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
 
         // Output the final XML content
         $feed_content = $dom->saveXML();
-        $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+        $cache_duration = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
         set_transient('smarty_google_reviews_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS); // Cache the feed using WordPress transients
         file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_reviews_feed.xml', $feed_content); // Optionally save the feed to a file in the WP uploads directory
 
@@ -99,9 +99,9 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      * @param int $comment_id The ID of the comment being updated.
      * @param string $comment_approved The approval status of the comment.
      */
-    public function invalidate_google_reviews_feed_cache($comment_id, $comment_approved = '') {
+    public function gfg_invalidate_google_reviews_feed_cache($comment_id, $comment_approved = '') {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Reviews Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Invalidate Google Reviews Feed');
 
         $comment = get_comment($comment_id);
         $post_id = $comment->comment_post_ID;
@@ -118,21 +118,21 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function schedule_google_reviews_feed_generation() {
-        $interval = get_option('smarty_reviews_feed_interval', 'daily');
+    public function gfg_schedule_google_reviews_feed_generation() {
+        $interval = get_option('smarty_gfg_reviews_feed_interval', 'daily');
         _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Google Reviews Feed Interval: ' . $interval);
 
-        $timestamp = wp_next_scheduled('smarty_generate_google_reviews_feed');
+        $timestamp = wp_next_scheduled('smarty_gfg_generate_google_reviews_feed');
 
         // Only reschedule if the interval has changed or the event is not scheduled
-        if (!$timestamp || wp_get_schedule('smarty_generate_google_reviews_feed') !== $interval) {
+        if (!$timestamp || wp_get_schedule('smarty_gfg_generate_google_reviews_feed') !== $interval) {
             if ($timestamp) {
-                wp_unschedule_event($timestamp, 'smarty_generate_google_reviews_feed');
+                wp_unschedule_event($timestamp, 'smarty_gfg_generate_google_reviews_feed');
                 _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Unscheduled existing Google Reviews Feed event.');
             }
 
             if ($interval !== 'no_refresh') {
-                wp_schedule_event(time(), $interval, 'smarty_generate_google_reviews_feed');
+                wp_schedule_event(time(), $interval, 'smarty_gfg_generate_google_reviews_feed');
                 _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Scheduled new Google Reviews Feed event.');
             }
         } else {

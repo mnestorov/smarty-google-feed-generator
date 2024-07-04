@@ -20,7 +20,7 @@ trait Smarty_Gfg_Custom_Labels_Trait {
      * @param string $section_id The section ID for settings fields.
      * @param string $page The settings page where fields are displayed.
      */
-    public function register_custom_labels_settings($options_group, $section_id, $page) {
+    public function gfg_register_custom_labels_settings($options_group, $section_id, $page) {
         $custom_labels = [
 			'Custom Label 0' => ['logic', 'value', 'days', 'categories'],
 			'Custom Label 1' => ['logic', 'value', 'days', 'categories'],
@@ -37,9 +37,9 @@ trait Smarty_Gfg_Custom_Labels_Trait {
 		}
 
         add_settings_field(
-			'smarty_custom_labels_table',                                      	// ID of the field
+			'smarty_gfg_custom_labels_table',                                   // ID of the field
 			__('Custom Labels', 'smarty-google-feed-generator'),               	// Title of the field
-			array($this, 'custom_labels_table_cb'),                            	// Callback function to display the field
+			array($this, 'gfg_custom_labels_table_cb'),                         // Callback function to display the field
 			$page,                                  	                        // Page on which to add the field
 			$section_id                                 	                    // Section to which this field belongs
 		);
@@ -48,7 +48,7 @@ trait Smarty_Gfg_Custom_Labels_Trait {
     /**
      * @since    1.0.0
      */
-	public function custom_labels_table_cb() {
+	public function gfg_custom_labels_table_cb() {
 		$logics = [
 			'older_than_days'       => __('Older Than Days', 'smarty-google-feed-generator'),
 			'not_older_than_days'   => __('Not Older Than Days', 'smarty-google-feed-generator'),
@@ -71,10 +71,10 @@ trait Smarty_Gfg_Custom_Labels_Trait {
 		echo '<tr><th>' . __('Label Names', 'smarty-google-feed-generator') . '</th><th>' . __('Predefined Logic', 'smarty-google-feed-generator') . '</th><th>' . __('Parameter Fields', 'smarty-google-feed-generator') . '</th><th>' . __('Value Fields', 'smarty-google-feed-generator') . '</th></tr>';
 	
 		foreach ($custom_labels as $label => $details) {
-			$logic_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic', '');
-			$value_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value', '');
-			$days_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days', '');
-			$categories_option = get_option('smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories', []);
+			$logic_option = get_option('smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_logic', '');
+			$value_option = get_option('smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_value', '');
+			$days_option = get_option('smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_days', '');
+			$categories_option = get_option('smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_categories', []);
 	
 			// Ensure $categories_option is an array
 			if (!is_array($categories_option)) {
@@ -84,7 +84,7 @@ trait Smarty_Gfg_Custom_Labels_Trait {
 			echo '<tr>';
 			echo '<td>' . esc_html($label) . '</td>';
 			echo '<td>';
-			echo '<select name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic" class="custom-label-logic">';
+			echo '<select name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_logic" class="smarty-gfg-custom-label-logic ">';
 			foreach ($logics as $key => $logic) {
 				$selected = $logic_option == $key ? 'selected' : '';
 				echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($logic) . '</option>';
@@ -93,22 +93,22 @@ trait Smarty_Gfg_Custom_Labels_Trait {
 			echo '</td>';
 			echo '<td class="custom-label-input">';
 			if (in_array($logic_option, ['older_than_days', 'not_older_than_days', 'most_ordered_days'])) {
-				echo '<input type="number" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days" value="' . esc_attr($days_option) . '" class="small-text" />';
+				echo '<input type="number" name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_days" value="' . esc_attr($days_option) . '" class="small-text" />';
 			} elseif (in_array($logic_option, ['high_rating_value', 'has_sale_price'])) {
-				echo '<input type="number" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="small-text" />';
+				echo '<input type="number" name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="small-text" />';
 			} elseif ($logic_option === 'category') {
-				echo '<select name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories[]" multiple="multiple" class="select2" style="width:50%;">';
+				echo '<select name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_categories[]" multiple="multiple" class="select2" style="width:50%;">';
 				foreach (get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]) as $category) {
 					$selected = in_array($category->term_id, $categories_option) ? 'selected' : '';
 					echo '<option value="' . esc_attr($category->term_id) . '" ' . $selected . '>' . esc_html($category->name) . '</option>';
 				}
 				echo '</select>';
 			} else {
-				echo '<input type="text" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_default" value="' . esc_attr($value_option) . '" class="regular-text" />';
+				echo '<input type="text" name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_default" value="' . esc_attr($value_option) . '" class="regular-text" />';
 			}
 			echo '</td>';
 			echo '<td class="custom-label-value">';
-			echo '<input type="text" name="smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="regular-text" />';
+			echo '<input type="text" name="smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_value" value="' . esc_attr($value_option) . '" class="regular-text" />';
 			echo '</td>';
 			echo '</tr>';
 		}

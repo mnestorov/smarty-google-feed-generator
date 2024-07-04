@@ -204,30 +204,31 @@ class Smarty_Gfg_Locator {
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-		$this->loader->add_action('admin_menu', $plugin_admin, 'add_settings_page');
-		$this->loader->add_action('admin_init', $plugin_admin, 'settings_init');
-		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'handle_ajax_convert_images');
-		$this->loader->add_action('wp_ajax_smarty_convert_all_webp_images_to_png', $plugin_admin, 'handle_ajax_convert_all_images');
-		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'convert_and_update_product_image', 10, 1);
-		$this->loader->add_action('admin_notices', $plugin_admin, 'success_notice');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'gfg_add_settings_page');
+		$this->loader->add_action('admin_init', $plugin_admin, 'gfg_settings_init');
+		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'gfg_handle_ajax_convert_images');
+		$this->loader->add_action('wp_ajax_smarty_convert_all_webp_images_to_png', $plugin_admin, 'gfg_handle_ajax_convert_all_images');
+		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'gfg_convert_and_update_product_image', 10, 1);
+		$this->loader->add_filter('cron_schedules', $plugin_admin, 'gfg_custom_cron_intervals');
+		$this->loader->add_action('admin_notices', $plugin_admin, 'gfg_success_notice');
 
 		// Register hooks for Google Products Feed
-		$this->loader->add_action('admin_init', $plugin_google_products_feed, 'settings_init');
+		$this->loader->add_action('admin_init', $plugin_google_products_feed, 'gfg_gpf_settings_init');
 
 		// Register hooks for Google Reviews Feed
-		$this->loader->add_action('admin_init', $plugin_google_reviews_feed, 'settings_init');
+		$this->loader->add_action('admin_init', $plugin_google_reviews_feed, 'gfg_grf_settings_init');
 
 		// Register hooks for Bing Products Feed
-		$this->loader->add_action('admin_init', $plugin_bing_products_feed, 'settings_init');
+		$this->loader->add_action('admin_init', $plugin_bing_products_feed, 'gfg_bpf_settings_init');
 
 		// Register hooks for Activity & Logging
-		$this->loader->add_action('admin_init', $plugin_activity_logging, 'settings_init');
-        $this->loader->add_action('wp_ajax_smarty_gfg_clear_logs', $plugin_activity_logging, 'handle_ajax_clear_logs');
+		$this->loader->add_action('admin_init', $plugin_activity_logging, 'gfg_al_settings_init');
+        $this->loader->add_action('wp_ajax_smarty_gfg_clear_logs', $plugin_activity_logging, 'gfg_handle_ajax_clear_logs');
 
 		// Register hooks for License management
-		$this->loader->add_action('admin_init', $plugin_license, 'settings_init');
-		$this->loader->add_action('updated_option', $plugin_license, 'handle_license_status_check', 10, 3);
-		$this->loader->add_action('admin_notices', $plugin_license, 'admin_notice');
+		$this->loader->add_action('admin_init', $plugin_license, 'gfg_l_settings_init');
+		$this->loader->add_action('updated_option', $plugin_license, 'gfg_handle_license_status_check', 10, 3);
+		$this->loader->add_action('admin_notices', $plugin_license, 'gfg_license_notice');
 	}
 
 	/**
@@ -244,30 +245,29 @@ class Smarty_Gfg_Locator {
 		$plugin_google_reviews_feed = new Smarty_Gfg_Google_Reviews_Feed_Public();
 		$plugin_bing_products_feed = new Smarty_Gfg_Bing_Products_Feed_Public();
 		
-		$this->loader->add_action('template_redirect', $plugin_public, 'handle_template_redirect');
+		$this->loader->add_action('template_redirect', $plugin_public, 'gfg_handle_template_redirect');
 		$this->loader->add_action('init', $plugin_public, 'add_rewrite_rules');
 		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
-		$this->loader->add_action('save_post_product', $plugin_public, 'handle_product_change');
-		$this->loader->add_action('deleted_post', $plugin_public, 'handle_product_change');
-		$this->loader->add_filter('cron_schedules', $plugin_public, 'gfg_custom_cron_intervals');
+		$this->loader->add_action('save_post_product', $plugin_public, 'gfg_handle_product_change');
+		$this->loader->add_action('deleted_post', $plugin_public, 'gfg_handle_product_change');
 	
 		// Register hooks for Google Products Feed
-		$this->loader->add_action('init', $plugin_google_products_feed, 'schedule_google_products_feed_generation');
-		$this->loader->add_action('smarty_generate_google_products_feed', $plugin_google_products_feed, 'generate_google_products_feed');
+		$this->loader->add_action('init', $plugin_google_products_feed, 'gfg_schedule_google_products_feed_generation');
+		$this->loader->add_action('smarty_gfg_generate_google_products_feed', $plugin_google_products_feed, 'gfg_generate_google_products_feed');
 		$this->loader->add_action('woocommerce_new_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
     	$this->loader->add_action('woocommerce_update_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
 		$this->loader->add_action('before_delete_post', $plugin_google_products_feed, 'invalidate_google_products_feed_cache_on_delete');
 		
 		// Register hooks for Google Reviews Feed
-		$this->loader->add_action('init', $plugin_google_reviews_feed, 'schedule_google_reviews_feed_generation');
-		$this->loader->add_action('smarty_generate_google_reviews_feed', $plugin_google_reviews_feed, 'generate_google_reviews_feed');
-		$this->loader->add_action('comment_post', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache', 10, 2);
-		$this->loader->add_action('edit_comment', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
-		$this->loader->add_action('deleted_comment', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
-		$this->loader->add_action('wp_set_comment_status', $plugin_google_reviews_feed, 'invalidate_google_reviews_feed_cache');
+		$this->loader->add_action('init', $plugin_google_reviews_feed, 'gfg_schedule_google_reviews_feed_generation');
+		$this->loader->add_action('smarty_gfg_generate_google_reviews_feed', $plugin_google_reviews_feed, 'gfg_generate_google_reviews_feed');
+		$this->loader->add_action('comment_post', $plugin_google_reviews_feed, 'gfg_invalidate_google_reviews_feed_cache', 10, 2);
+		$this->loader->add_action('edit_comment', $plugin_google_reviews_feed, 'gfg_invalidate_google_reviews_feed_cache');
+		$this->loader->add_action('deleted_comment', $plugin_google_reviews_feed, 'gfg_invalidate_google_reviews_feed_cache');
+		$this->loader->add_action('wp_set_comment_status', $plugin_google_reviews_feed, 'gfg_invalidate_google_reviews_feed_cache');
 
 		// Register hooks for Bing Products Feed
-		$this->loader->add_action('smarty_generate_bing_products_feed', $plugin_bing_products_feed, 'generate_bing_products_feed');	
+		$this->loader->add_action('smarty_gfg_generate_bing_products_feed', $plugin_bing_products_feed, 'gfg_generate_bing_products_feed');	
 	}
 
 	/**

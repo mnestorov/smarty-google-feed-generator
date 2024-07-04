@@ -20,9 +20,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function generate_google_products_feed() {
+    public function gfg_generate_google_products_feed() {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Generated Google Products Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Generated Google Products Feed');
 
         // Start output buffering to prevent any unwanted output
         ob_start();
@@ -31,7 +31,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         header('Content-Type: application/xml; charset=utf-8');
 
         // Check if the clear cache option is enabled
-        if (get_option('smarty_clear_cache')) {
+        if (get_option('smarty_gfg_clear_cache')) {
             delete_transient('smarty_google_products_feed');
         }
 
@@ -46,12 +46,12 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         // Check if WooCommerce is active before proceeding
         if (class_exists('WooCommerce')) {
             // Get excluded categories and columns from settings
-            $excluded_categories = get_option('smarty_excluded_categories', array());
-            $excluded_columns = get_option('smarty_exclude_xml_columns', array());
+            $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
+            $excluded_columns = get_option('smarty_gfg_exclude_xml_columns', array());
             //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Check if including product variations is enabled
-            $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
+            $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
 
             // Set up arguments for querying products, excluding certain categories
             $args = array(
@@ -100,10 +100,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                         $feed->appendChild($item);
 
                         // Convert the first WebP image to PNG if needed
-                        Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+                        Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png($product);
 
                         // Add product details as child nodes
-                        $this->add_google_product_details($dom, $item, $product, $variation, $excluded_columns);
+                        $this->gfg_add_google_product_details($dom, $item, $product, $variation, $excluded_columns);
                     }
                 } else {
                     // Process simple products similarly
@@ -111,10 +111,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                     $feed->appendChild($item);
 
                     // Convert the first WebP image to PNG if needed
-                    Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+                    Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png($product);
 
                     // Add product details as child nodes
-                    $this->add_google_product_details($dom, $item, $product, null, $excluded_columns);
+                    $this->gfg_add_google_product_details($dom, $item, $product, null, $excluded_columns);
                 }
             }
 
@@ -123,7 +123,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             //_gfg_write_logs('Feed Content: ' . $feed_content);
 
             if ($feed_content) {
-                $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+                $cache_duration = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
                 set_transient('smarty_google_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);
 
                 echo $feed_content;
@@ -151,7 +151,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 	 * @param WC_Product $product The WooCommerce product instance.
 	 * @param WC_Product $variation Optional. The variation instance if the product is variable.
 	 */
-	public function add_google_product_details($dom, $item, $product, $variation = null, $excluded_columns = array()) {
+	public function gfg_add_google_product_details($dom, $item, $product, $variation = null, $excluded_columns = array()) {
 		$gNamespace = 'http://base.google.com/ns/1.0';
 
 		if ($variation) {
@@ -177,13 +177,13 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         $item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
         
         // Add description, using meta description if available or fallback to short description
-        $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
+        $meta_description = get_post_meta($product->get_id(), get_option('smarty_gfg_meta_description_field', 'meta-description'), true);
         $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
         $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
 		
         // Add product categories and category mapping
         $categories = wp_get_post_terms($product->get_id(), 'product_cat');
-        $category_mapping = get_option('smarty_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_category_mapping', array());
         $mapped_category = '';
 
         if (!empty($categories) && !is_wp_error($categories)) {
@@ -215,7 +215,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         }
 
         // Add Google product categories
-        $google_product_category = self::get_cleaned_google_product_category();
+        $google_product_category = self::gfg_get_cleaned_google_product_category();
         if ($google_product_category) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
         }
@@ -240,7 +240,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
 		
         // Use the condition value from the settings
-        $condition = get_option('smarty_condition', 'new');
+        $condition = get_option('smarty_gfg_condition', 'new');
         $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
 
         // Add multipack
@@ -281,7 +281,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add size system
         if (!in_array('Size System', $excluded_columns)) {
-            $size_system = get_option('smarty_size_system', '');
+            $size_system = get_option('smarty_gfg_size_system', '');
             if (!empty($size_system)) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
             }
@@ -293,28 +293,28 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
 		// Add custom labels
 		if (!in_array('Custom Label 0', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0')));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0')));
         }
 
         if (!in_array('Custom Label 1', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1')));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1')));
         }
 
         if (!in_array('Custom Label 2', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2')));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2')));
         }
 
         if (!in_array('Custom Label 3', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3')));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3')));
         }
         
         if (!in_array('Custom Label 4', $excluded_columns)) {
-            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4')));
+            $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4')));
         }
 
         // Add excluded destinations
         if (!in_array('Excluded Destination', $excluded_columns)) {
-            $excluded_destinations = get_option('smarty_excluded_destination', []);
+            $excluded_destinations = get_option('smarty_gfg_excluded_destination', []);
             foreach ($excluded_destinations as $excluded_destination) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
             }
@@ -322,7 +322,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add included destinations
         if (!in_array('Included Destination', $excluded_columns)) {
-            $included_destinations = get_option('smarty_included_destination', []);
+            $included_destinations = get_option('smarty_gfg_included_destination', []);
             foreach ($included_destinations as $included_destination) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
             }
@@ -330,7 +330,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add excluded countries for shopping ads
         if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
-            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
             if (!empty($shopping_ads_excluded_country)) {
                 $countries = explode(',', $shopping_ads_excluded_country);
                 foreach ($countries as $country) {
@@ -341,7 +341,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add shipping details
         if (!in_array('Shipping', $excluded_columns)) {
-            $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+            $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
             if ($shipping_cost !== false) {
                 $shipping_element = $dom->createElementNS($gNamespace, 'g:shipping');
                 $shipping_price = $dom->createElementNS($gNamespace, 'g:price', $shipping_cost . ' ' . get_woocommerce_currency());
@@ -366,9 +366,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function generate_google_csv_export() {
+    public function gfg_generate_google_csv_export() {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Generating CSV Export File');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Generating CSV Export File');
 
         // Set headers to force download and define the file name
         header('Content-Type: text/csv; charset=utf-8');
@@ -383,7 +383,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         }
 
         // Get excluded columns from settings
-        $excluded_columns = get_option('smarty_exclude_csv_columns', array());
+        $excluded_columns = get_option('smarty_gfg_exclude_csv_columns', array());
 
         // Define the columns and map headers based on user settings
         $csv_columns = array(
@@ -407,11 +407,11 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         //_gfg_write_logs('CSV Headers: ' . print_r($headers, true));
 
         // Get excluded categories from settings
-        $excluded_categories = get_option('smarty_excluded_categories', array());
+        $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
         //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Check if including product variations is enabled
-        $include_variations = get_option('smarty_include_product_variations', 'no') === 'yes';
+        $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
 
         // Prepare arguments for querying products excluding specific categories
         $args = array(
@@ -437,14 +437,14 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         //_gfg_write_logs('Products: ' . count($products) . ' products fetched');
 
         // Get exclude patterns from settings and split into array
-        $exclude_patterns_raw = get_option('smarty_exclude_patterns');
+        $exclude_patterns_raw = get_option('smarty_gfg_exclude_patterns');
         $exclude_patterns = !empty($exclude_patterns_raw) ? preg_split('/\r\n|\r|\n/', $exclude_patterns_raw) : array();
 
         // Get category mappings from settings
-        $category_mapping = get_option('smarty_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_category_mapping', array());
 
         // Check if Google category should be ID
-        $google_category_as_id = get_option('smarty_google_category_as_id', false);
+        $google_category_as_id = get_option('smarty_gfg_google_category_as_id', false);
 
         // Iterate through each product
         foreach ($products as $product) {
@@ -459,7 +459,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             }
 
             // Convert the first WebP image to PNG if needed
-            Smarty_Gfg_Admin::convert_first_webp_image_to_png($product);
+            Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png($product);
 
             // Prepare product data for the CSV
             $id = $product->get_id();
@@ -497,15 +497,15 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             }
 
             // Custom meta fields for title and description if set
-            $meta_title = get_post_meta($id, get_option('smarty_meta_title_field', 'meta-title'), true);
-            $meta_description = get_post_meta($id, get_option('smarty_meta_description_field', 'meta-description'), true);
+            $meta_title = get_post_meta($id, get_option('smarty_gfg_meta_title_field', 'meta-title'), true);
+            $meta_description = get_post_meta($id, get_option('smarty_gfg_meta_description_field', 'meta-description'), true);
             $name = !empty($meta_title) ? htmlspecialchars(strip_tags($meta_title)) : htmlspecialchars(strip_tags($product->get_name()));
             $description = !empty($meta_description) ? htmlspecialchars(strip_tags($meta_description)) : htmlspecialchars(strip_tags($product->get_short_description()));
             $description = preg_replace('/\s+/', ' ', $description); // Normalize whitespace in descriptions
             $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
 
             // Get Google category as ID or name
-            $google_product_category = self::get_cleaned_google_product_category(); // Get Google category from plugin settings
+            $google_product_category = self::gfg_get_cleaned_google_product_category(); // Get Google category from plugin settings
             //_gfg_write_logs('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
@@ -522,24 +522,24 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             $brand = get_bloginfo('name');
 
             // Use the condition value from the settings
-            $condition = get_option('smarty_condition', 'new');
+            $condition = get_option('smarty_gfg_condition', 'new');
 
             // Use the size system value from the settings
-            $size_system = get_option('smarty_size_system', '');
+            $size_system = get_option('smarty_gfg_size_system', '');
 
             // Custom Labels
-            $custom_label_0 = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0');
-            $custom_label_1 = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1');
-            $custom_label_2 = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2');
-            $custom_label_3 = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3');
-            $custom_label_4 = Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4');
+            $custom_label_0 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0');
+            $custom_label_1 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1');
+            $custom_label_2 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2');
+            $custom_label_3 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3');
+            $custom_label_4 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4');
 
-            $excluded_destinations = get_option('smarty_excluded_destination', []);
-            $included_destinations = get_option('smarty_included_destination', []);
-            $shopping_ads_excluded_country = get_option('smarty_excluded_countries_for_shopping_ads', '');
+            $excluded_destinations = get_option('smarty_gfg_excluded_destination', []);
+            $included_destinations = get_option('smarty_gfg_included_destination', []);
+            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
 
             // Get shipping cost
-            $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+            $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
             $base_country = WC()->countries->get_base_country(); // Get the store's base country
 
             // Check for variable type to handle variations
@@ -792,9 +792,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function regenerate_google_products_feed() {
+    public function gfg_regenerate_google_products_feed() {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Regenerated Google Products Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Regenerated Google Products Feed');
 
         // Fetch products from WooCommerce that are published and in stock
         $products = wc_get_products(array(
@@ -809,7 +809,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         $xml = new SimpleXMLElement('<feed xmlns:g="http://base.google.com/ns/1.0"/>');
 
         // Retrieve category mapping from settings
-        $category_mapping = get_option('smarty_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_category_mapping', array());
     
         // Iterate through each product to populate the feed
         foreach ($products as $product) {
@@ -884,14 +884,14 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                     }
 
                     // Custom labels
-                    $item->addChild('g:custom_label_0', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0'), $gNamespace);
-                    $item->addChild('g:custom_label_1', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1'), $gNamespace);
-                    $item->addChild('g:custom_label_2', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2'), $gNamespace);
-                    $item->addChild('g:custom_label_3', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3'), $gNamespace);
-                    $item->addChild('g:custom_label_4', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4'), $gNamespace);
+                    $item->addChild('g:custom_label_0', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0'), $gNamespace);
+                    $item->addChild('g:custom_label_1', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1'), $gNamespace);
+                    $item->addChild('g:custom_label_2', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2'), $gNamespace);
+                    $item->addChild('g:custom_label_3', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3'), $gNamespace);
+                    $item->addChild('g:custom_label_4', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4'), $gNamespace);
 
                     // Shipping
-                    $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+                    $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
                     if ($shipping_cost !== false) {
                         $shipping_element = $item->addChild('g:shipping');
                         $shipping_element->addChild('g:price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()), $gNamespace);
@@ -947,14 +947,14 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                 }
     
                 // Custom labels
-                $item->addChild('g:custom_label_0', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_0'), $gNamespace);
-                $item->addChild('g:custom_label_1', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_1'), $gNamespace);
-                $item->addChild('g:custom_label_2', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_2'), $gNamespace);
-                $item->addChild('g:custom_label_3', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_3'), $gNamespace);
-                $item->addChild('g:custom_label_4', Smarty_Gfg_Public::get_custom_label($product, 'custom_label_4'), $gNamespace);
+                $item->addChild('g:custom_label_0', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0'), $gNamespace);
+                $item->addChild('g:custom_label_1', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_1'), $gNamespace);
+                $item->addChild('g:custom_label_2', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_2'), $gNamespace);
+                $item->addChild('g:custom_label_3', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3'), $gNamespace);
+                $item->addChild('g:custom_label_4', Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4'), $gNamespace);
 
                 // Shipping
-                $shipping_cost = Smarty_Gfg_Public::get_shipping_cost();
+                $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
                 if ($shipping_cost !== false) {
                     $shipping_element = $item->addChild('g:shipping');
                     $shipping_element->addChild('g:price', htmlspecialchars($shipping_cost . ' ' . get_woocommerce_currency()), $gNamespace);
@@ -969,7 +969,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
     
         // Save the generated XML content to a transient or a file for later use
         $feed_content = $xml->asXML();
-        $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+        $cache_duration = get_option('smarty_gfg_cache_duration', 12); // Default to 12 hours if not set
         set_transient('smarty_google_products_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS); // Cache the feed using WordPress transients
         file_put_contents(WP_CONTENT_DIR . '/uploads/smarty_google_products_feed.xml', $feed_content); // Optionally save the feed to a file in the WP uploads directory
     }
@@ -982,9 +982,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @since    1.0.0
      * @param int $product_id The ID of the product that has been created, updated, or deleted.
      */
-    public function invalidate_google_products_feed_cache($product_id) {
+    public function gfg_invalidate_google_products_feed_cache($product_id) {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Products Feed');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Invalidate Google Products Feed');
 
         // Check if the post is a 'product'
         if (get_post_type($product_id) === 'product') {
@@ -992,7 +992,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             delete_transient('smarty_google_products_feed');
 
             // Regenerate the feeds immediately to update the feed file
-            //$this->regenerate_google_products_feed();
+            //$this->gfg_regenerate_google_products_feed();
         }
     }
 
@@ -1007,9 +1007,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @since    1.0.0
      * @param int $post_id The ID of the post (product) being deleted.
      */
-    public function invalidate_google_products_feed_cache_on_delete($post_id) {
+    public function gfg_invalidate_google_products_feed_cache_on_delete($post_id) {
         // Add log entries
-        Smarty_Gfg_Activity_Logging::add_activity_log('Invalidate Google Products Feed on delete');
+        Smarty_Gfg_Activity_Logging::gfg_add_activity_log('Invalidate Google Products Feed on delete');
 
         // Check if the post being deleted is a product
         if (get_post_type($post_id) === 'product') {
@@ -1017,7 +1017,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             delete_transient('smarty_google_products_feed');
             
             // Regenerate the feeds immediately to update the feed file
-            //$this->regenerate_google_products_feed();
+            //$this->gfg_regenerate_google_products_feed();
         }
     }
 
@@ -1031,10 +1031,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * @since    1.0.0
      * @return string The cleaned Google Product Category name or ID.
      */
-    public static function get_cleaned_google_product_category() {
+    public static function gfg_get_cleaned_google_product_category() {
         // Get the option value
-        $category = get_option('smarty_google_product_category');
-        $use_id = get_option('smarty_google_category_as_id', false);
+        $category = get_option('smarty_gfg_google_product_category');
+        $use_id = get_option('smarty_gfg_google_category_as_id', false);
 
         // Split the string by the '-' character
         $parts = explode(' - ', $category);
@@ -1056,21 +1056,21 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      * 
      * @since    1.0.0
      */
-    public function schedule_google_products_feed_generation() {
-        $interval = get_option('smarty_google_feed_interval', 'daily');
+    public function gfg_schedule_google_products_feed_generation() {
+        $interval = get_option('smarty_gfg_google_feed_interval', 'daily');
         _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed Interval: ' . $interval);
 
-        $timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
+        $timestamp = wp_next_scheduled('smarty_gfg_generate_google_products_feed');
 
         // Only reschedule if the interval has changed or the event is not scheduled
-        if (!$timestamp || wp_get_schedule('smarty_generate_google_products_feed') !== $interval) {
+        if (!$timestamp || wp_get_schedule('smarty_gfg_generate_google_products_feed') !== $interval) {
             if ($timestamp) {
-                wp_unschedule_event($timestamp, 'smarty_generate_google_products_feed');
+                wp_unschedule_event($timestamp, 'smarty_gfg_generate_google_products_feed');
                 _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Unscheduled existing Google Products Feed event.');
             }
 
             if ($interval !== 'no_refresh') {
-                wp_schedule_event(time(), $interval, 'smarty_generate_google_products_feed');
+                wp_schedule_event(time(), $interval, 'smarty_gfg_generate_google_products_feed');
                 _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Scheduled new Google Products Feed event.');
             }
         } else {

@@ -60,36 +60,36 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 *
 	 * @since    1.0.0
 	 */
-    public function settings_init() {
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_feed_country');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_include_product_variations');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_exclude_patterns', 'sanitize_textarea_field');
-		register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_excluded_categories');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_exclude_xml_columns');
-		register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_exclude_csv_columns');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_condition');
-		register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_size_system');
-        register_setting('smarty_gfg_options_bing_feed', 'smarty_bing_shopping_ads_excluded_country');
+    public function gfg_bpf_settings_init() {
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_feed_country');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_include_product_variations');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_exclude_patterns', 'sanitize_textarea_field');
+		register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_excluded_categories');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_exclude_xml_columns');
+		register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_exclude_csv_columns');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_condition');
+		register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_size_system');
+        register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_shopping_ads_excluded_country');
 
         add_settings_section(
 			'smarty_gfg_section_bing_feed',									    // ID of the section
 			__('Bing Products Feed', 'smarty-google-feed-generator'),		    // Title of the section
-			array($this, 'section_tab_bing_feed_cb'),						    // Callback function that fills the section with the desired content
+			array($this, 'gfg_section_tab_bing_feed_cb'),						// Callback function that fills the section with the desired content
 			'smarty_gfg_options_bing_feed'									    // Page on which to add the section
 		);
 
         add_settings_field(
-            'smarty_bing_feed_country',										    // ID of the field
+            'smarty_gfg_bing_feed_country',										// ID of the field
             __('Country', 'smarty-google-feed-generator'),					    // Title of the field
-            array($this, 'bing_products_feed_country_cb'),					    // Callback function to display the field
+            array($this, 'gfg_bing_products_feed_country_cb'),					// Callback function to display the field
             'smarty_gfg_options_bing_feed',									    // Page on which to add the field
             'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
         );
 
         add_settings_field(
-            'smarty_bing_include_product_variations',							// ID of the field
+            'smarty_gfg_bing_include_product_variations',						// ID of the field
             __('Include Product Variations', 'smarty-google-feed-generator'),	// Title of the field
-            array($this, 'bing_products_include_product_variations_cb'),	    // Callback function to display the field
+            array($this, 'gfg_bing_products_include_product_variations_cb'),	// Callback function to display the field
             'smarty_gfg_options_bing_feed',									    // Page on which to add the field
             'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
         );
@@ -97,17 +97,17 @@ class Smarty_Gfg_Bing_Products_Feed {
         $this->register_google_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
 
         add_settings_field(
-			'smarty_bing_exclude_patterns',                                     // ID of the field
+			'smarty_gfg_bing_exclude_patterns',                                 // ID of the field
 			__('Exclude Patterns', 'smarty-google-feed-generator'),         	// Title of the field
-			array($this,'bing_exclude_patterns_cb'),                            // Callback function to display the field
+			array($this,'gfg_bing_exclude_patterns_cb'),                        // Callback function to display the field
 			'smarty_gfg_options_bing_feed',                               	    // Page on which to add the field
 			'smarty_gfg_section_bing_feed'                                      // Section to which this field belongs
 		);
 	
 		add_settings_field(
-			'smarty_bing_excluded_categories',                                  // ID of the field
+			'smarty_gfg_bing_excluded_categories',                              // ID of the field
 			__('Excluded Categories', 'smarty-google-feed-generator'),      	// Title of the field
-			array($this,'bing_excluded_categories_cb'),                         // Callback function to display the field
+			array($this,'gfg_bing_excluded_categories_cb'),                     // Callback function to display the field
 			'smarty_gfg_options_bing_feed',                               	    // Page on which to add the field
 			'smarty_gfg_section_bing_feed'                                      // Section to which this field belongs
 		);
@@ -115,17 +115,17 @@ class Smarty_Gfg_Bing_Products_Feed {
         $this->register_woo_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
 
         add_settings_field(
-			'smarty_bing_exclude_xml_columns', 									// ID of the field
+			'smarty_gfg_bing_exclude_xml_columns', 								// ID of the field
 			__('XML Columns', 'smarty-google-feed-generator'),  				// Title of the section
-			array($this,'bing_exclude_xml_columns_cb'), 						// Callback function to display the field
+			array($this,'gfg_bing_exclude_xml_columns_cb'), 					// Callback function to display the field
 			'smarty_gfg_options_bing_feed', 									// Page on which to add the section
 			'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
 		);
 
 		add_settings_field(
-			'smarty_bing_exclude_csv_columns', 									// ID of the field
+			'smarty_gfg_bing_exclude_csv_columns', 								// ID of the field
 			__('CSV Columns', 'smarty-google-feed-generator'), 					// Title of the field
-			array($this,'bing_exclude_csv_columns_cb'), 						// Callback function to display the field
+			array($this,'gfg_bing_exclude_csv_columns_cb'), 					// Callback function to display the field
 			'smarty_gfg_options_bing_feed', 									// Page on which to add the field
 			'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
 		);
@@ -133,7 +133,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 		add_settings_field(
 			'smarty_bing_optional_attributes_table',							// ID of the field
 			__('Optional Attributes', 'smarty-google-feed-generator'),			// Title of the field
-			array($this, 'bing_optional_attributes_table_cb'),					// Callback function to display the field
+			array($this, 'gfg_bing_optional_attributes_table_cb'),				// Callback function to display the field
 			'smarty_gfg_options_bing_feed',										// Page on which to add the field
 			'smarty_gfg_section_bing_feed'										// Section to which this field belongs
 		);
@@ -146,18 +146,18 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 *
 	 * @since    1.0.0
 	 */
-	public function section_tab_bing_feed_cb() {
+	public function gfg_section_tab_bing_feed_cb() {
 		echo '<p>' . __('Main column options for the Bing Products feed.', 'smarty-google-feed-generator') . '</p>';
 	}
 
     /**
 	 *  @since    1.0.0
 	 */
-	public function bing_products_feed_country_cb() {
-        $selected_country = get_option('smarty_bing_feed_country', '');
+	public function gfg_bing_products_feed_country_cb() {
+        $selected_country = get_option('smarty_gfg_bing_feed_country', '');
         $woocommerce_countries = WC()->countries->get_countries();
 
-        echo '<select name="smarty_bing_feed_country" class="select2 smarty-country-select">';
+        echo '<select name="smarty_gfg_bing_feed_country" class="select2 smarty-gfg-country-select">';
         echo '<option value="">' . __('Select a Country', 'smarty-google-feed-generator') . '</option>';
         foreach ($woocommerce_countries as $code => $name) {
             $selected = $code === $selected_country ? 'selected' : '';
@@ -170,10 +170,10 @@ class Smarty_Gfg_Bing_Products_Feed {
     /**
 	 *  @since    1.0.0
 	 */
-	public function bing_products_include_product_variations_cb() {
-        $option = get_option('smarty_bing_include_product_variations', 'no');
-        echo '<input type="radio" name="smarty_bing_include_product_variations" value="yes" ' . checked($option, 'yes', false) . ' /> ' . __('Yes', 'smarty-google-feed-generator');
-        echo '<input type="radio" name="smarty_bing_include_product_variations" value="no" ' . checked($option, 'no', false) . ' style="margin-left: 10px;" /> ' . __('No', 'smarty-google-feed-generator');
+	public function gfg_bing_products_include_product_variations_cb() {
+        $option = get_option('smarty_gfg_bing_include_product_variations', 'no');
+        echo '<input type="radio" name="smarty_gfg_bing_include_product_variations" value="yes" ' . checked($option, 'yes', false) . ' /> ' . __('Yes', 'smarty-google-feed-generator');
+        echo '<input type="radio" name="smarty_gfg_bing_include_product_variations" value="no" ' . checked($option, 'no', false) . ' style="margin-left: 10px;" /> ' . __('No', 'smarty-google-feed-generator');
         echo '<p class="description">' . __('Select whether to include product variations in the feed.', 'smarty-google-feed-generator') . '</p>';
     }
 
@@ -182,9 +182,9 @@ class Smarty_Gfg_Bing_Products_Feed {
      * 
      * @since    1.0.0
      */
-	public function bing_exclude_patterns_cb() {
-		$option = get_option('smarty_bing_exclude_patterns');
-		echo '<textarea name="smarty_bing_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
+	public function gfg_bing_exclude_patterns_cb() {
+		$option = get_option('smarty_gfg_bing_exclude_patterns');
+		echo '<textarea name="smarty_gfg_bing_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
 		echo '<p class="description">' . __('Enter URL patterns to exclude from the TSV/CSV feed, one per line.', 'smarty-google-feed-generator') . '</p>';
 	}
 	
@@ -193,14 +193,14 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 * 
 	 * @since    1.0.0
 	 */
-	public function bing_excluded_categories_cb() {
-		$option = get_option('smarty_bing_excluded_categories', array());
+	public function gfg_bing_excluded_categories_cb() {
+		$option = get_option('smarty_gfg_bing_excluded_categories', array());
 		$categories = get_terms(array(
 			'taxonomy' => 'product_cat',
 			'hide_empty' => false,
 		));
 	
-		echo '<select name="smarty_bing_excluded_categories[]" multiple="multiple" class="smarty-excluded-categories" style="width:50%;">';
+		echo '<select name="smarty_gfg_bing_excluded_categories[]" multiple="multiple" class="smarty-gfg-excluded-categories" style="width:50%;">';
 		foreach ($categories as $category) {
 			echo '<option value="' . esc_attr($category->term_id) . '" ' . (in_array($category->term_id, (array)$option) ? 'selected' : '') . '>' . esc_html($category->name) . '</option>';
 		}
@@ -213,7 +213,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 *
 	 * @since    1.0.0
 	 */
-	public function bing_render_columns($option_name, $columns, $disabled_columns, $type) {
+	public function gfg_bing_render_columns($option_name, $columns, $disabled_columns, $type) {
 		$options = get_option($option_name, array());
 	
 		// Ensure $options is an array
@@ -258,29 +258,29 @@ class Smarty_Gfg_Bing_Products_Feed {
     /**
      * @since    1.0.0
      */
-	public function bing_exclude_xml_columns_cb() {
-		$feed_type = get_option('smarty_feed_type', 'bing');
-		list($columns, $disabled_columns) = $this->bing_get_feed_columns($feed_type);
-		$this->bing_render_columns('smarty_bing_exclude_xml_columns', $columns, $disabled_columns, 'xml');
+	public function gfg_bing_exclude_xml_columns_cb() {
+		$feed_type = get_option('smarty_gfg_feed_type', 'bing');
+		list($columns, $disabled_columns) = $this->gfg_bing_get_feed_columns($feed_type);
+		$this->gfg_bing_render_columns('smarty_gfg_bing_exclude_xml_columns', $columns, $disabled_columns, 'xml');
 	}
 	
 	/**
      * @since    1.0.0
      */
-	public function bing_exclude_csv_columns_cb() {
-		$feed_type = get_option('smarty_feed_type', 'bing');
-		list($columns, $disabled_columns) = $this->bing_get_feed_columns($feed_type);
-		$this->bing_render_columns('smarty_bing_exclude_csv_columns', $columns, $disabled_columns, 'csv');
+	public function gfg_bing_exclude_csv_columns_cb() {
+		$feed_type = get_option('smarty_gfg_feed_type', 'bing');
+		list($columns, $disabled_columns) = $this->gfg_bing_get_feed_columns($feed_type);
+		$this->gfg_bing_render_columns('smarty_gfg_bing_exclude_csv_columns', $columns, $disabled_columns, 'csv');
 	}
 
 	/**
 	 *  @since    1.0.0
 	 */
-	public function bing_optional_attributes_table_cb() {
+	public function gfg_bing_optional_attributes_table_cb() {
 		// Fetch current options
-		$condition = get_option('smarty_bing_condition', 'new');
-		$excluded_country = get_option('smarty_bing_shopping_ads_excluded_country', '');
-		$size_system = get_option('smarty_bing_size_system', '');
+		$condition = get_option('smarty_gfg_bing_condition', 'new');
+		$excluded_country = get_option('smarty_gfg_bing_shopping_ads_excluded_country', '');
+		$size_system = get_option('smarty_gfg_bing_size_system', '');
 
 		// Condition options
 		$condition_options = [
@@ -306,7 +306,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 		echo '<table><tr>';
 		foreach ($condition_options as $value => $label) {
 			$checked = $condition === $value ? 'checked' : '';
-			echo '<td><label><input type="radio" name="smarty_bing_condition" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_gfg_bing_condition" value="' . esc_attr($value) . '" ' . $checked . '> ' . esc_html($label) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
@@ -316,7 +316,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 		echo '<tr>';
 		echo '<td>' . __('Shopping Ads Excluded Country', 'smarty-google-feed-generator') . '</td>';
 		echo '<td>';
-		echo '<select name="smarty_bing_shopping_ads_excluded_country" class="smarty-excluded-countries">';
+		echo '<select name="smarty_gfg_bing_shopping_ads_excluded_country" class="smarty-gfg-excluded-countries">';
 		echo '<option value="">' . __('Select a Country', 'smarty-google-feed-generator') . '</option>';
 		foreach ($woocommerce_countries as $code => $name) {
 			$selected = $code === $excluded_country ? 'selected' : '';
@@ -335,13 +335,13 @@ class Smarty_Gfg_Bing_Products_Feed {
 		for ($i = 0; $i < $half_count; $i++) {
 			$system = $size_systems[$i];
 			$checked = $system === $size_system ? 'checked' : '';
-			echo '<td><label><input type="radio" name="smarty_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_gfg_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
 		}
 		echo '</tr><tr>';
 		for ($i = $half_count; $i < count($size_systems); $i++) {
 			$system = $size_systems[$i];
 			$checked = $system === $size_system ? 'checked' : '';
-			echo '<td><label><input type="radio" name="smarty_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
+			echo '<td><label><input type="radio" name="smarty_gfg_bing_size_system" value="' . esc_attr($system) . '" ' . $checked . '> ' . esc_html($system) . '</label></td>';
 		}
 		echo '</tr></table>';
 		echo '</td>';
@@ -355,7 +355,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 * 
      * @since    1.0.0
      */
-	public function bing_get_feed_columns($feed_type) {
+	public function gfg_bing_get_feed_columns($feed_type) {
 		$columns = array(
 			'ID', 
 			'MPN', 
@@ -412,9 +412,9 @@ class Smarty_Gfg_Bing_Products_Feed {
     /**
      * @since    1.0.0
      */
-	private function bing_is_field_excluded($field) {
-		$exclude_xml_columns = get_option('smarty_bing_exclude_xml_columns', array());
-		$exclude_csv_columns = get_option('smarty_bing_exclude_csv_columns', array());
+	private function gfg_bing_is_field_excluded($field) {
+		$exclude_xml_columns = get_option('smarty_gfg_bing_exclude_xml_columns', array());
+		$exclude_csv_columns = get_option('smarty_gfg_bing_exclude_csv_columns', array());
 	
 		// Ensure these options are arrays
 		if (!is_array($exclude_xml_columns)) {

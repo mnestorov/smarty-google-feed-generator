@@ -24,21 +24,21 @@ class Smarty_Gfg_Deactivator {
         flush_rewrite_rules();
 
         // Clear scheduled feed regeneration event
-        $google_feed_timestamp = wp_next_scheduled('smarty_generate_google_products_feed');
+        $google_feed_timestamp = wp_next_scheduled('smarty_gfg_generate_google_products_feed');
         if ($google_feed_timestamp) {
-            wp_unschedule_event($google_feed_timestamp, 'smarty_generate_google_products_feed');
+            wp_unschedule_event($google_feed_timestamp, 'smarty_gfg_generate_google_products_feed');
         }
 
         // Unscheduling the reviews feed event
-        $review_feed_timestamp = wp_next_scheduled('smarty_generate_google_reviews_feed');
+        $review_feed_timestamp = wp_next_scheduled('smarty_gfg_generate_google_reviews_feed');
         if ($review_feed_timestamp) {
-            wp_unschedule_event($review_feed_timestamp, 'smarty_generate_google_reviews_feed');
+            wp_unschedule_event($review_feed_timestamp, 'smarty_gfg_generate_google_reviews_feed');
         }
 
         // Clear scheduled feed regeneration event
-        $bing_feed_timestamp = wp_next_scheduled('smarty_generate_bing_products_feed');
+        $bing_feed_timestamp = wp_next_scheduled('smarty_gfg_generate_bing_products_feed');
         if ($bing_feed_timestamp) {
-            wp_unschedule_event($bing_feed_timestamp, 'smarty_generate_bing_products_feed');
+            wp_unschedule_event($bing_feed_timestamp, 'smarty_gfg_generate_bing_products_feed');
         }
 
         // Path to the generated XML file

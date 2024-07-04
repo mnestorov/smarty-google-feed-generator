@@ -125,29 +125,29 @@ class Smarty_Gfg_Public {
      * 
      * @since    1.0.0
 	 */
-	public function handle_template_redirect() {
+	public function gfg_handle_template_redirect() {
 		if (get_query_var('smarty_google_products_feed')) {
-			$this->google_products_feed->generate_google_products_feed();
+			$this->google_products_feed->gfg_generate_google_products_feed();
 			exit;
 		}
 	
 		if (get_query_var('smarty_google_reviews_feed')) {
-			$this->google_reviews_feed->generate_google_reviews_feed();
+			$this->google_reviews_feed->gfg_generate_google_reviews_feed();
 			exit;
 		}
 	
 		if (get_query_var('smarty_google_csv_export')) {
-			$this->google_products_feed->generate_google_csv_export();
+			$this->google_products_feed->gfg_generate_google_csv_export();
 			exit;
 		}
 
         if (get_query_var('smarty_bing_products_feed')) {
-            $this->bing_products_feed->generate_bing_products_feed();
+            $this->bing_products_feed->gfg_generate_bing_products_feed();
             exit;
         }
 
         if (get_query_var('smarty_bing_txt_feed')) {
-            $this->bing_products_feed->generate_bing_products_feed('txt');
+            $this->bing_products_feed->gfg_generate_bing_products_feed('txt');
             exit;
         }
 	}
@@ -195,20 +195,20 @@ class Smarty_Gfg_Public {
 	
 		$action = sanitize_text_field($_POST['feed_action']);
 		switch ($action) {
-			case 'generate_google_products_feed':
-				$this->google_products_feed->generate_google_products_feed();
+			case 'gfg_generate_google_products_feed':
+				$this->google_products_feed->gfg_generate_google_products_feed();
 				wp_send_json_success('Google Products feed generated successfully.');
 				break;
-			case 'generate_google_reviews_feed':
-				$this->google_reviews_feed->generate_google_reviews_feed();
+			case 'gfg_generate_google_reviews_feed':
+				$this->google_reviews_feed->gfg_generate_google_reviews_feed();
 				wp_send_json_success('Google Reviews feed generated successfully.');
 				break;
-			case 'generate_google_csv_export':
-				$this->google_products_feed->generate_google_csv_export();
+			case 'gfg_generate_google_csv_export':
+				$this->google_products_feed->gfg_generate_google_csv_export();
 				wp_send_json_success('CSV export generated successfully.');
 				break;
-            case 'generate_bing_products_feed':
-                $this->bing_products_feed->generate_bing_products_feed();
+            case 'gfg_generate_bing_products_feed':
+                $this->bing_products_feed->gfg_generate_bing_products_feed();
                 wp_send_json_success('Bing Products feed generated successfully.');
                 break;
 			default:
@@ -223,10 +223,10 @@ class Smarty_Gfg_Public {
      * @since    1.0.0
      * @param int $post_id The ID of the post being changed.
      */
-    public function handle_product_change($post_id) {
+    public function gfg_handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
-            $this->google_products_feed->regenerate_google_products_feed(); // Regenerate the Google Products feed
-            $this->bing_products_feed->regenerate_bing_products_feed();     // Regenerate the Bing Products feed
+            $this->google_products_feed->regfg_generate_google_products_feed(); // Regenerate the Google Products feed
+            $this->bing_products_feed->gfg_regenerate_bing_products_feed();     // Regenerate the Bing Products feed
 	    }
     }
 
@@ -238,7 +238,7 @@ class Smarty_Gfg_Public {
      * @param string $label The custom label key (e.g., 'custom_label_0').
      * @return string The custom label value.
      */
-    public static function get_custom_label($product, $label) {
+    public static function gfg_get_custom_label($product, $label) {
         $logic_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic';
         $days_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days';
         $value_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value';
@@ -375,7 +375,7 @@ class Smarty_Gfg_Public {
      * @since 1.0.0
      * @return string|false The shipping cost or false if not found.
      */
-    public static function get_shipping_cost() {
+    public static function gfg_get_shipping_cost() {
         $shipping_zones = WC_Shipping_Zones::get_zones();
     
         foreach ($shipping_zones as $zone) {
@@ -408,28 +408,5 @@ class Smarty_Gfg_Public {
     
         //error_log('No flat rate shipping method found'); // Debug
         return false;
-    }
-
-    /**
-     * Adds custom intervals to the WordPress cron schedules.
-     *
-     * @since 1.0.0
-     * @param array $schedules The existing cron schedules.
-     * @return array The modified cron schedules.
-     */
-    function gfg_custom_cron_intervals($schedules) {
-        $schedules['hourly'] = array(
-            'interval' => 3600,
-            'display' => __('Hourly')
-        );
-        $schedules['twicedaily'] = array(
-            'interval' => 12 * 3600,
-            'display' => __('Twice Daily')
-        );
-        $schedules['daily'] = array(
-            'interval' => 24 * 3600,
-            'display' => __('Daily')
-        );
-        return $schedules;
     }
 }
