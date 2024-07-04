@@ -23,7 +23,8 @@
  * Text Domain:             smarty-google-feed-generator
  * Domain Path:             /languages
  * WC requires at least:    3.5.0
- * WC tested up to:         5.1.0
+ * WC tested up to:         9.0.2
+ * Requires Plugins:		woocommerce
  */
 
 // If this file is called directly, abort.
