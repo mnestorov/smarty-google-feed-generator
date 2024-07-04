@@ -225,7 +225,7 @@ class Smarty_Gfg_Public {
      */
     public function gfg_handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
-            $this->google_products_feed->regfg_generate_google_products_feed(); // Regenerate the Google Products feed
+            $this->google_products_feed->gfg_regenerate_google_products_feed(); // Regenerate the Google Products feed
             $this->bing_products_feed->gfg_regenerate_bing_products_feed();     // Regenerate the Bing Products feed
 	    }
     }
@@ -239,10 +239,10 @@ class Smarty_Gfg_Public {
      * @return string The custom label value.
      */
     public static function gfg_get_custom_label($product, $label) {
-        $logic_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_logic';
-        $days_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_days';
-        $value_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_value';
-        $categories_option = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_categories';
+        $logic_option = 'smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_logic';
+        $days_option = 'smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_days';
+        $value_option = 'smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_value';
+        $categories_option = 'smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_categories';
 
         $custom_label_logic = get_option($logic_option, '');
         $days = get_option($days_option, '');
@@ -386,7 +386,7 @@ class Smarty_Gfg_Public {
                     if (isset($method->cost) && !empty($method->cost)) {
                         return $method->cost;
                     } else {
-                        //error_log('Flat rate shipping cost is not set or empty');
+                        _gfg_write_logs('Flat rate shipping cost is not set or empty');
                     }
                 }
             }
@@ -401,12 +401,12 @@ class Smarty_Gfg_Public {
                 if (isset($method->cost) && !empty($method->cost)) {
                     return $method->cost;
                 } else {
-                    //error_log('Flat rate shipping cost is not set or empty in the default zone');
+                    _gfg_write_logs('Flat rate shipping cost is not set or empty in the default zone');
                 }
             }
         }
     
-        //error_log('No flat rate shipping method found'); // Debug
+        _gfg_write_logs('No flat rate shipping method found'); // Debug
         return false;
     }
 }

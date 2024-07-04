@@ -141,7 +141,7 @@
                 case 'gfg_generate_bing_products_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-products-feed/';
                     break;
-                case 'generate_bing_txt_feed':
+                case 'gfg_generate_bing_txt_feed':
                     redirectUrl = smartyFeedGenerator.siteUrl + '/smarty-bing-txt-feed/';
                     break;
                 default:

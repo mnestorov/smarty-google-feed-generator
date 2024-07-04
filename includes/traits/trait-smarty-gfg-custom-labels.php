@@ -31,7 +31,7 @@ trait Smarty_Gfg_Custom_Labels_Trait {
 		
 		foreach ($custom_labels as $label => $fields) {
 			foreach ($fields as $field) {
-				$option_name = 'smarty_' . strtolower(str_replace(' ', '_', $label)) . '_' . $field;
+				$option_name = 'smarty_gfg_' . strtolower(str_replace(' ', '_', $label)) . '_' . $field;
 				register_setting($options_group, $option_name);
 			}
 		}

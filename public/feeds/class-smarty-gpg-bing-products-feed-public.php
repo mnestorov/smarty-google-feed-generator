@@ -512,7 +512,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
      * @since    1.0.0
      * @param int $post_id The ID of the post (product) being deleted.
      */
-    public function gfg_gfg_invalidate_bing_products_feed_cache_on_delete($post_id) {
+    public function gfg_invalidate_bing_products_feed_cache_on_delete($post_id) {
         // Check if the post being deleted is a product
         if (get_post_type($post_id) === 'product') {
             // Invalidate Bing feed cache

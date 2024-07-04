@@ -26,7 +26,7 @@
 		<button class="btn btn-success smarty-gfg-generate-feed-button" data-feed-action="gfg_generate_google_reviews_feed"><?php echo  __('Google Reviews Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php elseif ($current_tab == 'bing-products-feed') : ?>
 		<button class="btn btn-success smarty-gfg-generate-feed-button" data-feed-action="gfg_generate_bing_products_feed"><?php echo __('Bing Products XML Feed', 'smarty-google-feed-generator'); ?></button>
-		<button class="btn btn-success smarty-gfg-generate-feed-button" data-feed-action="generate_bing_txt_feed"><?php echo __('Bing Products TXT Feed', 'smarty-google-feed-generator'); ?></button>
+		<button class="btn btn-success smarty-gfg-generate-feed-button" data-feed-action="gfg_generate_bing_txt_feed"><?php echo __('Bing Products TXT Feed', 'smarty-google-feed-generator'); ?></button>
 	<?php endif; ?>
 
 	<h2 class="nav-tab-wrapper">

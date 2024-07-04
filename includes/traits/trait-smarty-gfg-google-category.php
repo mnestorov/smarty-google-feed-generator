@@ -25,7 +25,7 @@ trait Smarty_Gfg_Google_Category_Trait {
 		register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_google_category_as_id', array($this,'gfg_sanitize_checkbox'));
 
 		add_settings_field(
-			'smarty_gfg_google_product_category',                               	// ID of the field
+			'smarty_gfg_google_product_category',                               // ID of the field
 			__('Google Product Category', 'smarty-google-feed-generator'),  	// Title of the field
 			array($this,'gfg_google_product_category_cb'),                      // Callback function to display the field
 			$page,                                								// Page on which to add the field
@@ -33,9 +33,9 @@ trait Smarty_Gfg_Google_Category_Trait {
 		);
 
 		add_settings_field(
-			'smarty_gfg_google_category_as_id',                                		// ID of the field
+			'smarty_gfg_google_category_as_id',                                	// ID of the field
 			__('Use Google Category ID', 'smarty-google-feed-generator'),   	// Title of the field
-			array($this,'gfg_google_category_as_id_cb'),                        	// Callback function to display the field
+			array($this,'gfg_google_category_as_id_cb'),                        // Callback function to display the field
 			$page,                               								// Page on which to add the field
 			$section_id                                							// Section to which this field belongs
 		);
