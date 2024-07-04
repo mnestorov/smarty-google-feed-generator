@@ -51,7 +51,7 @@
             }
         });
         
-        $('.smarty-convert-images-button').on('click', function (e) {
+        $('.smarty-gfg-convert-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
             //console.log('Convert Images button clicked');
 
@@ -86,7 +86,7 @@
         });
 
         // Handler for converting all images
-        $('.smarty-convert-all-images-button').on('click', function (e) {
+        $('.smarty-gfg-convert-all-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
             console.log('Convert All Images button clicked');
 

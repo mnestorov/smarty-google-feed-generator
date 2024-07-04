@@ -376,8 +376,8 @@ class Smarty_Gfg_Admin {
      * @since    1.0.0
      */
 	public function gfg_convert_images_button_cb() {
-		echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block;">' . __('First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
-		echo '<button class="button secondary smarty-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-gfg-convert-images-button" style="display: inline-block;">' . __('First WebP Image to PNG', 'smarty-google-feed-generator') . '</button>';
+		echo '<button class="button secondary smarty-gfg-convert-all-images-button" style="display: inline-block; margin: 0 10px;">' . __('All WebP Images to PNG', 'smarty-google-feed-generator') . '</button>';
 	}
 	
 	/**
