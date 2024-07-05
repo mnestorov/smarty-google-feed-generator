@@ -506,7 +506,8 @@ class Smarty_Gfg_Admin {
                     @unlink($file_path);
 
                     // Invalidate feed cache and regenerate
-                    Smarty_Gfg_Public::invalidate_feed_cache($product->get_id());
+                    Smarty_Gfg_Public::gfg_invalidate_google_products_feed_cache($product->get_id());
+					Smarty_Gfg_Public::gfg_invalidate_bing_products_feed_cache($product->get_id());
                 }
             }
         }
