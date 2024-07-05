@@ -22,7 +22,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-        $this->init_woo_category_mapping_trait();
+        $this->gfg_init_woo_category_mapping_trait();
 
         // Initialize column descriptions with translations
         $this->column_descriptions = array(
@@ -94,7 +94,7 @@ class Smarty_Gfg_Bing_Products_Feed {
             'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
         );
 
-        $this->register_google_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
+        $this->gfg_register_google_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
 
         add_settings_field(
 			'smarty_gfg_bing_exclude_patterns',                                 // ID of the field
@@ -112,7 +112,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 			'smarty_gfg_section_bing_feed'                                      // Section to which this field belongs
 		);
 
-        $this->register_woo_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
+        $this->gfg_register_woo_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
 
         add_settings_field(
 			'smarty_gfg_bing_exclude_xml_columns', 								// ID of the field
@@ -138,7 +138,7 @@ class Smarty_Gfg_Bing_Products_Feed {
 			'smarty_gfg_section_bing_feed'										// Section to which this field belongs
 		);
 
-        $this->register_custom_labels_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
+        $this->gfg_register_custom_labels_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
     }
 
     /**

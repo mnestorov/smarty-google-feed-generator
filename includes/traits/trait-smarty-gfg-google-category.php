@@ -20,7 +20,7 @@ trait Smarty_Gfg_Google_Category_Trait {
      * @param string $section_id The section ID for settings fields.
      * @param string $page The settings page where fields are displayed.
      */
-    public function register_google_category_settings($options_group, $section_id, $page) {
+    public function gfg_register_google_category_settings($options_group, $section_id, $page) {
         register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_google_product_category');
 		register_setting('smarty_gfg_options_google_feed', 'smarty_gfg_google_category_as_id', array($this,'gfg_sanitize_checkbox'));
 
