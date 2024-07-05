@@ -224,19 +224,19 @@ class Smarty_Gfg_Admin {
 		register_setting('smarty_gfg_options_general', 'smarty_gfg_cache_duration', array($this,'gfg_sanitize_number_field'));
 
 		// Google Products Feed settings
-        $this->google_products_feed->gfg_settings_init();
+        $this->google_products_feed->gfg_gpf_settings_init();
 
 		// Google Reviews Feed settings
-        $this->google_reviews_feed->gfg_settings_init();
+        $this->google_reviews_feed->gfg_grf_settings_init();
 
 		// Bing Products Feed settings
-        $this->bing_products_feed->gfg_settings_init();
+        $this->bing_products_feed->gfg_bpf_settings_init();
 
 		// Activity & Logging settings
-		$this->activity_logging->gfg_settings_init();
+		$this->activity_logging->gfg_al_settings_init();
 
 		// License settings
-		$this->license->gfg_settings_init();
+		$this->license->gfg_l_settings_init();
 
 		add_settings_section(
 			'smarty_gfg_section_general',                                   	// ID of the section
@@ -434,7 +434,7 @@ class Smarty_Gfg_Admin {
      */
 	public function gfg_handle_ajax_convert_images() {
 		// Add log entries
-		self::gfg_add_activity_log('Convert the first WebP image to PNG');
+		$this->activity_logging->gfg_add_activity_log('Convert the first WebP image to PNG');
 
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
@@ -459,7 +459,7 @@ class Smarty_Gfg_Admin {
      */
 	public function gfg_handle_ajax_convert_all_images() {
 		// Add log entries
-		self::gfg_add_activity_log('Convert all WebP images to PNG');
+		$this->activity_logging->gfg_add_activity_log('Convert all WebP images to PNG');
 
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
@@ -682,7 +682,7 @@ class Smarty_Gfg_Admin {
 	public function gfg_success_notice() {
 		if (get_transient('smarty_gfg_settings_updated')) { 
 			?>
-			<div class="notice notice-success smarty-auto-hide-notice">
+			<div class="notice notice-success smarty-gfg-auto-hide-notice">
 				<p><?php echo esc_html__('Settings saved.', 'smarty-google-feed-generator'); ?></p>
 			</div>
 			<?php

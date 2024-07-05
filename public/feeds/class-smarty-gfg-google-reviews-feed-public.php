@@ -120,7 +120,7 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
      */
     public function gfg_schedule_google_reviews_feed_generation() {
         $interval = get_option('smarty_gfg_reviews_feed_interval', 'daily');
-        _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Google Reviews Feed Interval: ' . $interval);
+        //_gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Google Reviews Feed Interval: ' . $interval);
 
         $timestamp = wp_next_scheduled('smarty_gfg_generate_google_reviews_feed');
 
@@ -128,12 +128,12 @@ class Smarty_Gfg_Google_Reviews_Feed_Public {
         if (!$timestamp || wp_get_schedule('smarty_gfg_generate_google_reviews_feed') !== $interval) {
             if ($timestamp) {
                 wp_unschedule_event($timestamp, 'smarty_gfg_generate_google_reviews_feed');
-                _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Unscheduled existing Google Reviews Feed event.');
+                //_gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Unscheduled existing Google Reviews Feed event.');
             }
 
             if ($interval !== 'no_refresh') {
                 wp_schedule_event(time(), $interval, 'smarty_gfg_generate_google_reviews_feed');
-                _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Scheduled new Google Reviews Feed event.');
+                //_gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Scheduled new Google Reviews Feed event.');
             }
         } else {
             _gfg_write_logs('Smarty_Gfg_Google_Reviews_Feed_Public: Google Reviews Feed event is already scheduled with the correct interval.');

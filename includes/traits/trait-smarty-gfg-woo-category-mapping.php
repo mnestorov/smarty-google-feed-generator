@@ -18,7 +18,7 @@ trait Smarty_Gfg_Woo_Category_Mapping_Trait {
      * @since    1.0.0
      */
     public function gfg_init_woo_category_mapping_trait() {
-        add_action('wp_ajax_smarty_get_woocommerce_categories', array($this, 'gfg_handle_ajax_get_woocommerce_categories'));
+        add_action('wp_ajax_smarty_gfg_get_woocommerce_categories', array($this, 'gfg_handle_ajax_get_woocommerce_categories'));
     }
 
     /**

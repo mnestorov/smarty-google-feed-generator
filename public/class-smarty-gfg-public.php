@@ -157,7 +157,7 @@ class Smarty_Gfg_Public {
      * 
      * @since    1.0.0
 	 */
-	public static function add_rewrite_rules() {
+	public static function gfg_add_rewrite_rules() {
 		add_rewrite_rule('^smarty-google-products-feed/?', 'index.php?smarty_google_products_feed=1', 'top'); // url: ?smarty-google-products-feed
 		add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top');   // url: ?smarty-google-reviews-feed
 		add_rewrite_rule('^smarty-google-csv-export/?', 'index.php?smarty_google_csv_export=1', 'top');       // url: ?smarty-google-csv-export
@@ -172,7 +172,7 @@ class Smarty_Gfg_Public {
      * @param    array    $vars    An array of query variables.
      * @return   array    $vars    The modified array of query variables.
      */
-	public function add_query_vars($vars) {
+	public function gfg_add_query_vars($vars) {
 		$vars[] = 'smarty_google_products_feed';
 		$vars[] = 'smarty_google_reviews_feed';
 		$vars[] = 'smarty_google_csv_export';
@@ -186,7 +186,7 @@ class Smarty_Gfg_Public {
      * 
      * @since    1.0.0
      */
-	public function handle_ajax_generate_feed() {
+	public function gfg_handle_ajax_generate_feed() {
 		check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 	
 		if (!current_user_can('manage_options')) {

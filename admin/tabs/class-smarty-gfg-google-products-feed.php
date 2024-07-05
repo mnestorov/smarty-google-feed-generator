@@ -20,6 +20,7 @@ class Smarty_Gfg_Google_Products_Feed {
 	 * The tsv/csv columns description.
 	 * 
 	 * @since    1.0.0
+	 * @var array
 	 * @access   private
 	 */
 	private $column_descriptions = array();
@@ -329,8 +330,8 @@ class Smarty_Gfg_Google_Products_Feed {
      */
 	public function gfg_google_exclude_xml_columns_cb() {
 		$feed_type = get_option('smarty_gfg_feed_type', 'google');
-		list($columns, $disabled_columns) = $this->google_get_feed_columns($feed_type);
-		$this->google_render_columns('smarty_gfg_google_exclude_xml_columns', $columns, $disabled_columns, 'xml');
+		list($columns, $disabled_columns) = $this->gfg_google_get_feed_columns($feed_type);
+		$this->gfg_google_render_columns('smarty_gfg_google_exclude_xml_columns', $columns, $disabled_columns, 'xml');
 	}
 	
 	/**
@@ -338,8 +339,8 @@ class Smarty_Gfg_Google_Products_Feed {
      */
 	public function gfg_google_exclude_csv_columns_cb() {
 		$feed_type = get_option('smarty_gfg_feed_type', 'google');
-		list($columns, $disabled_columns) = $this->google_get_feed_columns($feed_type);
-		$this->google_render_columns('smarty_gfg_google_exclude_csv_columns', $columns, $disabled_columns, 'csv');
+		list($columns, $disabled_columns) = $this->gfg_google_get_feed_columns($feed_type);
+		$this->gfg_google_render_columns('smarty_gfg_google_exclude_csv_columns', $columns, $disabled_columns, 'csv');
 	}
 
     /**

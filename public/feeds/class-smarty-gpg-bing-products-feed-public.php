@@ -48,11 +48,11 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         }
     
         // Get excluded categories and columns from settings
-        $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
-        $excluded_columns = get_option('smarty_gfg_exclude_xml_columns', array());
+        $excluded_categories = get_option('smarty_gfg_bing_excluded_categories', array());
+        $excluded_columns = get_option('smarty_gfg_bing_exclude_xml_columns', array());
 
         // Check if including product variations is enabled
-        $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
+        $include_variations = get_option('smarty_gfg_bing_include_product_variations', 'no') === 'yes';
     
         // Set up arguments for querying products, excluding certain categories
         $args = array(
@@ -194,7 +194,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         $brand = get_bloginfo('name');
         $data['brand'] = htmlspecialchars($brand);
     
-        $condition = get_option('smarty_gfg_condition', 'new');
+        $condition = get_option('smarty_gfg_bing_condition', 'new');
         $data['condition'] = htmlspecialchars($condition);
     
         if (!in_array('Multipack', $excluded_columns)) {
@@ -222,7 +222,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         }
     
         if (!in_array('Size System', $excluded_columns)) {
-            $size_system = get_option('smarty_gfg_size_system', '');
+            $size_system = get_option('smarty_gfg_bing_size_system', '');
             if (!empty($size_system)) {
                 $data['size_system'] = htmlspecialchars($size_system);
             }
@@ -255,7 +255,7 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
         $data['seller_name'] = htmlspecialchars($brand);
 
         if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
-            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
+            $shopping_ads_excluded_country = get_option('smarty_gfg_bing_shopping_ads_excluded_country', '');
             if (!empty($shopping_ads_excluded_country)) {
                 $countries = explode(',', $shopping_ads_excluded_country);
                 foreach ($countries as $country) {

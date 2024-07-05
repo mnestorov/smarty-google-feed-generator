@@ -206,14 +206,15 @@ class Smarty_Gfg_Locator {
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'gfg_add_settings_page');
 		$this->loader->add_action('admin_init', $plugin_admin, 'gfg_settings_init');
-		$this->loader->add_action('wp_ajax_smarty_convert_images', $plugin_admin, 'gfg_handle_ajax_convert_images');
-		$this->loader->add_action('wp_ajax_smarty_convert_all_webp_images_to_png', $plugin_admin, 'gfg_handle_ajax_convert_all_images');
+		$this->loader->add_action('wp_ajax_smarty_gfg_convert_images', $plugin_admin, 'gfg_handle_ajax_convert_images');
+		$this->loader->add_action('wp_ajax_smarty_gfg_convert_all_webp_images_to_png', $plugin_admin, 'gfg_handle_ajax_convert_all_images');
 		$this->loader->add_action('woocommerce_admin_process_product_object', $plugin_admin, 'gfg_convert_and_update_product_image', 10, 1);
 		$this->loader->add_filter('cron_schedules', $plugin_admin, 'gfg_custom_cron_intervals');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'gfg_success_notice');
 
 		// Register hooks for Google Products Feed
 		$this->loader->add_action('admin_init', $plugin_google_products_feed, 'gfg_gpf_settings_init');
+		$this->loader->add_action('wp_ajax_smarty_gfg_load_google_categories', $plugin_google_products_feed, 'gfg_handle_ajax_load_google_categories');
 
 		// Register hooks for Google Reviews Feed
 		$this->loader->add_action('admin_init', $plugin_google_reviews_feed, 'gfg_grf_settings_init');
@@ -246,17 +247,17 @@ class Smarty_Gfg_Locator {
 		$plugin_bing_products_feed = new Smarty_Gfg_Bing_Products_Feed_Public();
 		
 		$this->loader->add_action('template_redirect', $plugin_public, 'gfg_handle_template_redirect');
-		$this->loader->add_action('init', $plugin_public, 'add_rewrite_rules');
-		$this->loader->add_filter('query_vars', $plugin_public, 'add_query_vars');
+		$this->loader->add_action('init', $plugin_public, 'gfg_add_rewrite_rules');
+		$this->loader->add_filter('query_vars', $plugin_public, 'gfg_add_query_vars');
 		$this->loader->add_action('save_post_product', $plugin_public, 'gfg_handle_product_change');
 		$this->loader->add_action('deleted_post', $plugin_public, 'gfg_handle_product_change');
 	
 		// Register hooks for Google Products Feed
 		$this->loader->add_action('init', $plugin_google_products_feed, 'gfg_schedule_google_products_feed_generation');
 		$this->loader->add_action('smarty_gfg_generate_google_products_feed', $plugin_google_products_feed, 'gfg_generate_google_products_feed');
-		$this->loader->add_action('woocommerce_new_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
-    	$this->loader->add_action('woocommerce_update_product', $plugin_google_products_feed, 'invalidate_google_products_feed_cache');
-		$this->loader->add_action('before_delete_post', $plugin_google_products_feed, 'invalidate_google_products_feed_cache_on_delete');
+		$this->loader->add_action('woocommerce_new_product', $plugin_google_products_feed, 'gfg_invalidate_google_products_feed_cache');
+    	$this->loader->add_action('woocommerce_update_product', $plugin_google_products_feed, 'gfg_invalidate_google_products_feed_cache');
+		$this->loader->add_action('before_delete_post', $plugin_google_products_feed, 'gfg_invalidate_google_products_feed_cache_on_delete');
 		
 		// Register hooks for Google Reviews Feed
 		$this->loader->add_action('init', $plugin_google_reviews_feed, 'gfg_schedule_google_reviews_feed_generation');

@@ -16,6 +16,15 @@ class Smarty_Gfg_Bing_Products_Feed {
     use Smarty_Gfg_Woo_Category_Mapping_Trait;
     use Smarty_Gfg_Custom_Labels_Trait;
 
+	/**
+	 * The tsv/csv columns description.
+	 * 
+	 * @since    1.0.0
+	 * @var array
+	 * @access   private
+	 */
+	private $column_descriptions = array();
+
     /**
 	 * Initialize the class and set its properties.
 	 *

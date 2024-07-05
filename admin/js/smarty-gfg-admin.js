@@ -63,7 +63,7 @@
                 url: smartyFeedGenerator.ajaxUrl,
                 method: 'POST',
                 data: {
-                    action: 'smarty_convert_images',
+                    action: 'smarty_gfg_convert_images',
                     nonce: smartyFeedGenerator.nonce
                 },
                 success: function (response) {
@@ -88,21 +88,21 @@
         // Handler for converting all images
         $('.smarty-gfg-convert-all-images-button').on('click', function (e) {
             e.preventDefault(); // Prevent the default form submission
-            console.log('Convert All Images button clicked');
+            //console.log('Convert All Images button clicked');
 
             var button = $(this);
             button.attr('disabled', true);
-            console.log('Button disabled');
+            //console.log('Button disabled');
 
             $.ajax({
                 url: smartyFeedGenerator.ajaxUrl,
                 method: 'POST',
                 data: {
-                    action: 'smarty_convert_all_webp_images_to_png',
+                    action: 'smarty_gfg_convert_all_webp_images_to_png',
                     nonce: smartyFeedGenerator.nonce
                 },
                 success: function (response) {
-                    console.log('AJAX success:', response);
+                    //console.log('AJAX success:', response);
                     if (response.success) {
                         alert(response.data);
                     } else {
@@ -110,12 +110,12 @@
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.log('AJAX error:', error);
+                    //console.log('AJAX error:', error);
                     alert('AJAX Error: ' + error);
                 },
                 complete: function () {
                     button.attr('disabled', false);
-                    console.log('Button re-enabled');
+                    //console.log('Button re-enabled');
                 }
             });
         });
@@ -168,7 +168,7 @@
                     //console.log('Select2 AJAX request params:', params);
                     return {
                         q: params.term, // search term
-                        action: 'smarty_load_google_categories',
+                        action: 'smarty_gfg_load_google_categories',
                         nonce: smartyFeedGenerator.nonce
                     };
                 },
@@ -224,7 +224,7 @@
                 url: smartyFeedGenerator.ajaxUrl,
                 method: 'GET',
                 data: {
-                    action: 'smarty_get_woocommerce_categories',
+                    action: 'smarty_gfg_get_woocommerce_categories',
                     nonce: smartyFeedGenerator.nonce
                 },
                 success: function(response) {

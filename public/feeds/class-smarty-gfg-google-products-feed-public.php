@@ -46,12 +46,12 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         // Check if WooCommerce is active before proceeding
         if (class_exists('WooCommerce')) {
             // Get excluded categories and columns from settings
-            $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
-            $excluded_columns = get_option('smarty_gfg_exclude_xml_columns', array());
+            $excluded_categories = get_option('smarty_gfg_google_excluded_categories', array());
+            $excluded_columns = get_option('smarty_gfg_google_exclude_xml_columns', array());
             //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
             // Check if including product variations is enabled
-            $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
+            $include_variations = get_option('smarty_gfg_google_include_product_variations', 'no') === 'yes';
 
             // Set up arguments for querying products, excluding certain categories
             $args = array(
@@ -131,7 +131,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
                 exit; // Ensure the script stops here to prevent further output that could corrupt the feed
             } else {
                 ob_end_clean();
-                //_gfg_write_logs('Failed to generate feed content.');
+                _gfg_write_logs('Failed to generate feed content.');
                 echo '<error>Failed to generate feed content.</error>';
                 exit;
             }
@@ -183,7 +183,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 		
         // Add product categories and category mapping
         $categories = wp_get_post_terms($product->get_id(), 'product_cat');
-        $category_mapping = get_option('smarty_gfg_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_woo_category_mapping', array());
         $mapped_category = '';
 
         if (!empty($categories) && !is_wp_error($categories)) {
@@ -240,7 +240,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
 		
         // Use the condition value from the settings
-        $condition = get_option('smarty_gfg_condition', 'new');
+        $condition = get_option('smarty_gfg_google_condition', 'new');
         $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
 
         // Add multipack
@@ -281,7 +281,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add size system
         if (!in_array('Size System', $excluded_columns)) {
-            $size_system = get_option('smarty_gfg_size_system', '');
+            $size_system = get_option('smarty_gfg_google_size_system', '');
             if (!empty($size_system)) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:size_system', htmlspecialchars($size_system)));
             }
@@ -314,7 +314,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add excluded destinations
         if (!in_array('Excluded Destination', $excluded_columns)) {
-            $excluded_destinations = get_option('smarty_gfg_excluded_destination', []);
+            $excluded_destinations = get_option('smarty_gfg_google_excluded_destination', []);
             foreach ($excluded_destinations as $excluded_destination) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:excluded_destination', htmlspecialchars($excluded_destination)));
             }
@@ -322,7 +322,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add included destinations
         if (!in_array('Included Destination', $excluded_columns)) {
-            $included_destinations = get_option('smarty_gfg_included_destination', []);
+            $included_destinations = get_option('smarty_gfg_google_included_destination', []);
             foreach ($included_destinations as $included_destination) {
                 $item->appendChild($dom->createElementNS($gNamespace, 'g:included_destination', htmlspecialchars($included_destination)));
             }
@@ -330,7 +330,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
 
         // Add excluded countries for shopping ads
         if (!in_array('Excluded Countries for Shopping Ads', $excluded_columns)) {
-            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
+            $shopping_ads_excluded_country = get_option('smarty_gfg_google_excluded_countries_for_shopping_ads', '');
             if (!empty($shopping_ads_excluded_country)) {
                 $countries = explode(',', $shopping_ads_excluded_country);
                 foreach ($countries as $country) {
@@ -383,7 +383,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         }
 
         // Get excluded columns from settings
-        $excluded_columns = get_option('smarty_gfg_exclude_csv_columns', array());
+        $excluded_columns = get_option('smarty_gfg_google_exclude_csv_columns', array());
 
         // Define the columns and map headers based on user settings
         $csv_columns = array(
@@ -407,11 +407,11 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         //_gfg_write_logs('CSV Headers: ' . print_r($headers, true));
 
         // Get excluded categories from settings
-        $excluded_categories = get_option('smarty_gfg_excluded_categories', array());
+        $excluded_categories = get_option('smarty_gfg_google_excluded_categories', array());
         //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Check if including product variations is enabled
-        $include_variations = get_option('smarty_gfg_include_product_variations', 'no') === 'yes';
+        $include_variations = get_option('smarty_gfg_google_include_product_variations', 'no') === 'yes';
 
         // Prepare arguments for querying products excluding specific categories
         $args = array(
@@ -437,11 +437,11 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         //_gfg_write_logs('Products: ' . count($products) . ' products fetched');
 
         // Get exclude patterns from settings and split into array
-        $exclude_patterns_raw = get_option('smarty_gfg_exclude_patterns');
+        $exclude_patterns_raw = get_option('smarty_gfg_google_exclude_patterns');
         $exclude_patterns = !empty($exclude_patterns_raw) ? preg_split('/\r\n|\r|\n/', $exclude_patterns_raw) : array();
 
         // Get category mappings from settings
-        $category_mapping = get_option('smarty_gfg_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_woo_category_mapping', array());
 
         // Check if Google category should be ID
         $google_category_as_id = get_option('smarty_gfg_google_category_as_id', false);
@@ -522,10 +522,10 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             $brand = get_bloginfo('name');
 
             // Use the condition value from the settings
-            $condition = get_option('smarty_gfg_condition', 'new');
+            $condition = get_option('smarty_gfg_google_condition', 'new');
 
             // Use the size system value from the settings
-            $size_system = get_option('smarty_gfg_size_system', '');
+            $size_system = get_option('smarty_gfg_google_size_system', '');
 
             // Custom Labels
             $custom_label_0 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_0');
@@ -534,9 +534,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             $custom_label_3 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_3');
             $custom_label_4 = Smarty_Gfg_Public::gfg_get_custom_label($product, 'custom_label_4');
 
-            $excluded_destinations = get_option('smarty_gfg_excluded_destination', []);
-            $included_destinations = get_option('smarty_gfg_included_destination', []);
-            $shopping_ads_excluded_country = get_option('smarty_gfg_excluded_countries_for_shopping_ads', '');
+            $excluded_destinations = get_option('smarty_gfg_google_excluded_destination', []);
+            $included_destinations = get_option('smarty_gfg_google_included_destination', []);
+            $shopping_ads_excluded_country = get_option('smarty_gfg_google_excluded_countries_for_shopping_ads', '');
 
             // Get shipping cost
             $shipping_cost = Smarty_Gfg_Public::gfg_get_shipping_cost();
@@ -809,7 +809,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         $xml = new SimpleXMLElement('<feed xmlns:g="http://base.google.com/ns/1.0"/>');
 
         // Retrieve category mapping from settings
-        $category_mapping = get_option('smarty_gfg_category_mapping', array());
+        $category_mapping = get_option('smarty_gfg_woo_category_mapping', array());
     
         // Iterate through each product to populate the feed
         foreach ($products as $product) {
@@ -1058,7 +1058,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
      */
     public function gfg_schedule_google_products_feed_generation() {
         $interval = get_option('smarty_gfg_google_feed_interval', 'daily');
-        _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed Interval: ' . $interval);
+        //_gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed Interval: ' . $interval);
 
         $timestamp = wp_next_scheduled('smarty_gfg_generate_google_products_feed');
 
@@ -1066,12 +1066,12 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         if (!$timestamp || wp_get_schedule('smarty_gfg_generate_google_products_feed') !== $interval) {
             if ($timestamp) {
                 wp_unschedule_event($timestamp, 'smarty_gfg_generate_google_products_feed');
-                _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Unscheduled existing Google Products Feed event.');
+                //_gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Unscheduled existing Google Products Feed event.');
             }
 
             if ($interval !== 'no_refresh') {
                 wp_schedule_event(time(), $interval, 'smarty_gfg_generate_google_products_feed');
-                _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Scheduled new Google Products Feed event.');
+                //_gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Scheduled new Google Products Feed event.');
             }
         } else {
             _gfg_write_logs('Smarty_Gfg_Google_Products_Feed_Public: Google Products Feed event is already scheduled with the correct interval.');
