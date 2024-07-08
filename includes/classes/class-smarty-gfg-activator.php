@@ -25,7 +25,7 @@ class Smarty_Gfg_Activator {
         }
 
         // Add rewrite rules
-        Smarty_Gfg_Public::add_rewrite_rules();
+        Smarty_Gfg_Public::gfg_add_rewrite_rules();
 
         // Flush rewrite rules to ensure custom endpoints are registered
         flush_rewrite_rules();
