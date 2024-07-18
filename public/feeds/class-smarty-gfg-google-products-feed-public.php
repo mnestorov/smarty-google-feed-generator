@@ -6,8 +6,8 @@
  * @link       https://smartystudio.net
  * @since      1.0.0
  *
- * @package    smarty_google_products_feed_Generator
- * @subpackage smarty_google_products_feed_Generator/admin/tabs
+ * @package    Smarty_Google_Feed_Generator
+ * @subpackage Smarty_Google_Feed_Generator/public/feeds
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Gfg_Google_Products_Feed_Public {

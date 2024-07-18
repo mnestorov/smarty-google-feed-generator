@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait to handle WooCommerce category mapping-related functionality for product feeds.
  *

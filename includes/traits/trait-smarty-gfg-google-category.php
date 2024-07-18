@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait to handle Google Products category-related functionality for product feeds.
  *

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait to handle Custom Labels-related functionality for product feeds.
  *

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin activation.
  *
@@ -9,7 +8,7 @@
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator
- * @subpackage Smarty_Google_Feed_Generator/admin/partials
+ * @subpackage Smarty_Google_Feed_Generator/includes/classes
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Gfg_Activator {
