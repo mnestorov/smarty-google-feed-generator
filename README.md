@@ -5,7 +5,7 @@
 [![Licence](https://img.shields.io/badge/LICENSE-GPL2.0+-blue)](./LICENSE)
 
 - Developed by: [Smarty Studio](https://smartystudio.net) | [Martin Nestorov](https://github.com/mnestorov)
-- Plugin URI: https://smartystudio.net/smarty-google-feed-generator
+- Plugin URI: https://github.com/smartystudio/smarty-google-feed-generator
 
 ## Overview
 

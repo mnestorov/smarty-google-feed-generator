@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: SM - Google Feed Generator for WooCommerce
- * Plugin URI:  https://smartystudio.net/smarty-google-feed-generator
+ * Plugin URI:  https://github.com/smartystudio/smarty-google-feed-generator
  * Description: Generates google product and product review feeds for Google Merchant Center.
  * Version:     1.0.0
  * Author:      Smarty Studio | Martin Nestorov
