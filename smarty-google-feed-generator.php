@@ -20,8 +20,8 @@ if (!function_exists('smarty_enqueue_admin_scripts')) {
     function smarty_enqueue_admin_scripts() {
         wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
         wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
-        wp_enqueue_script('smarty-admin-js', plugin_dir_url(__FILE__) . 'js/smarty-admin.js', array('jquery', 'select2'), '1.0.0', true);
-        wp_enqueue_style('smarty-admin-css', plugin_dir_url(__FILE__) . 'css/smarty-admin.css', array(), '1.0.0');
+        wp_enqueue_script('smarty-admin-js', plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery', 'select2'), '1.0.0', true);
+        wp_enqueue_style('smarty-admin-css', plugin_dir_url(__FILE__) . 'css/smarty-gfg-admin.css', array(), '1.0.0');
         wp_localize_script(
             'smarty-admin-js',
             'smartyFeedGenerator',
