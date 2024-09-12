@@ -1801,6 +1801,17 @@ if (!function_exists('smarty_get_custom_label_4')) {
         $excluded_categories = get_option('smarty_excluded_categories', array()); // Get excluded categories from settings
         $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'ids'));
 
+        if (!is_array($excluded_categories)) {
+            $excluded_categories = explode(',', $excluded_categories); // Convert string to array if necessary
+        }
+    
+        $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'ids'));
+    
+        // Ensure $product_categories is an array to avoid type errors
+        if (!is_array($product_categories)) {
+            $product_categories = [];
+        }
+
         // Check if product is in excluded categories
         $is_excluded = !empty(array_intersect($excluded_categories, $product_categories));
 
