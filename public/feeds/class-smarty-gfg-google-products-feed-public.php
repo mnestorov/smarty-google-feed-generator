@@ -3,7 +3,7 @@
 /**
  * The Google Products Feed-public specific functionality of the plugin.
  *
- * @link       https://smartystudio.net
+ * @link       https://github.com/mnestorov
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

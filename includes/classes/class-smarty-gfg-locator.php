@@ -8,7 +8,7 @@
  * Also maintains the unique identifier of this plugin as well as the current
  * version of the plugin.
  *
- * @link       https://smartystudio.net
+ * @link       https://github.com/mnestorov
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

@@ -4,7 +4,7 @@
  *
  * This class defines all code necessary to run during the plugin's activation.
  *
- * @link       https://smartystudio.net
+ * @link       https://github.com/mnestorov
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

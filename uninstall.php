@@ -15,7 +15,7 @@
  * This file may be updated more in future version of the Boilerplate; however, this is the
  * general skeleton and outline for how the file should work.
  *
- * @link       https://smartystudio.net
+ * @link       https://github.com/mnestorov
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator
