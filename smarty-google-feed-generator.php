@@ -57,6 +57,11 @@ if (!defined('CS_KEY')) {
     define('CS_KEY', 'cs_0c7dbc81992841eb207c648397b406e4c3e5de6f');
 }
 
+// Google Apps: Web App Url
+if (!defined('WEB_APP_URL')) {
+    define('WEB_APP_URL', 'https://script.google.com/macros/s/AKfycbwgRmSEYWnfkd7SyQUEV8EuSSIXsRaAom5kHcIVedbibHwjy6Ay5P3coULTbuvswwhG/exec');
+}
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/classes/class-smarty-gfg-activator.php

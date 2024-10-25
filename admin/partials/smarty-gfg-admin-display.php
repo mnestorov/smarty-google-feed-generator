@@ -16,6 +16,11 @@
 <?php $license_options = get_option('smarty_gfg_settings_license'); ?>
 <?php $api_key = $license_options['api_key'] ?? ''; ?>
 
+<?php
+// Fetch license status from Google Sheets API
+$license_status = $this->license->gfg_check_license_status($api_key); // Method that returns 'active', 'inactive', 'expired', or 'not found'
+?>
+
 <div class="wrap">
 	<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
 	
@@ -38,7 +43,8 @@
 		<?php endforeach; ?>
 	</h2>
 
-	<?php if ($this->license->gfg_is_valid_api_key($api_key)) : ?>
+	<?php //if ($this->license->gfg_is_valid_api_key($api_key)) : ?>
+	<?php if ($license_status === 'active') : ?>
 		<form action="options.php" method="post">
 			<?php if ($current_tab == 'general') : ?>
 				<?php settings_fields('smarty_gfg_options_general'); ?>
