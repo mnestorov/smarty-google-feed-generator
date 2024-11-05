@@ -32,23 +32,28 @@
 
         $('#smarty-gfg-delete-logs-button').on('click', function(e) {
             e.preventDefault();
-            if (confirm('Are you sure you want to delete all logs?')) {
-                $.post(
-                    smartyFeedGenerator.ajaxUrl,
-                    {
-                        action: 'smarty_gfg_clear_logs',
-                        nonce: smartyFeedGenerator.nonce,
-                    },
-                    function(response) {
-                        if (response.success) {
-                            alert('Logs cleared.');
-                            location.reload();
-                        } else {
-                            alert('Failed to clear logs.');
-                        }
-                    }
-                );
+            if (!confirm('Are you sure you want to delete all logs?')) {
+                return;
             }
+            $.ajax({
+                url: smartyFeedGenerator.ajaxUrl,
+                method: 'POST',
+                data: {
+                    action: 'smarty_gfg_clear_logs',
+                    nonce: smartyFeedGenerator.nonce,
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.data);
+                        location.reload(); // Refresh the page to update the log display
+                    } else {
+                        alert('Failed to delete logs.');
+                    }
+                },
+                error: function() {
+                    alert('Error occurred while deleting logs.');
+                }
+            });
         });
         
         $('.smarty-gfg-convert-images-button').on('click', function (e) {
