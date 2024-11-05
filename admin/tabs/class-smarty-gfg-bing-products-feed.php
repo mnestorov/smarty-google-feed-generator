@@ -72,6 +72,7 @@ class Smarty_Gfg_Bing_Products_Feed {
     public function gfg_bpf_settings_init() {
         register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_feed_country');
         register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_include_product_variations');
+		register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_feed_interval');
         register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_exclude_patterns', 'sanitize_textarea_field');
 		register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_excluded_categories');
         register_setting('smarty_gfg_options_bing_feed', 'smarty_gfg_bing_exclude_xml_columns');
@@ -101,6 +102,14 @@ class Smarty_Gfg_Bing_Products_Feed {
             array($this, 'gfg_bing_products_include_product_variations_cb'),	// Callback function to display the field
             'smarty_gfg_options_bing_feed',									    // Page on which to add the field
             'smarty_gfg_section_bing_feed'									    // Section to which this field belongs
+        );
+
+		add_settings_field(
+            'smarty_gfg_bing_feed_interval',                                  // ID of the field
+            __('Cron Job / Refresh Interval', 'smarty-google-feed-generator'),  // Title of the field
+            array($this, 'gfg_bing_feed_interval_cb'),                        // Callback function to display the field
+            'smarty_gfg_options_bing_feed',                           		// Page on which to add the field
+            'smarty_gfg_section_bing_feed'                            		// Section to which this field belongs
         );
 
         $this->gfg_register_google_category_settings('smarty_gfg_options_bing_feed', 'smarty_gfg_section_bing_feed', 'smarty_gfg_options_bing_feed');
@@ -184,6 +193,29 @@ class Smarty_Gfg_Bing_Products_Feed {
         echo '<input type="radio" name="smarty_gfg_bing_include_product_variations" value="yes" ' . checked($option, 'yes', false) . ' /> ' . __('Yes', 'smarty-google-feed-generator');
         echo '<input type="radio" name="smarty_gfg_bing_include_product_variations" value="no" ' . checked($option, 'no', false) . ' style="margin-left: 10px;" /> ' . __('No', 'smarty-google-feed-generator');
         echo '<p class="description">' . __('Select whether to include product variations in the feed.', 'smarty-google-feed-generator') . '</p>';
+    }
+
+	/**
+     * Callback function for the Google Products Feed schedule interval.
+     * 
+     * @since    1.0.0
+     */
+    public function gfg_bing_feed_interval_cb() {
+        $interval = get_option('smarty_gfg_bing_feed_interval', 'no_refresh');
+        $options = [
+            'no_refresh'  => __('No Refresh', 'smarty-google-feed-generator'),
+            'hourly'      => __('Hourly', 'smarty-google-feed-generator'),
+            'daily'       => __('Daily', 'smarty-google-feed-generator'),
+            'twicedaily'  => __('Twice a day', 'smarty-google-feed-generator')
+        ];
+
+        echo '<select name="smarty_gfg_bing_feed_interval">';
+        foreach ($options as $value => $label) {
+            $selected = $value === $interval ? 'selected' : '';
+            echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="description">' . __('Select how often the Bing Products feed should be refreshed.', 'smarty-google-feed-generator') . '</p>';
     }
 
     /**

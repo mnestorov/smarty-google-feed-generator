@@ -230,7 +230,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         // Check if the product has the "bundle" tag
         $is_bundle = 'no';
         $product_tags = wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'slugs'));
-        if (in_array('bundle', $product_tags)) {
+        if (is_array($product_tags) && in_array('bundle', $product_tags)) {
             $is_bundle = 'yes';
         }
         $item->appendChild($dom->createElementNS($gNamespace, 'g:is_bundle', $is_bundle));
@@ -242,6 +242,9 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         // Use the condition value from the settings
         $condition = get_option('smarty_gfg_google_condition', 'new');
         $item->appendChild($dom->createElementNS($gNamespace, 'g:condition', htmlspecialchars($condition)));
+        
+        // Ensure $excluded_columns is an array
+        $excluded_columns = is_array($excluded_columns) ? $excluded_columns : array(); 
 
         // Add multipack
 		if (!in_array('Multipack', $excluded_columns)) {

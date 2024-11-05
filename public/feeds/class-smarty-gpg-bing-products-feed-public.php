@@ -196,7 +196,10 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
     
         $condition = get_option('smarty_gfg_bing_condition', 'new');
         $data['condition'] = htmlspecialchars($condition);
-    
+
+        // Ensure $excluded_columns is an array
+        $excluded_columns = is_array($excluded_columns) ? $excluded_columns : array();
+        
         if (!in_array('Multipack', $excluded_columns)) {
             $data['multipack'] = '';
         }
@@ -520,6 +523,33 @@ class Smarty_Gfg_Bing_Products_Feed_Public {
 
             // Regenerate the feeds immediately to update the feed file
             $this->gfg_regenerate_bing_products_feed();
+        }
+    }
+
+    /**
+     * Handle the cron scheduling of the feed.
+     * 
+     * @since    1.0.0
+     */
+    public function gfg_schedule_bing_products_feed_generation() {
+        $interval = get_option('smarty_gfg_bing_feed_interval', 'daily');
+        //_gfg_write_logs('Smarty_Gfg_Bing_Products_Feed_Public: Bing Products Feed Interval: ' . $interval);
+
+        $timestamp = wp_next_scheduled('smarty_gfg_generate_bing_products_feed');
+
+        // Only reschedule if the interval has changed or the event is not scheduled
+        if (!$timestamp || wp_get_schedule('smarty_gfg_generate_bing_products_feed') !== $interval) {
+            if ($timestamp) {
+                wp_unschedule_event($timestamp, 'smarty_gfg_generate_bing_products_feed');
+                //_gfg_write_logs('Smarty_Gfg_Bing_Products_Feed_Public: Unscheduled existing Bing Products Feed event.');
+            }
+
+            if ($interval !== 'no_refresh') {
+                wp_schedule_event(time(), $interval, 'smarty_gfg_generate_bing_products_feed');
+                //_gfg_write_logs('Smarty_Gfg_Bing_Products_Feed_Public: Scheduled new Bing Products Feed event.');
+            }
+        } else {
+            _gfg_write_logs('Smarty_Gfg_Bing_Products_Feed_Public: Bing Products Feed event is already scheduled with the correct interval.');
         }
     }
 }

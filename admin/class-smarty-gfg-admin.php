@@ -443,7 +443,7 @@ class Smarty_Gfg_Admin {
 	
 		try {
 			// Attempt to convert images
-			$this->gfg_convert_first_webp_image_to_png();
+			Smarty_Gfg_Admin::gfg_convert_first_webp_image_to_png();
 			wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
 		} catch (Exception $e) {
 			// Handle exceptions by sending a descriptive error message
@@ -468,7 +468,7 @@ class Smarty_Gfg_Admin {
 	
 		try {
 			// Attempt to convert images
-			$this->gfg_convert_all_webp_images_to_png();
+			Smarty_Gfg_Admin::gfg_convert_all_webp_images_to_png();
 			wp_send_json_success(__('All images have been converted to PNG.', 'smarty-google-feed-generator'));
 		} catch (Exception $e) {
 			// Handle exceptions by sending a descriptive error message
@@ -483,6 +483,10 @@ class Smarty_Gfg_Admin {
      * @param WC_Product $product Product object.
      */
     public function gfg_convert_and_update_product_image($product) {
+		if (!function_exists('wp_generate_attachment_metadata')) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+		
         $image_id = $product->get_image_id();
 
         if ($image_id) {
@@ -491,7 +495,7 @@ class Smarty_Gfg_Admin {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
                 
-                if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
+                if (Smarty_Gfg_Admin::gfg_convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -520,7 +524,7 @@ class Smarty_Gfg_Admin {
      * @param string $destination The destination file path.
      * @return bool True on success, false on failure.
      */
-    public function gfg_convert_webp_to_png($source, $destination) {
+    public static function gfg_convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
             _gfg_write_logs('GD Library is not installed or does not support WEBP.');
             return false;
@@ -542,6 +546,10 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
      */
 	public static function gfg_convert_first_webp_image_to_png() {
+		if (!function_exists('wp_generate_attachment_metadata')) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+
 		$offset = 0;
 		$limit = 50; // Process 50 products at a time
 	
@@ -563,7 +571,7 @@ class Smarty_Gfg_Admin {
 				if ($file_path && preg_match('/\.webp$/', $file_path)) {
 					$new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 	
-					if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
+					if (Smarty_Gfg_Admin::gfg_convert_webp_to_png($file_path, $new_file_path)) {
 						// Update the attachment file type post meta
 						wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
 						update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -588,7 +596,7 @@ class Smarty_Gfg_Admin {
      * 
      * @since    1.0.0
      */
-    public function gfg_convert_all_webp_images_to_png() {
+    public static function gfg_convert_all_webp_images_to_png() {
         $offset = 0;
         $limit = 50; // Number of products to process at a time
 
@@ -605,12 +613,12 @@ class Smarty_Gfg_Admin {
 
             foreach ($products as $product) {
                 // Convert the main product image
-                $this->gfg_convert_product_image($product->get_image_id());
+                Smarty_Gfg_Admin::gfg_convert_product_image($product->get_image_id());
 
                 // Convert all gallery images
                 $gallery_ids = $product->get_gallery_image_ids();
                 foreach ($gallery_ids as $gallery_id) {
-                    $this->gfg_convert_product_image($gallery_id);
+                    Smarty_Gfg_Admin::gfg_convert_product_image($gallery_id);
                 }
             }
 
@@ -624,13 +632,13 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 * @param int $image_id The ID of the image to convert.
 	 */
-	private function gfg_convert_product_image($image_id) {
+	private static function gfg_convert_product_image($image_id) {
 		$file_path = get_attached_file($image_id);
 
 		if ($file_path && preg_match('/\.webp$/', $file_path)) {
 			$new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 			
-			if ($this->gfg_convert_webp_to_png($file_path, $new_file_path)) {
+			if (Smarty_Gfg_Admin::gfg_convert_webp_to_png($file_path, $new_file_path)) {
 				// Update the attachment file type post meta
 				wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
 				update_post_meta($image_id, '_wp_attached_file', $new_file_path);

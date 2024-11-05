@@ -42,8 +42,9 @@ class Smarty_Gfg_Activator {
         }
 
         // Schedule Bing Feed Event
-        if (!wp_next_scheduled('smarty_gfg_generate_bing_products_feed')) {
-            wp_schedule_event(time(), 'twicedaily', 'smarty_gfg_generate_bing_products_feed');
+        $interval = get_option('smarty_gfg_bing_feed_interval', 'daily');
+        if ($interval !== 'no_refresh' && !wp_next_scheduled('smarty_gfg_generate_bing_products_feed')) {
+            wp_schedule_event(time(), $interval, 'smarty_gfg_generate_bing_products_feed');
         }
     }
 }
