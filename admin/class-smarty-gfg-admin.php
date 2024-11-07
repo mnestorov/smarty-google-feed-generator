@@ -174,23 +174,25 @@ class Smarty_Gfg_Admin {
 		$current_user = wp_get_current_user();
 		$current_user_hash = hash('sha256', $current_user->user_login);
 
-		return array(
-			'general' 				 => __('General', 'smarty-google-feed-generator'),
-			'google-feed'   		 => __('Google Products Feed', 'smarty-google-feed-generator'),
-			'google-mp-feed'		 => __('Google Merchant Promotions Feed', 'smarty-google-feed-generator'), 		// Merchant Promotions
-			'google-rp-feed'   		 => __('Google Remarketing Promotions Feed', 'smarty-google-feed-generator'), 	// Remarketing Promotions
-			'google-dsa-feed'   	 => __('Google DSA Feed', 'smarty-google-feed-generator'), 						// Dynamic Search Ads
-			'google-lp-feed'   	 	 => __('Google Local Products Feed', 'smarty-google-feed-generator'), 			// Local Products
-			'google-lpi-feed'   	 => __('Google Local Products Inventory Feed', 'smarty-google-feed-generator'), // Local Products Invetory
-			'google-reviews-feed'  	 => __('Google Reviews Feed', 'smarty-google-feed-generator'),
-			'bing-products-feed'   	 => __('Bing Products Feed', 'smarty-google-feed-generator'),
-			'facebook-products-feed' => __('Facebook Products Feed', 'smarty-google-feed-generator'),
-			'activity-logging'  	 => __('Activity & Logging', 'smarty-google-feed-generator'),
+		$tabs = array(
+			'general'                  => __('General', 'smarty-google-feed-generator'),
+			'google-feed'              => __('Google Products Feed', 'smarty-google-feed-generator'),
+			'google-mp-feed'           => __('Google Merchant Promotions Feed', 'smarty-google-feed-generator'),
+			'google-rp-feed'           => __('Google Remarketing Promotions Feed', 'smarty-google-feed-generator'),
+			'google-dsa-feed'          => __('Google DSA Feed', 'smarty-google-feed-generator'),
+			'google-lp-feed'           => __('Google Local Products Feed', 'smarty-google-feed-generator'),
+			'google-lpi-feed'          => __('Google Local Products Inventory Feed', 'smarty-google-feed-generator'),
+			'google-reviews-feed'      => __('Google Reviews Feed', 'smarty-google-feed-generator'),
+			'bing-products-feed'       => __('Bing Products Feed', 'smarty-google-feed-generator'),
+			'facebook-products-feed'   => __('Facebook Products Feed', 'smarty-google-feed-generator'),
+			'activity-logging'         => __('Activity & Logging', 'smarty-google-feed-generator')
 		);
 
 		if ($current_user_hash === $allowed_user_hash) {
 			$tabs['license'] = __('License', 'smarty-google-feed-generator');
 		}
+		
+		return $tabs;
 	}
 
 	/**
