@@ -170,6 +170,10 @@ class Smarty_Gfg_Admin {
 	 * @since    1.0.0
 	 */
 	private function gfg_get_settings_tabs() {
+		$allowed_user_hash = 'd12bd8335327019439aa8cc3359385cccdbab7c28bbb7894a4ea46196f71d8c7';
+		$current_user = wp_get_current_user();
+		$current_user_hash = hash('sha256', $current_user->user_login);
+
 		return array(
 			'general' 				 => __('General', 'smarty-google-feed-generator'),
 			'google-feed'   		 => __('Google Products Feed', 'smarty-google-feed-generator'),
@@ -182,8 +186,11 @@ class Smarty_Gfg_Admin {
 			'bing-products-feed'   	 => __('Bing Products Feed', 'smarty-google-feed-generator'),
 			'facebook-products-feed' => __('Facebook Products Feed', 'smarty-google-feed-generator'),
 			'activity-logging'  	 => __('Activity & Logging', 'smarty-google-feed-generator'),
-			'license' 				 => __('License', 'smarty-google-feed-generator')
 		);
+
+		if ($current_user_hash === $allowed_user_hash) {
+			$tabs['license'] = __('License', 'smarty-google-feed-generator');
+		}
 	}
 
 	/**
