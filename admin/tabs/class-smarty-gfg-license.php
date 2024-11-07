@@ -135,6 +135,7 @@ class Smarty_Gfg_License {
      * @param mixed $old_value The old value of the option.
      * @param mixed $value The new value of the option.
      */
+	/*
 	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
 		if (!$this->api_instance) {
 			// Handle the error
@@ -153,6 +154,30 @@ class Smarty_Gfg_License {
 				add_query_arg('license-valid', 'true');
 			} else {
 				// Add query arg or admin notice for invalid license
+				add_query_arg('license-invalid', 'true');
+			}
+		}
+	}*/
+
+	/**
+	 * Handle license status check.
+	 * 
+	 * @since    1.0.0
+	 * @param string $option_name The name of the option.
+	 * @param mixed $old_value The old value of the option.
+	 * @param mixed $value The new value of the option.
+	 */
+	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
+		if ($option_name == 'smarty_gfg_settings_license' && isset($value['api_key'])) {
+			$api_key = $value['api_key'];
+
+			// Check the license status using gfg_check_license_status
+			$status = $this->gfg_check_license_status($api_key);
+
+			// Add an admin notice based on the status of the license
+			if ($status === 'active') {
+				add_query_arg('license-valid', 'true');
+			} else {
 				add_query_arg('license-invalid', 'true');
 			}
 		}
