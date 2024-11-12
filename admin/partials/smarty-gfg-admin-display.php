@@ -13,6 +13,9 @@
  */
 ?>
 
+<?php $license_options = get_option('smarty_gfg_settings_license'); ?>
+<?php $api_key = $license_options['api_key'] ?? ''; ?>
+
 <div class="wrap">
 	<h1><?php echo esc_html('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
 	
@@ -35,7 +38,7 @@
 		<?php endforeach; ?>
 	</h2>
 
-	<?php if (_gfg_validate_license_key()) : ?>
+	<?php if ($this->license->gfg_is_valid_api_key($api_key)) : ?>
 		<form action="options.php" method="post">
 			<?php if ($current_tab == 'general') : ?>
 				<?php settings_fields('smarty_gfg_options_general'); ?>

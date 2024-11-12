@@ -47,7 +47,7 @@ class Smarty_Gfg_License {
 
 		add_settings_field(
 			'smarty_gfg_api_key',												// ID of the field
-			__('API Key', 'smarty-google-feed-generator'),						// Title of the field
+			__('License Key', 'smarty-google-feed-generator'),						// Title of the field
 			array($this, 'gfg_field_api_key_cb'),								// Callback function to display the field
 			'smarty_gfg_options_license',										// Page on which to add the field
 			'smarty_gfg_section_license'										// Section to which this field belongs
@@ -64,12 +64,12 @@ class Smarty_Gfg_License {
      * @return array Sanitized settings.
      */
 	public function gfg_sanitize_license_settings($input) {
-		$new_input = array();
-		if (isset($input['api_key'])) {
-			$new_input['api_key'] = sanitize_text_field($input['api_key']);
-		}
-		return $new_input;
-	}
+        $new_input = array();
+        if (isset($input['api_key'])) {
+            $new_input['api_key'] = sanitize_text_field($input['api_key']);
+        }
+        return $new_input;
+    }
 
     /**
      * Check if the API key is valid.
@@ -79,27 +79,16 @@ class Smarty_Gfg_License {
      * @return bool True if the API key is valid, false otherwise.
      */
     public function gfg_is_valid_api_key($api_key) {
-		$response = $this->api_instance->validate_license($api_key);
-	
-		if (isset($response['success']) && $response['success']) {
-			$isActive = false;
-			$activations = $response['data']['activationData'] ?? [];
-	
-			foreach ($activations as $activation) {
-				if (empty($activation['deactivated_at'])) {
-					$isActive = true;
-					break;
-				}
-			}
-	
-			_gfg_write_logs('Checking API key validity: ' . $api_key);
-			_gfg_write_logs('API Response: ' . print_r($response, true));
-			_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
-			return $isActive;
-		}
-	
-		return false;
-	}
+        $response = $this->api_instance->validate_license($api_key);
+    
+        if (isset($response['status']) && $response['status'] === 'active') {
+            _gfg_write_logs('License validation successful: ' . $api_key);
+            return true;
+        }
+        
+        _gfg_write_logs('License validation failed: ' . print_r($response, true));
+        return false;
+    }		
 
 	/**
      * Handle license status check.
@@ -110,27 +99,27 @@ class Smarty_Gfg_License {
      * @param mixed $value The new value of the option.
      */
 	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
-		if (!$this->api_instance) {
+        if (!$this->api_instance) {
 			// Handle the error
 			return;
 		}
-	
-		if ($option_name == 'smarty_gfg_settings_license' && isset($value['api_key'])) {
-			$api_key = $value['api_key'];
-	
-			// Check the license status
-			$isValid = $this->gfg_is_valid_api_key($api_key);
-	
-			// Add an admin notice based on the validity of the license
-			if ($isValid) {
-				// Add query arg or admin notice for valid license
+
+        if ($option_name === 'smarty_gfg_settings_license' && isset($value['api_key'])) {
+            $api_key = $value['api_key'];
+            
+            // Check the license status
+            $isValid = $this->gfg_is_valid_api_key($api_key);
+
+            // Add an admin notice based on the validity of the license
+            if ($isValid) {
+                // Add query arg or admin notice for valid license
 				add_query_arg('license-valid', 'true');
 			} else {
 				// Add query arg or admin notice for invalid license
 				add_query_arg('license-invalid', 'true');
 			}
-		}
-	}
+        }
+    }
 
     /**
      * Callback function for the License section.

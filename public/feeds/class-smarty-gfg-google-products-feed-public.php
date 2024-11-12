@@ -385,8 +385,8 @@ class Smarty_Gfg_Google_Products_Feed_Public {
             wp_die('Failed to open output stream for CSV export'); // Kill the script and display message if handle is invalid
         }
 
-        // Get excluded columns from settings
-        $excluded_columns = get_option('smarty_gfg_google_exclude_csv_columns', array());
+        // Get excluded columns from settings, ensure it's an array
+        $excluded_columns = (array) get_option('smarty_gfg_google_exclude_xml_columns', array());
 
         // Define the columns and map headers based on user settings
         $csv_columns = array(
@@ -410,7 +410,7 @@ class Smarty_Gfg_Google_Products_Feed_Public {
         //_gfg_write_logs('CSV Headers: ' . print_r($headers, true));
 
         // Get excluded categories from settings
-        $excluded_categories = get_option('smarty_gfg_google_excluded_categories', array());
+        $excluded_categories = (array) get_option('smarty_gfg_google_excluded_categories', array());
         //_gfg_write_logs('Excluded Categories: ' . print_r($excluded_categories, true));
 
         // Check if including product variations is enabled

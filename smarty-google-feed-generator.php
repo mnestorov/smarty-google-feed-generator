@@ -32,7 +32,7 @@ if (!defined('WPINC')) {
 	die;
 }
 
-// Check if DCF_VERSION is not already defined
+// Check if GFG_VERSION is not already defined
 if (!defined('GFG_VERSION')) {
 	/**
 	 * Current plugin version.
