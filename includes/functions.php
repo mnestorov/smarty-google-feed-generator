@@ -63,6 +63,18 @@ if (!function_exists('smarty_check_compatibility')) {
     }
 }
 
+if (!function_exists('_gfg_validate_license_key')) {
+    function _gfg_validate_license_key() {
+        // Retrieve the stored license key from options
+        $license_options = get_option('smarty_gfg_settings_license');
+        $api_key = $license_options['api_key'] ?? '';
+
+        // Instantiate the License class and validate the license key
+        $license_checker = new Smarty_Gfg_License();
+        return $license_checker->gfg_is_valid_api_key($api_key);
+    }
+}
+
 if (!function_exists('_gfg_write_logs')) {
 	/**
      * Writes logs for the plugin.

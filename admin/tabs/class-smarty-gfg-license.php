@@ -78,7 +78,6 @@ class Smarty_Gfg_License {
      * @param string $api_key The API key to validate.
      * @return bool True if the API key is valid, false otherwise.
      */
-	/*
     public function gfg_is_valid_api_key($api_key) {
 		$response = $this->api_instance->validate_license($api_key);
 	
@@ -93,39 +92,14 @@ class Smarty_Gfg_License {
 				}
 			}
 	
-			//_gfg_write_logs('Checking API key validity: ' . $api_key);
-			//_gfg_write_logs('API Response: ' . print_r($response, true));
-			//_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
+			_gfg_write_logs('Checking API key validity: ' . $api_key);
+			_gfg_write_logs('API Response: ' . print_r($response, true));
+			_gfg_write_logs('License is ' . ($isActive ? 'active' : 'inactive'));
 			return $isActive;
 		}
 	
 		return false;
 	}
-	*/
-
-	/**
-	 * Checks the license status by querying the Google Sheets API.
-	 *
-	 * This method sends an HTTP GET request to the Google Apps Script web app URL, passing the license key as a parameter.
-	 * The response from the API is decoded to determine the license status.
-	 *
-	 * @param string $api_key The license key to be validated.
-	 *
-	 * @return string Returns the license status as one of the following:
-	 *                'active' for valid and active licenses,
-	 *                'inactive' for inactive licenses,
-	 *                'expired' for expired licenses,
-	 *                or 'not found' if the license key does not exist or if there was an error in the request.
-	 */
-	public function gfg_check_license_status($api_key) {
-		$response = wp_remote_get(WEB_APP_URL . '?license_key=' . urlencode($api_key));
-		if (is_wp_error($response)) {
-			return 'not found';
-		}
-		
-		$body = json_decode(wp_remote_retrieve_body($response), true);
-		return $body['status'] ?? 'not found';
-	}	
 
 	/**
      * Handle license status check.
@@ -135,7 +109,6 @@ class Smarty_Gfg_License {
      * @param mixed $old_value The old value of the option.
      * @param mixed $value The new value of the option.
      */
-	/*
 	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
 		if (!$this->api_instance) {
 			// Handle the error
@@ -154,30 +127,6 @@ class Smarty_Gfg_License {
 				add_query_arg('license-valid', 'true');
 			} else {
 				// Add query arg or admin notice for invalid license
-				add_query_arg('license-invalid', 'true');
-			}
-		}
-	}*/
-
-	/**
-	 * Handle license status check.
-	 * 
-	 * @since    1.0.0
-	 * @param string $option_name The name of the option.
-	 * @param mixed $old_value The old value of the option.
-	 * @param mixed $value The new value of the option.
-	 */
-	public function gfg_handle_license_status_check($option_name, $old_value, $value) {
-		if ($option_name == 'smarty_gfg_settings_license' && isset($value['api_key'])) {
-			$api_key = $value['api_key'];
-
-			// Check the license status using gfg_check_license_status
-			$status = $this->gfg_check_license_status($api_key);
-
-			// Add an admin notice based on the status of the license
-			if ($status === 'active') {
-				add_query_arg('license-valid', 'true');
-			} else {
 				add_query_arg('license-invalid', 'true');
 			}
 		}

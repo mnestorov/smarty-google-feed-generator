@@ -50,16 +50,11 @@ if (!defined('GFG_BASE_DIR')) {
 }
 
 if (!defined('CK_KEY')) {
-    define('CK_KEY', 'ck_555d1faa8a6f705334ed0f32189019ffaf624922');
+    define('CK_KEY', 'ck_0d4ef75fedf7c98971b242fa21989e1815108325');
 }
 
 if (!defined('CS_KEY')) {
-    define('CS_KEY', 'cs_0c7dbc81992841eb207c648397b406e4c3e5de6f');
-}
-
-// Google Apps: Web App Url
-if (!defined('WEB_APP_URL')) {
-    define('WEB_APP_URL', 'https://script.google.com/macros/s/AKfycbwgRmSEYWnfkd7SyQUEV8EuSSIXsRaAom5kHcIVedbibHwjy6Ay5P3coULTbuvswwhG/exec');
+    define('CS_KEY', 'cs_1882c372261a33744c1e178b63ddc50af44e0b76');
 }
 
 /**
