@@ -130,7 +130,7 @@ class Smarty_Gfg_License {
 	public function gfg_section_tab_license_cb($args) {
 		?>
 		<p id="<?php echo esc_attr($args['id']); ?>">
-			<?php echo esc_html__('Enter your API key to enable advanced features.', 'smarty-google-feed-generator'); ?>
+			<?php echo esc_html__('Enter your License key to enable advanced features.', 'smarty-google-feed-generator'); ?>
 		</p>
 		<?php
 	}
@@ -146,7 +146,7 @@ class Smarty_Gfg_License {
 		?>
 		<input type="text" id="smarty_gfg_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
 		<p class="description">
-			<?php echo esc_html__('Enter a valid API key.', 'smarty-google-feed-generator'); ?>
+			<?php echo esc_html__('Enter a valid License key.', 'smarty-google-feed-generator'); ?>
 		</p>
 		<?php
 	}
