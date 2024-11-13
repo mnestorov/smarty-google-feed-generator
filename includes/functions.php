@@ -25,13 +25,13 @@
     }
 }
 
-if (!function_exists('smarty_check_compatibility')) {
+if (!function_exists('smarty_gfg_check_compatibility')) {
     /**
      * Helper function to check compatibility.
      * 
      * @since      1.0.0
      */
-    function smarty_check_compatibility() {
+    function smarty_gfg_check_compatibility() {
         $min_wp_version = MIN_WP_VER; // Minimum WordPress version required
         $min_wc_version = MIN_WC_VER; // Minimum WooCommerce version required
         $min_php_version = MIN_PHP_VER; // Minimum PHP version required

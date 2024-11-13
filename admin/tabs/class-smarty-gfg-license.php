@@ -47,7 +47,7 @@ class Smarty_Gfg_License {
 
 		add_settings_field(
 			'smarty_gfg_api_key',												// ID of the field
-			__('License Key', 'smarty-google-feed-generator'),						// Title of the field
+			__('License Key', 'smarty-google-feed-generator'),					// Title of the field
 			array($this, 'gfg_field_api_key_cb'),								// Callback function to display the field
 			'smarty_gfg_options_license',										// Page on which to add the field
 			'smarty_gfg_section_license'										// Section to which this field belongs
@@ -82,11 +82,11 @@ class Smarty_Gfg_License {
         $response = $this->api_instance->validate_license($api_key);
     
         if (isset($response['status']) && $response['status'] === 'active') {
-            _gfg_write_logs('License validation successful: ' . $api_key);
+            //_gfg_write_logs('License validation successful: ' . $api_key);
             return true;
         }
         
-        _gfg_write_logs('License validation failed: ' . print_r($response, true));
+        //_gfg_write_logs('License validation failed: ' . print_r($response, true));
         return false;
     }		
 
@@ -130,7 +130,7 @@ class Smarty_Gfg_License {
 	public function gfg_section_tab_license_cb($args) {
 		?>
 		<p id="<?php echo esc_attr($args['id']); ?>">
-			<?php echo esc_html__('Enter your License key to enable advanced features.', 'smarty-google-feed-generator'); ?>
+			<?php echo esc_html__('Enter your license key to enable advanced features.', 'smarty-google-feed-generator'); ?>
 		</p>
 		<?php
 	}
@@ -146,7 +146,7 @@ class Smarty_Gfg_License {
 		?>
 		<input type="text" id="smarty_gfg_api_key" name="smarty_gfg_settings_license[api_key]" size="30" value="<?php echo isset($options['api_key']) ? esc_attr($options['api_key']) : ''; ?>">
 		<p class="description">
-			<?php echo esc_html__('Enter a valid License key.', 'smarty-google-feed-generator'); ?>
+			<?php echo esc_html__('Enter a valid license key.', 'smarty-google-feed-generator'); ?>
 		</p>
 		<?php
 	}
