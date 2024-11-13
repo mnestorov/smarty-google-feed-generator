@@ -50,11 +50,11 @@ if (!defined('GFG_BASE_DIR')) {
 }
 
 if (!defined('CK_KEY')) {
-    define('CK_KEY', 'ck_0d4ef75fedf7c98971b242fa21989e1815108325');
+    define('CK_KEY', 'ck_eef59a26a46fa50bdbf7cda9306c5fab9bf2611d'); // Do not change!
 }
 
 if (!defined('CS_KEY')) {
-    define('CS_KEY', 'cs_1882c372261a33744c1e178b63ddc50af44e0b76');
+    define('CS_KEY', 'cs_5be478eed013423dbf7dac0c70a87346ff8b3e2d'); // Do not change!
 }
 
 /**

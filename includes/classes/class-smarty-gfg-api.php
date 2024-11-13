@@ -10,7 +10,7 @@
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Gfg_API {
-    private $api_url = 'https://smartystudio.net/lm/wp-json/license-manager/v1/check-license';
+    private $api_url = 'https://smartystudio.website/wp-json/license-manager/v1/check-license';
     private $consumer_key; // Set your Consumer Key
     private $consumer_secret; // Set your Consumer Secret
 
