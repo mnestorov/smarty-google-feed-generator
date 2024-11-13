@@ -5,7 +5,7 @@
  * Defines the plugin name, version, and two hooks for how to enqueue 
  * the public-facing stylesheet (CSS) and JavaScript code.
  * 
- * @link       https://github.com/mnestorov
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator
