@@ -50,7 +50,7 @@ if (!defined('GFG_BASE_DIR')) {
 }
 
 if (!defined('API_URL')) {
-    define('API_URL', 'https://smartystudio.website/wp-json/license-manager/v1/check-license'); // Do not change!
+    define('API_URL', 'https://smartystudio.website/wp-json/smarty-vslm/v1/check-license'); // Do not change!
 }
 
 if (!defined('CK_KEY')) {

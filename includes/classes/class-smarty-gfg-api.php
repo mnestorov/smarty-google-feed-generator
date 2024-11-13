@@ -37,10 +37,14 @@ class Smarty_Gfg_API {
 	 * @since    1.0.0
 	 */
     public function __construct($consumer_key, $consumer_secret) {
-        $this->api_url = defined('API_URL') ? API_URL : '';
+        if (defined('API_URL')) {
+			$this->api_url = API_URL;
+		} else {
+			$this->api_url = '';
+		}
+		
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
-
         $this->plugin_name = 'smarty_google_feed_generator';
 		
 		if (defined('GFG_VERSION')) {
@@ -76,11 +80,11 @@ class Smarty_Gfg_API {
         $response = wp_remote_request($url, $args);
 
         if (is_wp_error($response)) {
-            _gfg_write_logs('API request error: ' . $response->get_error_message());
+            //_gfg_write_logs('API request error: ' . $response->get_error_message());
             return false;
         }
     
-        _gfg_write_logs('API request response: ' . print_r($response, true));
+        //_gfg_write_logs('API request response: ' . print_r($response, true));
         return json_decode(wp_remote_retrieve_body($response), true);
     }
     

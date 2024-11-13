@@ -68,7 +68,7 @@
 				<?php do_settings_sections('smarty_gfg_options_license'); ?>
 				<?php submit_button(__('Save Settings', 'smarty-google-feed-generator')); ?>
 			<?php else: ?>
-				<p class="description smarty-error" style="margin: 30px 0;"><?php echo esc_html__('Please enter a valid API key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
+				<p class="description smarty-error" style="margin: 30px 0;"><?php echo esc_html__('Please enter a valid license key in the License tab to access this setting.', 'smarty-google-feed-generator'); ?></p>
 			<?php endif; ?>
 		</form>
 	<?php endif; ?>
