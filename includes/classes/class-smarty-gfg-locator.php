@@ -58,7 +58,7 @@ class Smarty_Gfg_Locator {
 		if (defined('GFG_VERSION')) {
 			$this->version = GFG_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
 
 		$this->plugin_name = 'smarty_google_feed_generator';

@@ -60,7 +60,7 @@ class Smarty_Gfg_Activity_Logging {
 	 * @since    1.0.0
 	 */
 	public static function gfg_activity_log_cb() {
-		$instance = new self('Smarty_Gfg_Admin', '1.0.0');
+		$instance = new self('Smarty_Gfg_Admin', '1.0.1');
 		$instance->gfg_display_activity_log();
 	}
 

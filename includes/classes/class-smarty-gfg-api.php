@@ -10,9 +10,43 @@
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Gfg_API {
+
+    /**
+     * The base URL for the license API endpoint.
+     *
+     * This URL is used to make requests to the License Manager API. 
+     * It's typically defined as a constant in the main plugin file and passed 
+     * to this class during instantiation.
+     *
+     * @since   1.0.1
+     * @access  private
+     * @var     string $api_url The base API URL for license validation requests.
+     */
     private $api_url;
-    private $consumer_key; // Set your Consumer Key
-    private $consumer_secret; // Set your Consumer Secret
+
+    /**
+     * The consumer key for API authentication.
+     *
+     * This key, along with the consumer secret, is used to authenticate API requests
+     * to the License Manager. It is passed as a parameter during class instantiation.
+     *
+     * @since   1.0.1
+     * @access  private
+     * @var     string $consumer_key The consumer key for secure API access.
+     */
+    private $consumer_key;
+
+    /**
+     * The consumer secret for API authentication.
+     *
+     * Used in conjunction with the consumer key to authenticate requests to the License Manager API.
+     * It is passed to the class during instantiation and should be kept private to ensure secure access.
+     *
+     * @since   1.0.1
+     * @access  private
+     * @var     string $consumer_secret The consumer secret for secure API access.
+     */
+    private $consumer_secret;
 
     /**
 	 * The unique identifier of this plugin.
@@ -34,7 +68,7 @@ class Smarty_Gfg_API {
 	protected $version;
     
     /**
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
     public function __construct($consumer_key, $consumer_secret) {
         if (defined('API_URL')) {
@@ -50,17 +84,18 @@ class Smarty_Gfg_API {
 		if (defined('GFG_VERSION')) {
 			$this->version = GFG_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
     }
 
      /**
      * Makes an API request.
      *
-     * @param string $endpoint API endpoint to call.
-     * @param string $method HTTP method to use.
-     * @param array $query_params Optional. Array of query parameters.
-     * @return array|false Response body as an array on success, false on failure.
+     * @since    1.0.1
+     * @param    string $endpoint API endpoint to call.
+     * @param    string $method HTTP method to use.
+     * @param    array $query_params Optional. Array of query parameters.
+     * @return   array|false Response body as an array on success, false on failure.
      */
     private function make_api_request($endpoint, $method = 'GET', $query_params = []) {
         $url = $this->api_url . $endpoint;
@@ -91,8 +126,9 @@ class Smarty_Gfg_API {
     /**
      * Validates a license key with additional site information.
      *
-     * @param string $license_key The license key to validate.
-     * @return bool True if license is active, false otherwise.
+     * @since    1.0.1
+     * @param    string $license_key The license key to validate.
+     * @return   bool True if license is active, false otherwise.
      */
     public function validate_license($license_key) {
         $web_server = esc_html($_SERVER['SERVER_SOFTWARE']);
