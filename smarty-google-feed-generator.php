@@ -58,8 +58,8 @@ if (!defined('GFG_BASE_DIR')) {
  * @since 	1.0.1
  * @access 	public
  */
-if (!defined('API_URL')) {
-    define('API_URL', 'https://smartystudio.website/wp-json/smarty-vslm/v1/check-license'); // Do not change!
+if (!defined('API_URL')) { // Do not change!
+    define('API_URL', base64_decode('aHR0cHM6Ly9zbWFydHlzdHVkaW8ud2Vic2l0ZS93cC1qc29uL3NtYXJ0eS12c2xtL3YxL2NoZWNrLWxpY2Vuc2U=')); 
 }
 
 /**
@@ -71,8 +71,8 @@ if (!defined('API_URL')) {
  * @since 	1.0.1
  * @access 	public
  */
-if (!defined('CK_KEY')) {
-    define('CK_KEY', 'ck_eef59a26a46fa50bdbf7cda9306c5fab9bf2611d'); // Do not change!
+if (!defined('CK_KEY')) { // Do not change!
+    define('CK_KEY', base64_decode('Y2tfZWVmNTlhMjZhNDZmYTUwYmRiZjdjZGE5MzA2YzVmYWI5YmYyNjExZA==')); 
 }
 
 /**
@@ -84,8 +84,8 @@ if (!defined('CK_KEY')) {
  * @since 	1.0.1
  * @access 	public
  */
-if (!defined('CS_KEY')) {
-    define('CS_KEY', 'cs_5be478eed013423dbf7dac0c70a87346ff8b3e2d'); // Do not change!
+if (!defined('CS_KEY')) { // Do not change!
+    define('CS_KEY', base64_decode('Y3NfNWJlNDc4ZWVkMDEzNDIzZGJmN2RhYzBjNzBhODczNDZmZjhiM2UyZA==')); 
 }
 
 /**
