@@ -5,7 +5,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       https://github.com/mnestorov
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

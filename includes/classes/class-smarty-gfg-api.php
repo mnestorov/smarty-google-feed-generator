@@ -2,7 +2,7 @@
 /**
  * The API functionality of the plugin.
  *
- * @link       https://github.com/mnestorov
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

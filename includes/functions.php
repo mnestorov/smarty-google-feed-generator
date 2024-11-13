@@ -6,7 +6,7 @@
  * 
  * Important: Always use the `smarty_` prefix for function names.
  *
- * @link       https://smartystudio.net
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

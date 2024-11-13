@@ -4,7 +4,7 @@
  *
  * This class defines all code necessary to run during the plugin's deactivation.
  *
- * @link       https://github.com/mnestorov
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator

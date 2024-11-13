@@ -6,7 +6,7 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @link       https://github.com/mnestorov
+ * @link       https://github.com/mnestorov/smarty-google-feed-generator
  * @since      1.0.0
  *
  * @package    Smarty_Google_Feed_Generator
