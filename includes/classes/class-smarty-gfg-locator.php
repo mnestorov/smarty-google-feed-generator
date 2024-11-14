@@ -61,12 +61,13 @@ class Smarty_Gfg_Locator {
 			$this->version = '1.0.1';
 		}
 
-		$this->plugin_name = 'smarty_google_feed_generator';
+		$this->plugin_name = 'smarty-google-feed-generator';
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_status_hooks();
 	}
 
 	/**
@@ -100,6 +101,11 @@ class Smarty_Gfg_Locator {
 		 * The class responsible for interacting with the API.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-api.php';
+
+		/**
+		 * The class responsible for registering REST Route for plugn status check.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-gfg-status-check.php';
 
 		/**
 		 * Trait to handle Google Products category-related functionality for product feeds.
@@ -268,6 +274,18 @@ class Smarty_Gfg_Locator {
 
 		// Register hooks for Bing Products Feed
 		$this->loader->add_action('smarty_gfg_generate_bing_products_feed', $plugin_bing_products_feed, 'gfg_generate_bing_products_feed');	
+	}
+
+	/**
+	 * Register all of the hooks related to the REST Route functionality of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_status_hooks() {
+		$plugin_status = new Smarty_Gfg_Status_Check($this->get_plugin_name(), $this->get_version());
+		
+		$this->loader->add_action('rest_api_init', $plugin_status, 'register_routes');
 	}
 
 	/**
