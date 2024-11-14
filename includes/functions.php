@@ -63,6 +63,39 @@ if (!function_exists('smarty_gfg_check_compatibility')) {
     }
 }
 
+if (!function_exists('smarty_gfg_get_browser_and_device_type')) {
+    /**
+     * Helper function to check browser and device type.
+     * 
+     * @since      1.0.1
+     */
+    function smarty_gfg_get_browser_and_device_type() {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        
+        // Browser detection based on user agent (simplified)
+        $browser = 'Unknown';
+        if (stripos($user_agent, 'Firefox') !== false) {
+            $browser = 'Firefox';
+        } elseif (stripos($user_agent, 'Chrome') !== false) {
+            $browser = 'Chrome';
+        } elseif (stripos($user_agent, 'Safari') !== false) {
+            $browser = 'Safari';
+        } elseif (stripos($user_agent, 'Edge') !== false) {
+            $browser = 'Edge';
+        } elseif (stripos($user_agent, 'MSIE') !== false || stripos($user_agent, 'Trident') !== false) {
+            $browser = 'Internet Explorer';
+        }
+        
+        // Device type based on user agent
+        $device_type = (preg_match('/Mobile|Android|iPhone|iPad/i', $user_agent)) ? 'Mobile' : 'Desktop';
+
+        return [
+            'browser' => $browser,
+            'device_type' => $device_type
+        ];
+    }
+}
+
 if (!function_exists('_gfg_write_logs')) {
 	/**
      * Writes logs for the plugin.
