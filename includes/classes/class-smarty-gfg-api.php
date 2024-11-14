@@ -138,10 +138,11 @@ class Smarty_Gfg_API {
         $user_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $browser = urlencode($browser_device_info['browser']);
         $device_type = urlencode($browser_device_info['device_type']);
+        $os = urlencode(smarty_gfg_get_os());
         
         // Construct the endpoint URL with license key, site URL, WP version, server software, and server IP
         $endpoint = sprintf(
-            '?license_key=%s&site_url=%s&wp_version=%s&web_server=%s&server_ip=%s&php_version=%s&plugin_name=%s&plugin_version=%s&user_ip=%s&browser=%s&device_type=%s',
+            '?license_key=%s&site_url=%s&wp_version=%s&web_server=%s&server_ip=%s&php_version=%s&plugin_name=%s&plugin_version=%s&user_ip=%s&browser=%s&device_type=%s&os=%s',
             urlencode($license_key),
             urlencode(get_site_url()),
             urlencode(get_bloginfo('version')),
@@ -152,7 +153,8 @@ class Smarty_Gfg_API {
             urlencode($this->version),
             urlencode($user_ip),
             $browser,
-            $device_type
+            $device_type,
+            $os,
         );
     
         // Make the request with the updated endpoint
