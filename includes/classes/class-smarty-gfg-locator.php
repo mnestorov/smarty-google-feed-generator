@@ -279,7 +279,7 @@ class Smarty_Gfg_Locator {
 	/**
 	 * Register all of the hooks related to the REST Route functionality of the plugin.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 * @access   private
 	 */
 	private function define_status_hooks() {

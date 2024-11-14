@@ -79,7 +79,7 @@ class Smarty_Gfg_API {
 		
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
-        $this->plugin_name = 'smarty_google_feed_generator';
+        $this->plugin_name = 'smarty-google-feed-generator';
 		
 		if (defined('GFG_VERSION')) {
 			$this->version = GFG_VERSION;
