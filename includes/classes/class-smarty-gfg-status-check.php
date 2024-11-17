@@ -48,7 +48,7 @@ class Smarty_Gfg_Status_Check {
      * @since    1.0.1
      */
     public function register_routes() {
-        register_rest_route('smarty-gfg/v1', '/plugin-status', [
+        register_rest_route('smarty-google-feed-generator/v1', '/plugin-status', [
             'methods'             => 'GET',
             'callback'            => [$this, 'status_check'],
             'permission_callback' => '__return_true', // Allow public access to this endpoint
@@ -62,12 +62,13 @@ class Smarty_Gfg_Status_Check {
      * @return   WP_REST_Response JSON response with plugin status.
      */
     public function status_check() {
-        $status = is_plugin_active($this->plugin_name . '/' . $this->plugin_name . '.php') ? 'active' : 'inactive';
-
-        return new WP_REST_Response([
-            'status'      => $status,
-            'plugin_name' => $this->plugin_name,
-            'version'     => $this->version
-        ], 200);
-    }
+		// Add a timestamp to the response
+		$timestamp = current_time('mysql');
+		return new WP_REST_Response([
+			'status' 	  => is_plugin_active($this->plugin_name . '/' . $this->plugin_name . '.php') ? 'active' : 'inactive',
+			'plugin_name' => $this->plugin_name,
+			'version' 	  => $this->version,
+			'timestamp'   => $timestamp,
+		], 200);
+	}
 }
