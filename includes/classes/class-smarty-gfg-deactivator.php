@@ -16,7 +16,7 @@ class Smarty_Gfg_Deactivator {
 	/**
 	 * This function will be executed when the plugin is deactivated.
 	 *
-	 * @since    1.7.0
+	 * @since    1.0.0
 	 */
 	public static function deactivate() {
 		// Flush rewrite rules

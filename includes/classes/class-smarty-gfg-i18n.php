@@ -17,7 +17,7 @@ class Smarty_Gfg_I18n {
 	/**
 	 * Load the plugin text domain for translation.
 	 *
-	 * @since    1.7.0
+	 * @since    1.0.0
 	 */
 	public function load_plugin_textdomain() {
         load_plugin_textdomain('smarty-google-feed-generator', false, dirname(dirname(plugin_basename(__FILE__))) . '/languages/');
