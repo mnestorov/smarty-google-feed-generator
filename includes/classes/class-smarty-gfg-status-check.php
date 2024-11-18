@@ -65,10 +65,8 @@ class Smarty_Gfg_Status_Check {
 		// Add a timestamp to the response
 		$timestamp = current_time('mysql');
 		return new WP_REST_Response([
-			'status' 	  => is_plugin_active($this->plugin_name . '/' . $this->plugin_name . '.php') ? 'active' : 'inactive',
-			'plugin_name' => $this->plugin_name,
-			'version' 	  => $this->version,
-			'timestamp'   => $timestamp,
-		], 200);
+            'status'      => 'active',
+            'timestamp'   => $timestamp,
+        ], 200);
 	}
 }
