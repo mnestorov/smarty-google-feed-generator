@@ -62,11 +62,8 @@ class Smarty_Gfg_Status_Check {
      * @return   WP_REST_Response JSON response with plugin status.
      */
     public function status_check() {
-		// Add a timestamp to the response
-		$timestamp = current_time('mysql');
 		return new WP_REST_Response([
-            'status'      => 'active',
-            'timestamp'   => $timestamp,
+            'status'  => 'active',
         ], 200);
 	}
 }
