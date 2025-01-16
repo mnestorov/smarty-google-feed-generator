@@ -20,6 +20,12 @@ textarea[name="smarty_exclude_patterns"].large-text {
 }
 
 /* Tab styles */
+@media screen and (max-width: 768px) {
+    #smarty-gfg-tabs-container {
+        display: none;
+    }
+}
+
 .smarty-gfg-nav-tab-wrapper, .wrap h2.smarty-gfg-nav-tab-wrapper, h1.smarty-gfg-nav-tab-wrapper {
     border-bottom: 1px solid #dddddd;
     margin-bottom: 20px;
