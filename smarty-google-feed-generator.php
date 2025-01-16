@@ -1,14 +1,17 @@
 <?php
 /**
- * Plugin Name: SM - Google Feed Generator for WooCommerce
- * Plugin URI:  https://github.com/mnestorov/smarty-google-feed-generator
- * Description: Generates google product and product review feeds for Google Merchant Center.
- * Version:     1.0.0
- * Author:      Smarty Studio | Martin Nestorov
- * Author URI:  https://github.com/mnestorov
- * License:     GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: smarty-google-feed-generator
+ * Plugin Name:             SM - Google Feed Generator for WooCommerce
+ * Plugin URI:              https://github.com/mnestorov/smarty-google-feed-generator
+ * Description:             Generates google product and product review feeds for Google Merchant Center.
+ * Version:                 1.0.1
+ * Author:                  Smarty Studio | Martin Nestorov
+ * Author URI:              https://github.com/mnestorov
+ * License:                 GPL-2.0+
+ * License URI:             http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:             smarty-google-feed-generator
+ * WC requires at least:    3.5.0
+ * WC tested up to:         9.5.2
+ * Requires Plugins:        woocommerce
  */
 
 // If this file is called directly, abort.
@@ -17,6 +20,15 @@ if (!defined('WPINC')) {
 }
 
 if (!function_exists('smarty_enqueue_admin_scripts')) {
+    /**
+     * Enqueue admin scripts and styles for the plugin.
+     *
+     * This function enqueues the necessary JavaScript and CSS files for the
+     * admin settings pages of the Google Feed Generator plugin.
+     * It also localizes the script to pass AJAX-related data to the JavaScript file.
+     *
+     * @return void
+     */
     function smarty_enqueue_admin_scripts() {
         wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
         wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
@@ -989,24 +1001,48 @@ if (!function_exists('smarty_feed_generator_add_settings_page')) {
 }
 
 if (!function_exists('smarty_sanitize_text_field')) {
+    /**
+     * Sanitize a text field input.
+     *
+     * @param string $input The input string to sanitize.
+     * @return string Sanitized string.
+     */
     function smarty_sanitize_text_field($input) {
         return sanitize_text_field($input);
     }
 }
 
 if (!function_exists('smarty_sanitize_textarea_field')) {
+    /**
+     * Sanitize a textarea field input.
+     *
+     * @param string $input The input string to sanitize.
+     * @return string Sanitized string.
+     */
     function smarty_sanitize_textarea_field($input) {
         return sanitize_textarea_field($input);
     }
 }
 
 if (!function_exists('smarty_sanitize_checkbox')) {
+    /**
+     * Sanitize a checkbox field input.
+     *
+     * @param mixed $input The checkbox input value.
+     * @return int 1 if checked, 0 otherwise.
+     */
     function smarty_sanitize_checkbox($input) {
         return $input == 1 ? 1 : 0;
     }
 }
 
 if (!function_exists('smarty_sanitize_number_field')) {
+    /**
+     * Sanitize a number field input.
+     *
+     * @param mixed $input The input value.
+     * @return int Absolute integer value.
+     */
     function smarty_sanitize_number_field($input) {
         return absint($input);
     }
@@ -1270,12 +1306,28 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
 }
 
 if (!function_exists('smarty_gfg_section_general_callback')) {
+    /**
+     * Display the description for the general settings section.
+     *
+     * This function outputs the description text for the "General" section
+     * in the plugin's settings page.
+     *
+     * @return void
+     */
     function smarty_gfg_section_general_callback() {
         echo '<p>' . __('General settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_google_product_category_callback')) {
+    /**
+     * Render the Google Product Category dropdown field.
+     *
+     * This function outputs an HTML `<select>` dropdown for selecting a Google Product Category.
+     * The selected option is retrieved from the plugin's saved options.
+     *
+     * @return void
+     */
     function smarty_google_product_category_callback() {
         $option = get_option('smarty_google_product_category');
         echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
@@ -1313,6 +1365,14 @@ if (!function_exists('smarty_load_google_categories')) {
 }
 
 if (!function_exists('smarty_google_category_as_id_callback')) {
+    /**
+     * Render the checkbox for using Google Product Category ID.
+     *
+     * This function outputs a checkbox to allow users to choose whether to use 
+     * Google Product Category ID instead of the name in the CSV feed.
+     *
+     * @return void
+     */
     function smarty_google_category_as_id_callback() {
         $option = get_option('smarty_google_category_as_id');
         echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
@@ -1321,36 +1381,84 @@ if (!function_exists('smarty_google_category_as_id_callback')) {
 }
 
 if (!function_exists('smarty_gfg_section_custom_labels_callback')) {
+    /**
+     * Display the description for the custom labels section.
+     *
+     * This function outputs the description text for the "Custom Labels" section
+     * in the plugin's settings page.
+     *
+     * @return void
+     */
     function smarty_gfg_section_custom_labels_callback() {
         echo '<p>' . __('Define default values for custom labels.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_gfg_section_convert_images_callback')) {
+    /**
+     * Display the description for the convert images section.
+     *
+     * This function outputs the description text for the "Convert Images" section,
+     * explaining the manual WebP to PNG conversion option.
+     *
+     * @return void
+     */
     function smarty_gfg_section_convert_images_callback() {
         echo '<p>' . __('Use the button below to manually convert the first WebP image of each products in to the feed to PNG.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_gfg_section_generate_feeds_callback')) {
+    /**
+     * Display the description for the generate feeds section.
+     *
+     * This function outputs the description text for the "Generate Feeds" section,
+     * providing instructions for manually generating product feeds.
+     *
+     * @return void
+     */
     function smarty_gfg_section_generate_feeds_callback() {
         echo '<p>' . __('Use the buttons below to manually generate the feeds.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_gfg_section_meta_fields_callback')) {
+    /**
+     * Display the description for the meta fields section.
+     *
+     * This function outputs the description text for the "Meta Fields" section
+     * in the plugin's settings page, explaining options for meta field settings.
+     *
+     * @return void
+     */
     function smarty_gfg_section_meta_fields_callback() {
         echo '<p>' . __('Meta fields settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_gfg_section_settings_callback')) {
+    /**
+     * Display the description for the cache settings section.
+     *
+     * This function outputs the description text for the "Cache" section,
+     * explaining options related to caching for the Google Feed Generator.
+     *
+     * @return void
+     */
     function smarty_gfg_section_settings_callback() {
         echo '<p>' . __('Cache settings for the Google Feed Generator.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
 if (!function_exists('smarty_exclude_patterns_callback')) {
+    /**
+     * Render the textarea field for excluding patterns in the CSV feed.
+     *
+     * This function outputs a `<textarea>` field where users can enter patterns
+     * to exclude specific products or URLs from the CSV feed.
+     *
+     * @return void
+     */
     function smarty_exclude_patterns_callback() {
         $option = get_option('smarty_exclude_patterns');
         echo '<textarea name="smarty_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
@@ -1379,6 +1487,15 @@ if (!function_exists('smarty_excluded_categories_callback')) {
 }
 
 if (!function_exists('smarty_custom_label_days_callback')) {
+    /**
+     * Render a dropdown for custom label days.
+     *
+     * This function outputs a `<select>` dropdown to allow users to set the number of days
+     * for a custom label. The options range from 10 to 120 days.
+     *
+     * @param array $args An associative array containing the label key for the option.
+     * @return void
+     */
     function smarty_custom_label_days_callback($args) {
         $option = get_option($args['label'], 30);
         $days = [10, 20, 30, 60, 90, 120];
@@ -1391,6 +1508,15 @@ if (!function_exists('smarty_custom_label_days_callback')) {
 }
 
 if (!function_exists('smarty_custom_label_value_callback')) {
+    /**
+     * Render a text input field for custom label values.
+     *
+     * This function outputs an input field for entering a custom label value
+     * and provides a description based on the specific label.
+     *
+     * @param array $args An associative array containing the label key for the option.
+     * @return void
+     */
     function smarty_custom_label_value_callback($args) {
         $option = get_option($args['label'], '');
         echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
@@ -1423,6 +1549,15 @@ if (!function_exists('smarty_custom_label_value_callback')) {
 }
 
 if (!function_exists('smarty_custom_label_category_callback')) {
+    /**
+     * Render a multi-select dropdown for custom label categories.
+     *
+     * This function outputs a multi-select dropdown to allow users to select product categories
+     * for a custom label and provides a description for the selected categories.
+     *
+     * @param array $args An associative array containing the label key for the option.
+     * @return void
+     */
     function smarty_custom_label_category_callback($args) {
         $option = get_option($args['label'], []);
         $categories = get_terms([
@@ -1444,12 +1579,28 @@ if (!function_exists('smarty_custom_label_category_callback')) {
 }
 
 if (!function_exists('smarty_convert_images_button_callback')) {
+    /**
+     * Render the "Convert WebP to PNG" button.
+     *
+     * This function outputs a button to trigger the manual conversion of WebP images
+     * to PNG format for products in the feed.
+     *
+     * @return void
+     */
     function smarty_convert_images_button_callback() {
         echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
     }
 }
 
 if (!function_exists('smarty_generate_feed_buttons_callback')) {
+    /**
+     * Render the buttons for manually generating feeds.
+     *
+     * This function outputs buttons for generating the product feed, reviews feed,
+     * and CSV export manually from the plugin settings page.
+     *
+     * @return void
+     */
     function smarty_generate_feed_buttons_callback() {
         echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
         echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
@@ -1458,6 +1609,14 @@ if (!function_exists('smarty_generate_feed_buttons_callback')) {
 }
 
 if (!function_exists('smarty_meta_title_field_callback')) {
+    /**
+     * Render the text input for the meta title field.
+     *
+     * This function outputs a text input field for setting the custom field name
+     * used as the product title meta.
+     *
+     * @return void
+     */
     function smarty_meta_title_field_callback() {
         $option = get_option('smarty_meta_title_field', 'meta-title');
         echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
@@ -1466,6 +1625,14 @@ if (!function_exists('smarty_meta_title_field_callback')) {
 }
 
 if (!function_exists('smarty_meta_description_field_callback')) {
+    /**
+     * Render the text input for the meta description field.
+     *
+     * This function outputs a text input field for setting the custom field name
+     * used as the product description meta.
+     *
+     * @return void
+     */
     function smarty_meta_description_field_callback() {
         $option = get_option('smarty_meta_description_field', 'meta-description');
         echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
@@ -1474,6 +1641,14 @@ if (!function_exists('smarty_meta_description_field_callback')) {
 }
 
 if (!function_exists('smarty_clear_cache_callback')) {
+    /**
+     * Render the checkbox for clearing the cache.
+     *
+     * This function outputs a checkbox to allow users to clear the cache whenever
+     * the feed is generated, along with a note about its usage in production.
+     *
+     * @return void
+     */
     function smarty_clear_cache_callback() {
         $option = get_option('smarty_clear_cache');
         echo '<input type="checkbox" name="smarty_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
@@ -1482,6 +1657,14 @@ if (!function_exists('smarty_clear_cache_callback')) {
 }
 
 if (!function_exists('smarty_cache_duration_callback')) {
+    /**
+     * Render the input field for cache duration.
+     *
+     * This function outputs a number input field for setting the cache duration
+     * in hours.
+     *
+     * @return void
+     */
     function smarty_cache_duration_callback() {
         $option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
         echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
@@ -1490,6 +1673,14 @@ if (!function_exists('smarty_cache_duration_callback')) {
 }
 
 if (!function_exists('smarty_handle_ajax_convert_images')) {
+    /**
+     * Handle AJAX request for converting images.
+     *
+     * This function handles the AJAX request to convert the first WebP image
+     * of each product in the feed to PNG format.
+     *
+     * @return void
+     */
     function smarty_handle_ajax_convert_images() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
@@ -1507,6 +1698,12 @@ if (!function_exists('smarty_handle_ajax_convert_images')) {
 if (!function_exists('smarty_convert_first_webp_image_to_png')) {
     /**
      * Convert the first WebP image of each product to PNG.
+     *
+     * This function processes all WooCommerce products to find their featured images.
+     * If a featured image is in WebP format, it converts it to PNG format and updates
+     * the product metadata to reflect the new image.
+     *
+     * @return void
      */
     function smarty_convert_first_webp_image_to_png() {
         $products = wc_get_products(array(
@@ -1540,6 +1737,15 @@ if (!function_exists('smarty_convert_first_webp_image_to_png')) {
 }
 
 if (!function_exists('smarty_handle_ajax_generate_feed')) {
+    /**
+     * Handle AJAX requests to generate feeds.
+     *
+     * This function processes AJAX requests to generate different types of feeds
+     * including the product feed, reviews feed, and CSV export. It validates the
+     * nonce and user permissions before executing the requested action.
+     *
+     * @return void
+     */
     function smarty_handle_ajax_generate_feed() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
@@ -1571,7 +1777,13 @@ if (!function_exists('smarty_handle_ajax_generate_feed')) {
 
 if (!function_exists('smarty_feed_generator_settings_page_html')) {
     /**
-     * Settings page HTML.
+     * Render the settings page HTML.
+     *
+     * This function generates the HTML output for the settings page of the
+     * Google Feed Generator plugin in the WordPress admin area.
+     * It includes form fields for all registered settings and sections.
+     *
+     * @return void
      */
     function smarty_feed_generator_settings_page_html() {
         // Check user capabilities
@@ -1852,6 +2064,26 @@ if (!function_exists('smarty_get_custom_label_4')) {
 }
 
 if (!function_exists('smarty_evaluate_criteria')) {
+    /**
+     * Evaluate product criteria and return the corresponding label.
+     *
+     * This function evaluates a set of criteria against a product's attributes
+     * and returns a label if a match is found. The criteria should be provided as a JSON string
+     * with each criterion containing an `attribute`, `value`, and `label`.
+     *
+     * Example criteria JSON:
+     * [
+     *     {
+     *         "attribute": "custom_field_name",
+     *         "value": "desired_value",
+     *         "label": "Label to Return"
+     *     }
+     * ]
+     *
+     * @param WC_Product $product The WooCommerce product object.
+     * @param string $criteria JSON string containing the criteria to evaluate.
+     * @return string The label of the matching criterion, or an empty string if no match is found.
+     */
     function smarty_evaluate_criteria($product, $criteria) {
         if (empty($criteria)) {
             return '';
