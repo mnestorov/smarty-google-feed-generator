@@ -99,14 +99,13 @@ The plugin hooks into various WooCommerce and WordPress actions to detect change
 
 ### Actions
 
-- `smarty_generate_google_feed`: Triggered to generate the Google product feed.
-- `smarty_generate_google_reviews_feed`: Triggered to generate the Google reviews feed.
-- `smarty_invalidate_feed_cache`: Invalidates the feed cache on product changes.
+- `smarty_gfg_generate_google_feed`: Triggered to generate the Google product feed.
+- `smarty_gfg_generate_google_reviews_feed`: Triggered to generate the Google reviews feed.
+- `smarty_gfg_invalidate_feed_cache`: Invalidates the feed cache on product changes.
 
 ### Filters
 
-- `smarty_sanitize_text_field`: Sanitize text fields during settings save.
-- `smarty_sanitize_checkbox`: Ensure valid checkbox values during settings save.
+- `smarty_gfg_sanitize_checkbox`: Ensure valid checkbox values during settings save.
 
 ## Requirements
 
