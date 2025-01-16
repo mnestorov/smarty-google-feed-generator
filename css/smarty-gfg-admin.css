@@ -13,8 +13,79 @@ textarea[name="smarty_exclude_patterns"].large-text {
     margin-top: 5px;
     margin-right: 5px;
     padding: 5px !important;
-    border: 1px solid #AAA;
+    border: 1px solid #dddddd;
     border-radius: 4px;
     background-color: #E4E4E4;
     cursor: default;
+}
+
+/* Tab styles */
+.smarty-gfg-nav-tab-wrapper, .wrap h2.smarty-gfg-nav-tab-wrapper, h1.smarty-gfg-nav-tab-wrapper {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 20px;
+  }
+
+.smarty-gfg-nav-tab {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #0073aa;
+    text-decoration: none;
+    border: 1px solid #dddddd;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    background: #f1f1f1;
+    margin-right: 5px;
+}
+
+.smarty-gfg-nav-tab-active {
+    background: #f9f9f9;
+    border-bottom: none;
+}
+
+.smarty-gfg-nav-tab:focus,
+.smarty-gfg-nav-tab-active:focus {
+    color: #135e96;
+    outline: none;
+}
+
+.smarty-gfg-nav-tab:focus {
+    outline: none;
+    box-shadow: 0 0 3px #0073aa;
+}
+
+.smarty-gfg-tab-content {
+    display: none;
+}
+
+.smarty-gfg-tab-content.active {
+    display: block;
+}
+
+#smarty-gfg-settings-container {
+    display: flex; 
+    gap: 20px; 
+    margin-top: 20px;
+}
+
+#smarty-gfg-settings-container > div {
+    flex: 1;
+    min-width: 250px;
+}
+
+#smarty-gfg-tabs-container {
+    background: #f9f9f9; 
+    padding: 20px; 
+    border: 1px solid #dddddd; 
+    border-radius: 8px;
+}
+
+#smarty-gfg-tabs-container > div {
+    flex: 1; 
+}
+
+.smarty-gfg-view-more-container {
+    background: #f9f9f9;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
+    padding: 0 20px 20px;
 }

@@ -19,7 +19,7 @@ if (!defined('WPINC')) {
 	die;
 }
 
-if (!function_exists('smarty_enqueue_admin_scripts')) {
+if (!function_exists('smarty_gfg_enqueue_admin_scripts')) {
     /**
      * Enqueue admin scripts and styles for the plugin.
      *
@@ -29,14 +29,14 @@ if (!function_exists('smarty_enqueue_admin_scripts')) {
      *
      * @return void
      */
-    function smarty_enqueue_admin_scripts() {
+    function smarty_gfg_enqueue_admin_scripts() {
         wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
         wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
-        wp_enqueue_script('smarty-admin-js', plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery', 'select2'), '1.0.0', true);
-        wp_enqueue_style('smarty-admin-css', plugin_dir_url(__FILE__) . 'css/smarty-gfg-admin.css', array(), '1.0.0');
+        wp_enqueue_script('smarty-gfg-admin-js', plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery', 'select2'), '1.0.0', true);
+        wp_enqueue_style('smarty-gfg-admin-css', plugin_dir_url(__FILE__) . 'css/smarty-gfg-admin.css', array(), '1.0.0');
         wp_localize_script(
-            'smarty-admin-js',
-            'smartyFeedGenerator',
+            'smarty-gfg-admin-js',
+            'smartyGoogleFeedGenerator',
             array(
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'siteUrl' => site_url(),
@@ -44,65 +44,65 @@ if (!function_exists('smarty_enqueue_admin_scripts')) {
             )
         );
     }
-    add_action('admin_enqueue_scripts', 'smarty_enqueue_admin_scripts');
+    add_action('admin_enqueue_scripts', 'smarty_gfg_enqueue_admin_scripts');
 }
 
-if (!function_exists('smarty_feed_generator_add_rewrite_rules')) {
+if (!function_exists('smarty_gfg_feed_generator_add_rewrite_rules')) {
     /**
      * Add rewrite rules for custom endpoints.
      */
-    function smarty_feed_generator_add_rewrite_rules() {
+    function smarty_gfg_feed_generator_add_rewrite_rules() {
         add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
         add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top'); // url: ?smarty-google-reviews-feed
         add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
     }
-    add_action('init', 'smarty_feed_generator_add_rewrite_rules');
+    add_action('init', 'smarty_gfg_feed_generator_add_rewrite_rules');
 }
 
-if (!function_exists('smarty_feed_generator_query_vars')) {
+if (!function_exists('smarty_gfg_feed_generator_query_vars')) {
     /**
      * Register query vars for custom endpoints.
      */
-    function smarty_feed_generator_query_vars($vars) {
+    function smarty_gfg_feed_generator_query_vars($vars) {
         $vars[] = 'smarty_google_feed';
         $vars[] = 'smarty_google_reviews_feed';
         $vars[] = 'smarty_csv_export';
         return $vars;
     }
-    add_filter('query_vars', 'smarty_feed_generator_query_vars');
+    add_filter('query_vars', 'smarty_gfg_feed_generator_query_vars');
 }
 
-if (!function_exists('smarty_feed_generator_template_redirect')) {
+if (!function_exists('smarty_gfg_feed_generator_template_redirect')) {
     /**
      * Handle requests to custom endpoints.
      */
-    function smarty_feed_generator_template_redirect() {
+    function smarty_gfg_feed_generator_template_redirect() {
         if (get_query_var('smarty_google_feed')) {
-            smarty_generate_google_feed();
+            smarty_gfg_generate_google_feed();
             exit;
         }
 
         if (get_query_var('smarty_google_reviews_feed')) {
-            smarty_generate_google_reviews_feed();
+            smarty_gfg_generate_google_reviews_feed();
             exit;
         }
 
         if (get_query_var('smarty_csv_export')) {
-            smarty_generate_csv_export();
+            smarty_gfg_generate_csv_export();
             exit;
         }
     }
-    add_action('template_redirect', 'smarty_feed_generator_template_redirect');
+    add_action('template_redirect', 'smarty_gfg_feed_generator_template_redirect');
 }
 
-if (!function_exists('smarty_generate_google_feed')) {
+if (!function_exists('smarty_gfg_generate_google_feed')) {
     /**
      * Generates the custom Google product feed.
      * 
      * This function is designed to generate a custom Google product feed for WooCommerce products. 
      * It uses WordPress and WooCommerce functions to build an XML feed that conforms to Google's specifications for product feeds.
      */
-    function smarty_generate_google_feed() {
+    function smarty_gfg_generate_google_feed() {
         // Start output buffering to prevent any unwanted output
         ob_start();
 
@@ -175,7 +175,7 @@ if (!function_exists('smarty_generate_google_feed')) {
                         $feed->appendChild($item);
 
                         // Add product details as child nodes
-                        add_google_product_details($dom, $item, $product, $variation);
+                        smarty_gfg_add_google_product_details($dom, $item, $product, $variation);
                     }
                 } else {
                     // Process simple products similarly
@@ -183,7 +183,7 @@ if (!function_exists('smarty_generate_google_feed')) {
                     $feed->appendChild($item);
 
                     // Add product details as child nodes
-                    add_google_product_details($dom, $item, $product);
+                    smarty_gfg_add_google_product_details($dom, $item, $product);
                 }
             }
 
@@ -210,10 +210,10 @@ if (!function_exists('smarty_generate_google_feed')) {
             exit;
         }
     }
-    add_action('smarty_generate_google_feed', 'smarty_generate_google_feed');
+    add_action('smarty_gfg_generate_google_feed', 'smarty_gfg_generate_google_feed');
 }
 
-if (!function_exists('add_google_product_details')) {
+if (!function_exists('smarty_gfg_add_google_product_details')) {
     /**
      * Adds Google product details to the XML item node.
      *
@@ -222,7 +222,7 @@ if (!function_exists('add_google_product_details')) {
      * @param WC_Product $product The WooCommerce product instance.
      * @param WC_Product $variation Optional. The variation instance if the product is variable.
      */
-    function add_google_product_details($dom, $item, $product, $variation = null) {
+    function smarty_gfg_add_google_product_details($dom, $item, $product, $variation = null) {
         $gNamespace = 'http://base.google.com/ns/1.0';
 
         if ($variation) {
@@ -269,7 +269,7 @@ if (!function_exists('add_google_product_details')) {
         }
 
         // Add product categories
-        $google_product_category = smarty_get_cleaned_google_product_category();
+        $google_product_category = smarty_gfg_get_cleaned_google_product_category();
         if ($google_product_category) {
             $item->appendChild($dom->createElementNS($gNamespace, 'g:google_product_category', htmlspecialchars($google_product_category)));
         }
@@ -301,22 +301,22 @@ if (!function_exists('add_google_product_details')) {
         $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
 
         // Custom Labels
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', smarty_get_custom_label_0($product)));
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', smarty_get_custom_label_1($product)));
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', smarty_get_custom_label_2($product)));
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', smarty_get_custom_label_3($product)));
-        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', smarty_get_custom_label_4($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', smarty_gfg_get_custom_label_0($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', smarty_gfg_get_custom_label_1($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', smarty_gfg_get_custom_label_2($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', smarty_gfg_get_custom_label_3($product)));
+        $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', smarty_gfg_get_custom_label_4($product)));
     }
 }
 
-if (!function_exists('smarty_generate_google_reviews_feed')) {
+if (!function_exists('smarty_gfg_generate_google_reviews_feed')) {
     /**
      * Generates the custom Google product review feed.
      * 
      * This function retrieves all the products and their reviews from a WooCommerce store and constructs
      * an XML feed that adheres to Google's specifications for review feeds.
      */
-    function smarty_generate_google_reviews_feed() {
+    function smarty_gfg_generate_google_reviews_feed() {
         // Set the content type to XML for the output
         header('Content-Type: application/xml; charset=utf-8');
 
@@ -369,17 +369,17 @@ if (!function_exists('smarty_generate_google_reviews_feed')) {
         echo $dom->saveXML();
         exit; // Ensure the script stops here to prevent further output that could corrupt the feed
     }
-    add_action('smarty_generate_google_reviews_feed', 'smarty_generate_google_reviews_feed'); // the first one is event
+    add_action('smarty_generate_google_reviews_feed', 'smarty_gfg_generate_google_reviews_feed'); // the first one is event
 }
 
-if (!function_exists('smarty_generate_csv_export')) {
+if (!function_exists('smarty_gfg_generate_csv_export')) {
     /**
      * Generates a CSV file export of products for Google Merchant Center or similar services.
      * 
      * This function handles generating a downloadable CSV file that includes details about products
      * filtered based on certain criteria such as stock status and product category.
      */
-    function smarty_generate_csv_export() {
+    function smarty_gfg_generate_csv_export() {
         // Set headers to force download and define the file name
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="woocommerce-products.csv"');
@@ -472,7 +472,7 @@ if (!function_exists('smarty_generate_csv_export')) {
 
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
-                if (smarty_convert_webp_to_png($file_path, $new_file_path)) {
+                if (smarty_gfg_convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -505,7 +505,7 @@ if (!function_exists('smarty_generate_csv_export')) {
             $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
             
             // Get Google category as ID or name
-            $google_product_category = smarty_get_cleaned_google_product_category(); // Get Google category from plugin settings
+            $google_product_category = smarty_gfg_get_cleaned_google_product_category(); // Get Google category from plugin settings
             //error_log('Google Product Category: ' . $google_product_category); // Debugging line
             if ($google_category_as_id) {
                 $google_product_category = explode('-', $google_product_category)[0]; // Get only the ID part
@@ -515,11 +515,11 @@ if (!function_exists('smarty_generate_csv_export')) {
             $brand = get_bloginfo('name');
 
             // Custom Labels
-            $custom_label_0 = smarty_get_custom_label_0($product);
-            $custom_label_1 = smarty_get_custom_label_1($product);
-            $custom_label_2 = smarty_get_custom_label_2($product);
-            $custom_label_3 = smarty_get_custom_label_3($product);
-            $custom_label_4 = smarty_get_custom_label_4($product);
+            $custom_label_0 = smarty_gfg_get_custom_label_0($product);
+            $custom_label_1 = smarty_gfg_get_custom_label_1($product);
+            $custom_label_2 = smarty_gfg_get_custom_label_2($product);
+            $custom_label_3 = smarty_gfg_get_custom_label_3($product);
+            $custom_label_4 = smarty_gfg_get_custom_label_4($product);
 
             // Check if the product has the "bundle" tag
             $is_bundle = 'no';
@@ -614,24 +614,24 @@ if (!function_exists('get_the_product_sku')) {
     }
 }
 
-if (!function_exists('smarty_invalidate_feed_cache')) {
+if (!function_exists('smarty_gfg_invalidate_feed_cache')) {
     /**
      * Invalidate cache or regenerate feed when a product is created, updated, or deleted.
      */
-    function smarty_invalidate_feed_cache($product_id) {
+    function smarty_gfg_invalidate_feed_cache($product_id) {
         // Check if the post is a 'product'
         if (get_post_type($product_id) === 'product') {
             // Invalidate cache
 			delete_transient('smarty_google_feed');
 			// Regenerate the feed
-			smarty_regenerate_feed();
+			smarty_gfg_regenerate_feed();
         }
     }
-    add_action('woocommerce_new_product', 'smarty_invalidate_feed_cache');
-    add_action('woocommerce_update_product', 'smarty_invalidate_feed_cache');
+    add_action('woocommerce_new_product', 'smarty_gfg_invalidate_feed_cache');
+    add_action('woocommerce_update_product', 'smarty_gfg_invalidate_feed_cache');
 }
 
-if (!function_exists('smarty_invalidate_feed_cache_on_delete')) {
+if (!function_exists('smarty_gfg_invalidate_feed_cache_on_delete')) {
     /**
      * Invalidates the cached Google product feed and optionally regenerates it upon the deletion of a product.
      * 
@@ -640,7 +640,7 @@ if (!function_exists('smarty_invalidate_feed_cache_on_delete')) {
      *
      * @param int $post_id The ID of the post (product) being deleted.
      */
-    function smarty_invalidate_feed_cache_on_delete($post_id) {
+    function smarty_gfg_invalidate_feed_cache_on_delete($post_id) {
         // Check if the post being deleted is a product
         if (get_post_type($post_id) === 'product') {
             // Invalidate the cache by deleting the stored transient that contains the feed data
@@ -649,17 +649,17 @@ if (!function_exists('smarty_invalidate_feed_cache_on_delete')) {
             
             // Regenerate the feed immediately to update the feed file
             // This step is optional but recommended to keep the feed up to date
-            smarty_regenerate_feed();
+            smarty_gfg_regenerate_feed();
         }
     }
-    add_action('before_delete_post', 'smarty_invalidate_feed_cache_on_delete');
+    add_action('before_delete_post', 'smarty_gfg_invalidate_feed_cache_on_delete');
 }
 
-if (!function_exists('smarty_invalidate_review_feed_cache')) {
+if (!function_exists('smarty_gfg_invalidate_review_feed_cache')) {
     /**
      * Invalidate cache or regenerate review feed when reviews are added, updated, or deleted.
      */
-    function smarty_invalidate_review_feed_cache($comment_id, $comment_approved = '') {
+    function smarty_gfg_invalidate_review_feed_cache($comment_id, $comment_approved = '') {
         $comment = get_comment($comment_id);
         $post_id = $comment->comment_post_ID;
         
@@ -671,20 +671,20 @@ if (!function_exists('smarty_invalidate_review_feed_cache')) {
             // smarty_regenerate_google_reviews_feed();
         }
     }
-    add_action('comment_post', 'smarty_invalidate_review_feed_cache', 10, 2);
-    add_action('edit_comment', 'smarty_invalidate_review_feed_cache');
-    add_action('deleted_comment', 'smarty_invalidate_review_feed_cache');
-    add_action('wp_set_comment_status', 'smarty_invalidate_review_feed_cache');
+    add_action('comment_post', 'smarty_gfg_invalidate_review_feed_cache', 10, 2);
+    add_action('edit_comment', 'smarty_gfg_invalidate_review_feed_cache');
+    add_action('deleted_comment', 'smarty_gfg_invalidate_review_feed_cache');
+    add_action('wp_set_comment_status', 'smarty_gfg_invalidate_review_feed_cache');
 }
 
-if (!function_exists('smarty_regenerate_feed')) {
+if (!function_exists('smarty_gfg_regenerate_feed')) {
     /**
      * Regenerates the feed and saves it to a transient or a file.
      * 
      * This function is designed to refresh the product feed by querying the latest product data from WooCommerce,
      * constructing an XML feed, and saving it either to a transient for fast access or directly to a file.
      */
-	function smarty_regenerate_feed() {
+	function smarty_gfg_regenerate_feed() {
         // Fetch products from WooCommerce that are published and in stock
 		$products = wc_get_products(array(
 			'status'        => 'publish',
@@ -808,66 +808,66 @@ if (!function_exists('smarty_regenerate_feed')) {
 	}
 }
 
-if (!function_exists('smarty_handle_product_change')) {
+if (!function_exists('smarty_gfg_handle_product_change')) {
     /**
      * Hook into product changes.
      */
-    function smarty_handle_product_change($post_id) {
+    function smarty_gfg_handle_product_change($post_id) {
         if (get_post_type($post_id) == 'product') {
-            smarty_regenerate_feed(); // Regenerate the feed
+            smarty_gfg_regenerate_feed(); // Regenerate the feed
 	    }
     }
-	add_action('save_post_product', 'smarty_handle_product_change');
-	add_action('deleted_post', 'smarty_handle_product_change');
+	add_action('save_post_product', 'smarty_gfg_handle_product_change');
+	add_action('deleted_post', 'smarty_gfg_handle_product_change');
 }
 
-if (!function_exists('smarty_feed_generator_activate')) {
+if (!function_exists('smarty_gfg_feed_generator_activate')) {
     /**
      * Activation hook to flush rewrite rules and schedule feed regeneration on plugin activation.
      */
-    function smarty_feed_generator_activate() {
+    function smarty_gfg_feed_generator_activate() {
         if (!class_exists('WooCommerce')) {
             wp_die('This plugin requires WooCommerce to be installed and active.');
         }
 
         // Add rewrite rules
-        smarty_feed_generator_add_rewrite_rules();
+        smarty_gfg_feed_generator_add_rewrite_rules();
 
         // Flush rewrite rules to ensure custom endpoints are registered
         flush_rewrite_rules();
 
         // Schedule Google Feed Event
-        if (!wp_next_scheduled('smarty_generate_google_feed')) {
-            wp_schedule_event(time(), 'twicedaily', 'smarty_generate_google_feed');
+        if (!wp_next_scheduled('smarty_gfg_generate_google_feed')) {
+            wp_schedule_event(time(), 'twicedaily', 'smarty_gfg_generate_google_feed');
         }
 
         // Schedule Google Reviews Feed Event
-        if (!wp_next_scheduled('smarty_generate_google_reviews_feed')) {
-            wp_schedule_event(time(), 'daily', 'smarty_generate_google_reviews_feed');
+        if (!wp_next_scheduled('smarty_gfg_generate_google_reviews_feed')) {
+            wp_schedule_event(time(), 'daily', 'smarty_gfg_generate_google_reviews_feed');
         }
     }
-    register_activation_hook(__FILE__, 'smarty_feed_generator_activate');
+    register_activation_hook(__FILE__, 'smarty_gfg_activate');
 }
 
-if (!function_exists('smarty_feed_generator_deactivate')) {
+if (!function_exists('smarty_gfg_deactivate')) {
     /**
      * Deactivation hook to flush rewrite rules, clear scheduled feed regeneration,
      * and remove the generated .xml file on plugin deactivation.
      */
-    function smarty_feed_generator_deactivate() {
+    function smarty_gfg_deactivate() {
         // Flush rewrite rules
         flush_rewrite_rules();
 
         // Clear scheduled feed regeneration event
-        $google_feed_timestamp = wp_next_scheduled('smarty_generate_google_feed');
+        $google_feed_timestamp = wp_next_scheduled('smarty_gfg_generate_google_feed');
         if ($google_feed_timestamp) {
-            wp_unschedule_event($google_feed_timestamp, 'smarty_generate_google_feed');
+            wp_unschedule_event($google_feed_timestamp, 'smarty_gfg_generate_google_feed');
         }
 
         // Unscheduling the reviews feed event
-        $review_feed_timestamp = wp_next_scheduled('smarty_generate_google_reviews_feed');
+        $review_feed_timestamp = wp_next_scheduled('smarty_gfg_generate_google_reviews_feed');
         if ($review_feed_timestamp) {
-            wp_unschedule_event($review_feed_timestamp, 'smarty_generate_google_reviews_feed');
+            wp_unschedule_event($review_feed_timestamp, 'smarty_gfg_generate_google_reviews_feed');
         }
 
         // Path to the generated XML file
@@ -878,15 +878,15 @@ if (!function_exists('smarty_feed_generator_deactivate')) {
             unlink($feed_file_path);
         }
     }
-    register_deactivation_hook(__FILE__, 'smarty_feed_generator_deactivate');
+    register_deactivation_hook(__FILE__, 'smarty_gfg_deactivate');
 }
 
-if (!function_exists('smarty_convert_and_update_product_image')) {
+if (!function_exists('smarty_gfg_convert_and_update_product_image')) {
     /**
      * Converts an image from WEBP to PNG, updates the product image, and regenerates the feed.
      * @param WC_Product $product Product object.
      */
-    function smarty_convert_and_update_product_image($product) {
+    function smarty_gfg_convert_and_update_product_image($product) {
         $image_id = $product->get_image_id();
 
         if ($image_id) {
@@ -895,7 +895,7 @@ if (!function_exists('smarty_convert_and_update_product_image')) {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
                 
-                if (smarty_convert_webp_to_png($file_path, $new_file_path)) {
+                if (smarty_gfg_convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -909,14 +909,14 @@ if (!function_exists('smarty_convert_and_update_product_image')) {
                     @unlink($file_path);
 
                     // Invalidate feed cache and regenerate
-                    smarty_invalidate_feed_cache($product->get_id());
+                    smarty_gfg_invalidate_feed_cache($product->get_id());
                 }
             }
         }
     }
 }
 
-if (!function_exists('smarty_convert_webp_to_png')) {
+if (!function_exists('smarty_gfg_convert_webp_to_png')) {
     /**
      * Converts a WEBP image file to PNG.
      * 
@@ -924,7 +924,7 @@ if (!function_exists('smarty_convert_webp_to_png')) {
      * @param string $destination The destination file path.
      * @return bool True on success, false on failure.
      */
-    function smarty_convert_webp_to_png($source, $destination) {
+    function smarty_gfg_convert_webp_to_png($source, $destination) {
         if (!function_exists('imagecreatefromwebp')) {
             //error_log('GD Library is not installed or does not support WEBP.');
             return false;
@@ -939,16 +939,16 @@ if (!function_exists('smarty_convert_webp_to_png')) {
 
         return $result;
     }
-    add_action('woocommerce_admin_process_product_object', 'smarty_convert_and_update_product_image', 10, 1);
+    add_action('woocommerce_admin_process_product_object', 'smarty_gfg_convert_and_update_product_image', 10, 1);
 }
 
-if (!function_exists('smarty_get_google_product_categories')) {
+if (!function_exists('smarty_gfg_get_google_product_categories')) {
     /**
      * Fetch Google product categories from the taxonomy file and return them as an associative array with IDs.
      * 
      * @return array Associative array of category IDs and names.
      */
-    function smarty_get_google_product_categories() {
+    function smarty_gfg_get_google_product_categories() {
         // Check if the categories are already cached
         $categories = get_transient('smarty_google_product_categories');
         
@@ -984,100 +984,98 @@ if (!function_exists('smarty_get_google_product_categories')) {
     }
 }
 
-if (!function_exists('smarty_feed_generator_add_settings_page')) {
+if (!function_exists('smarty_gfg_feed_generator_add_settings_page')) {
     /**
      * Add settings page to the WordPress admin menu.
      */
-    function smarty_feed_generator_add_settings_page() {
+    function smarty_gfg_feed_generator_add_settings_page() {
         add_options_page(
-            'Google Feed Generator | Settings',         // Page title
-            'Google Feed Generator',                    // Menu title
-            'manage_options',                           // Capability required to access this page
-            'smarty-feed-generator-settings',           // Menu slug
-            'smarty_feed_generator_settings_page_html'  // Callback function to display the page content
+            'Google Feed Generator | Settings',             // Page title
+            'Google Feed Generator',                        // Menu title
+            'manage_options',                               // Capability required to access this page
+            'smarty-gfg-settings',                          // Menu slug
+            'smarty_gfg_feed_generator_settings_page_html'  // Callback function to display the page content
         );
     }
-    add_action('admin_menu', 'smarty_feed_generator_add_settings_page');
+    add_action('admin_menu', 'smarty_gfg_feed_generator_add_settings_page');
 }
 
-if (!function_exists('smarty_sanitize_text_field')) {
+if (!function_exists('smarty_gfg_get_cleaned_google_product_category')) {
     /**
-     * Sanitize a text field input.
+     * Retrieves the Google Product Category based on plugin settings.
      *
-     * @param string $input The input string to sanitize.
-     * @return string Sanitized string.
+     * This function fetches the Google Product Category as stored in the plugin settings.
+     * It optionally uses the category ID or name based on the "Use Google Category ID" setting.
+     *
+     * @return string The cleaned Google Product Category name or ID.
      */
-    function smarty_sanitize_text_field($input) {
-        return sanitize_text_field($input);
+    function smarty_gfg_get_cleaned_google_product_category() {
+        // Get the category option value from settings
+        $category = get_option('smarty_google_product_category');
+        $use_id = get_option('smarty_google_category_as_id', false);
+
+        if (!$category) {
+            return ''; // Return empty string if no category is set
+        }
+
+        // Split the category string by " - " to separate ID and name
+        $parts = explode(' - ', $category);
+
+        if ($use_id && count($parts) > 1) {
+            // Return the ID if "Use Google Category ID" is enabled
+            return trim($parts[0]);
+        } elseif (count($parts) > 1) {
+            // Return the name if only the name is to be used
+            return trim($parts[1]);
+        }
+
+        // If the string doesn't contain a "-", return the original value
+        return $category;
     }
 }
 
-if (!function_exists('smarty_sanitize_textarea_field')) {
-    /**
-     * Sanitize a textarea field input.
-     *
-     * @param string $input The input string to sanitize.
-     * @return string Sanitized string.
-     */
-    function smarty_sanitize_textarea_field($input) {
-        return sanitize_textarea_field($input);
-    }
-}
-
-if (!function_exists('smarty_sanitize_checkbox')) {
+if (!function_exists('smarty_gfg_sanitize_checkbox')) {
     /**
      * Sanitize a checkbox field input.
      *
      * @param mixed $input The checkbox input value.
      * @return int 1 if checked, 0 otherwise.
      */
-    function smarty_sanitize_checkbox($input) {
+    function smarty_gfg_sanitize_checkbox($input) {
         return $input == 1 ? 1 : 0;
     }
 }
 
-if (!function_exists('smarty_sanitize_number_field')) {
-    /**
-     * Sanitize a number field input.
-     *
-     * @param mixed $input The input value.
-     * @return int Absolute integer value.
-     */
-    function smarty_sanitize_number_field($input) {
-        return absint($input);
-    }
-}
-
-if (!function_exists('smarty_feed_generator_register_settings')) {
+if (!function_exists('smarty_gfg_feed_generator_register_settings')) {
     /**
      * Register plugin settings.
      */
-    function smarty_feed_generator_register_settings() {
+    function smarty_gfg_feed_generator_register_settings() {
         // General Settings
         register_setting('smarty_feed_generator_settings', 'smarty_google_product_category');
-        register_setting('smarty_feed_generator_settings', 'smarty_google_category_as_id', 'smarty_sanitize_checkbox');
-        register_setting('smarty_feed_generator_settings', 'smarty_exclude_patterns', 'smarty_sanitize_textarea_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_google_category_as_id', 'smarty_gfg_sanitize_checkbox');
+        register_setting('smarty_feed_generator_settings', 'smarty_exclude_patterns', 'sanitize_textarea_field');
         register_setting('smarty_feed_generator_settings', 'smarty_excluded_categories');
         
         // Custom Label Settings
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_days', 'smarty_sanitize_number_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_value', 'smarty_sanitize_text_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_days', 'smarty_sanitize_number_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_value', 'smarty_sanitize_text_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_days', 'smarty_sanitize_number_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_value', 'smarty_sanitize_text_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_2_high_rating_value', 'smarty_sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_days', 'absint');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_older_than_value', 'sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_days', 'absint');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_0_not_older_than_value', 'sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_days', 'absint');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_1_most_ordered_value', 'sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_2_high_rating_value', 'sanitize_text_field');
         register_setting('smarty_feed_generator_settings', 'smarty_custom_label_3_category');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_3_category_value', 'smarty_sanitize_category_values');
-        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_4_sale_price_value', 'smarty_sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_3_category_value', 'smarty_gfg_sanitize_category_values');
+        register_setting('smarty_feed_generator_settings', 'smarty_custom_label_4_sale_price_value', 'sanitize_text_field');
 
         // Meta Fields
-        register_setting('smarty_feed_generator_settings', 'smarty_meta_title_field', 'smarty_sanitize_text_field');
-        register_setting('smarty_feed_generator_settings', 'smarty_meta_description_field', 'smarty_sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_meta_title_field', 'sanitize_text_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_meta_description_field', 'sanitize_text_field');
         
         // Cache Settings
-        register_setting('smarty_feed_generator_settings', 'smarty_clear_cache', 'smarty_sanitize_checkbox');
-        register_setting('smarty_feed_generator_settings', 'smarty_cache_duration', 'smarty_sanitize_number_field');
+        register_setting('smarty_feed_generator_settings', 'smarty_clear_cache', 'smarty_gfg_sanitize_checkbox');
+        register_setting('smarty_feed_generator_settings', 'smarty_cache_duration', 'absint');
 
         // Add General section
         add_settings_section(
@@ -1131,7 +1129,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_google_product_category',                               // ID of the field
             __('Google Product Category', 'smarty-google-feed-generator'),  // Title of the field
-            'smarty_google_product_category_callback',                      // Callback function to display the field
+            'smarty_gfg_google_product_category_callback',                  // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_general'                                    // Section to which this field belongs
         );
@@ -1139,7 +1137,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_google_category_as_id',                                 // ID of the field
             __('Use Google Category ID', 'smarty-google-feed-generator'),   // Title of the field
-            'smarty_google_category_as_id_callback',                        // Callback function to display the field
+            'smarty_gfg_google_category_as_id_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_general'                                    // Section to which this field belongs
         );
@@ -1147,7 +1145,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_exclude_patterns',                                      // ID of the field
             __('Exclude Patterns', 'smarty-google-feed-generator'),         // Title of the field
-            'smarty_exclude_patterns_callback',                             // Callback function to display the field
+            'smarty_gfg_exclude_patterns_callback',                         // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_general'                                    // Section to which this field belongs
         );
@@ -1155,7 +1153,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_excluded_categories',                                   // ID of the field
             __('Excluded Categories', 'smarty-google-feed-generator'),      // Title of the field
-            'smarty_excluded_categories_callback',                          // Callback function to display the field
+            'smarty_gfg_excluded_categories_callback',                      // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_general'                                    // Section to which this field belongs
         );
@@ -1164,7 +1162,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_0_older_than_days',                        // ID of the field
             __('Older Than (Days)', 'smarty-google-feed-generator'),        // Title of the field
-            'smarty_custom_label_days_callback',                            // Callback function to display the field
+            'smarty_gfg_custom_label_days_callback',                        // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_0_older_than_days']
@@ -1173,7 +1171,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_0_older_than_value',                       // ID of the field
             __('Older Than Value', 'smarty-google-feed-generator'),         // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_0_older_than_value']
@@ -1182,7 +1180,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_0_not_older_than_days',                    // ID of the field
             __('Not Older Than (Days)', 'smarty-google-feed-generator'),    // Title of the field
-            'smarty_custom_label_days_callback',                            // Callback function to display the field
+            'smarty_gfg_custom_label_days_callback',                        // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_0_not_older_than_days']
@@ -1191,7 +1189,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_0_not_older_than_value',                   // ID of the field
             __('Not Older Than Value', 'smarty-google-feed-generator'),     // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_0_not_older_than_value']
@@ -1200,7 +1198,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_1_most_ordered_days',                          // ID of the field
             __('Most Ordered in Last (Days)', 'smarty-google-feed-generator'),  // Title of the field
-            'smarty_custom_label_days_callback',                                // Callback function to display the field
+            'smarty_gfg_custom_label_days_callback',                            // Callback function to display the field
             'smarty_feed_generator_settings',                                   // Page on which to add the field
             'smarty_gfg_section_custom_labels',                                 // Section to which this field belongs
             ['label' => 'smarty_custom_label_1_most_ordered_days']
@@ -1209,7 +1207,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_1_most_ordered_value',                     // ID of the field
             __('Most Ordered Value', 'smarty-google-feed-generator'),       // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_1_most_ordered_value']
@@ -1218,7 +1216,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_2_high_rating_value',                      // ID of the field
             __('High Rating Value', 'smarty-google-feed-generator'),        // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_2_high_rating_value']
@@ -1227,7 +1225,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_3_category',                               // ID of the field
             __('Category', 'smarty-google-feed-generator'),                 // Title of the field
-            'smarty_custom_label_category_callback',                        // Callback function to display the field
+            'smarty_gfg_custom_label_category_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_3_category']
@@ -1236,7 +1234,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_3_category_value',                         // ID of the field
             __('Category Value', 'smarty-google-feed-generator'),           // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_3_category_value']
@@ -1245,7 +1243,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_custom_label_4_sale_price_value',                       // ID of the field
             __('Sale Price Value', 'smarty-google-feed-generator'),         // Title of the field
-            'smarty_custom_label_value_callback',                           // Callback function to display the field
+            'smarty_gfg_custom_label_value_callback',                       // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_custom_labels',                             // Section to which this field belongs
             ['label' => 'smarty_custom_label_4_sale_price_value']
@@ -1254,7 +1252,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_convert_images',                                        // ID of the field
             __('Convert', 'smarty-google-feed-generator'),                  // Title of the field
-            'smarty_convert_images_button_callback',                        // Callback function to display the field
+            'smarty_gfg_convert_images_button_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_convert_images'                             // Section to which this field belongs
         );
@@ -1262,7 +1260,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_generate_feed_now',                                     // ID of the field
             __('Generate', 'smarty-google-feed-generator'),                 // Title of the field
-            'smarty_generate_feed_buttons_callback',                        // Callback function to display the field
+            'smarty_gfg_generate_feed_buttons_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_generate_feeds'                             // Section to which this field belongs
         );
@@ -1271,7 +1269,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_meta_title_field',                                       // ID of the field
             __('Meta Title', 'smarty-google-feed-generator'),                // Title of the field
-            'smarty_meta_title_field_callback',                              // Callback function to display the field
+            'smarty_gfg_meta_title_field_callback',                          // Callback function to display the field
             'smarty_feed_generator_settings',                                // Page on which to add the field
             'smarty_gfg_section_meta_fields'                                 // Section to which this field belongs
         );
@@ -1279,7 +1277,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_meta_description_field',                                 // ID of the field
             __('Meta Description', 'smarty-google-feed-generator'),          // Title of the field
-            'smarty_meta_description_field_callback',                        // Callback function to display the field
+            'smarty_gfg_meta_description_field_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                                // Page on which to add the field
             'smarty_gfg_section_meta_fields'                                 // Section to which this field belongs
         );
@@ -1288,7 +1286,7 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_clear_cache',                                            // ID of the field
             __('Clear Cache', 'smarty-google-feed-generator'),               // Title of the field
-            'smarty_clear_cache_callback',                                   // Callback function to display the field
+            'smarty_gfg_clear_cache_callback',                               // Callback function to display the field
             'smarty_feed_generator_settings',                                // Page on which to add the field
             'smarty_gfg_section_settings'                                    // Section to which this field belongs
         );
@@ -1297,12 +1295,12 @@ if (!function_exists('smarty_feed_generator_register_settings')) {
         add_settings_field(
             'smarty_cache_duration',                                         // ID of the field
             __('Cache Duration (hours)', 'smarty-google-feed-generator'),    // Title of the field
-            'smarty_cache_duration_callback',                                // Callback function to display the field
+            'smarty_gfg_cache_duration_callback',                            // Callback function to display the field
             'smarty_feed_generator_settings',                                // Page on which to add the field
             'smarty_gfg_section_settings'                                    // Section to which this field belongs
         );
     }
-    add_action('admin_init', 'smarty_feed_generator_register_settings');
+    add_action('admin_init', 'smarty_gfg_feed_generator_register_settings');
 }
 
 if (!function_exists('smarty_gfg_section_general_callback')) {
@@ -1319,7 +1317,7 @@ if (!function_exists('smarty_gfg_section_general_callback')) {
     }
 }
 
-if (!function_exists('smarty_google_product_category_callback')) {
+if (!function_exists('smarty_gfg_google_product_category_callback')) {
     /**
      * Render the Google Product Category dropdown field.
      *
@@ -1328,7 +1326,7 @@ if (!function_exists('smarty_google_product_category_callback')) {
      *
      * @return void
      */
-    function smarty_google_product_category_callback() {
+    function smarty_gfg_google_product_category_callback() {
         $option = get_option('smarty_google_product_category');
         echo '<select name="smarty_google_product_category" class="smarty-select2-ajax">';
         if ($option) {
@@ -1338,11 +1336,11 @@ if (!function_exists('smarty_google_product_category_callback')) {
     }
 }
 
-if (!function_exists('smarty_load_google_categories')) {
+if (!function_exists('smarty_gfg_load_google_categories')) {
     /**
      * AJAX handler to load Google Product Categories.
      */
-    function smarty_load_google_categories() {
+    function smarty_gfg_load_google_categories() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
@@ -1361,10 +1359,10 @@ if (!function_exists('smarty_load_google_categories')) {
 
         wp_send_json_success($results);
     }
-    add_action('wp_ajax_smarty_load_google_categories', 'smarty_load_google_categories');
+    add_action('wp_ajax_smarty_load_google_categories', 'smarty_gfg_load_google_categories');
 }
 
-if (!function_exists('smarty_google_category_as_id_callback')) {
+if (!function_exists('smarty_gfg_google_category_as_id_callback')) {
     /**
      * Render the checkbox for using Google Product Category ID.
      *
@@ -1373,7 +1371,7 @@ if (!function_exists('smarty_google_category_as_id_callback')) {
      *
      * @return void
      */
-    function smarty_google_category_as_id_callback() {
+    function smarty_gfg_google_category_as_id_callback() {
         $option = get_option('smarty_google_category_as_id');
         echo '<input type="checkbox" name="smarty_google_category_as_id" value="1" ' . checked(1, $option, false) . ' />';
         echo '<p class="description">' . __('Check to use Google Product Category ID in the CSV feed instead of the name.', 'smarty-google-feed-generator') . '</p>';
@@ -1394,7 +1392,7 @@ if (!function_exists('smarty_gfg_section_custom_labels_callback')) {
     }
 }
 
-if (!function_exists('smarty_gfg_section_convert_images_callback')) {
+if (!function_exists('smarty_gfg_gfg_section_convert_images_callback')) {
     /**
      * Display the description for the convert images section.
      *
@@ -1450,7 +1448,7 @@ if (!function_exists('smarty_gfg_section_settings_callback')) {
     }
 }
 
-if (!function_exists('smarty_exclude_patterns_callback')) {
+if (!function_exists('smarty_gfg_exclude_patterns_callback')) {
     /**
      * Render the textarea field for excluding patterns in the CSV feed.
      *
@@ -1459,18 +1457,18 @@ if (!function_exists('smarty_exclude_patterns_callback')) {
      *
      * @return void
      */
-    function smarty_exclude_patterns_callback() {
+    function smarty_gfg_exclude_patterns_callback() {
         $option = get_option('smarty_exclude_patterns');
         echo '<textarea name="smarty_exclude_patterns" rows="10" cols="50" class="large-text">' . esc_textarea($option) . '</textarea>';
         echo '<p class="description">' . __('Enter patterns to exclude from the CSV feed, one per line.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
-if (!function_exists('smarty_excluded_categories_callback')) {
+if (!function_exists('smarty_gfg_excluded_categories_callback')) {
     /**
      * Callback function to display the excluded categories field.
      */
-    function smarty_excluded_categories_callback() {
+    function smarty_gfg_excluded_categories_callback() {
         $option = get_option('smarty_excluded_categories', array());
         $categories = get_terms(array(
             'taxonomy' => 'product_cat',
@@ -1486,7 +1484,7 @@ if (!function_exists('smarty_excluded_categories_callback')) {
     }
 }
 
-if (!function_exists('smarty_custom_label_days_callback')) {
+if (!function_exists('smarty_gfg_custom_label_days_callback')) {
     /**
      * Render a dropdown for custom label days.
      *
@@ -1496,7 +1494,7 @@ if (!function_exists('smarty_custom_label_days_callback')) {
      * @param array $args An associative array containing the label key for the option.
      * @return void
      */
-    function smarty_custom_label_days_callback($args) {
+    function smarty_gfg_custom_label_days_callback($args) {
         $option = get_option($args['label'], 30);
         $days = [10, 20, 30, 60, 90, 120];
         echo '<select name="' . esc_attr($args['label']) . '">';
@@ -1507,7 +1505,7 @@ if (!function_exists('smarty_custom_label_days_callback')) {
     }
 }
 
-if (!function_exists('smarty_custom_label_value_callback')) {
+if (!function_exists('smarty_gfg_custom_label_value_callback')) {
     /**
      * Render a text input field for custom label values.
      *
@@ -1517,7 +1515,7 @@ if (!function_exists('smarty_custom_label_value_callback')) {
      * @param array $args An associative array containing the label key for the option.
      * @return void
      */
-    function smarty_custom_label_value_callback($args) {
+    function smarty_gfg_custom_label_value_callback($args) {
         $option = get_option($args['label'], '');
         echo '<input type="text" name="' . esc_attr($args['label']) . '" value="' . esc_attr($option) . '" class="regular-text" />';
 
@@ -1548,7 +1546,7 @@ if (!function_exists('smarty_custom_label_value_callback')) {
     }
 }
 
-if (!function_exists('smarty_custom_label_category_callback')) {
+if (!function_exists('smarty_gfg_custom_label_category_callback')) {
     /**
      * Render a multi-select dropdown for custom label categories.
      *
@@ -1558,7 +1556,7 @@ if (!function_exists('smarty_custom_label_category_callback')) {
      * @param array $args An associative array containing the label key for the option.
      * @return void
      */
-    function smarty_custom_label_category_callback($args) {
+    function smarty_gfg_custom_label_category_callback($args) {
         $option = get_option($args['label'], []);
         $categories = get_terms([
             'taxonomy' => 'product_cat',
@@ -1578,7 +1576,7 @@ if (!function_exists('smarty_custom_label_category_callback')) {
     }
 }
 
-if (!function_exists('smarty_convert_images_button_callback')) {
+if (!function_exists('smarty_gfg_convert_images_button_callback')) {
     /**
      * Render the "Convert WebP to PNG" button.
      *
@@ -1587,12 +1585,12 @@ if (!function_exists('smarty_convert_images_button_callback')) {
      *
      * @return void
      */
-    function smarty_convert_images_button_callback() {
+    function smarty_gfg_convert_images_button_callback() {
         echo '<button class="button secondary smarty-convert-images-button" style="display: inline-block; margin-bottom: 10px;">' . __('Convert WebP to PNG', 'smarty-google-feed-generator') . '</button>';
     }
 }
 
-if (!function_exists('smarty_generate_feed_buttons_callback')) {
+if (!function_exists('smarty_gfg_generate_feed_buttons_callback')) {
     /**
      * Render the buttons for manually generating feeds.
      *
@@ -1601,14 +1599,14 @@ if (!function_exists('smarty_generate_feed_buttons_callback')) {
      *
      * @return void
      */
-    function smarty_generate_feed_buttons_callback() {
+    function smarty_gfg_generate_feed_buttons_callback() {
         echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
         echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
         echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
     }
 }
 
-if (!function_exists('smarty_meta_title_field_callback')) {
+if (!function_exists('smarty_gfg_meta_title_field_callback')) {
     /**
      * Render the text input for the meta title field.
      *
@@ -1617,14 +1615,14 @@ if (!function_exists('smarty_meta_title_field_callback')) {
      *
      * @return void
      */
-    function smarty_meta_title_field_callback() {
+    function smarty_gfg_meta_title_field_callback() {
         $option = get_option('smarty_meta_title_field', 'meta-title');
         echo '<input type="text" name="smarty_meta_title_field" value="' . esc_attr($option) . '" class="regular-text" />';
         echo '<p class="description">' . __('Enter the custom field name for the product title meta.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
-if (!function_exists('smarty_meta_description_field_callback')) {
+if (!function_exists('smarty_gfg_meta_description_field_callback')) {
     /**
      * Render the text input for the meta description field.
      *
@@ -1633,14 +1631,14 @@ if (!function_exists('smarty_meta_description_field_callback')) {
      *
      * @return void
      */
-    function smarty_meta_description_field_callback() {
+    function smarty_gfg_meta_description_field_callback() {
         $option = get_option('smarty_meta_description_field', 'meta-description');
         echo '<input type="text" name="smarty_meta_description_field" value="' . esc_attr($option) . '" class="regular-text" />';
         echo '<p class="description">' . __('Enter the custom field name for the product description meta.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
-if (!function_exists('smarty_clear_cache_callback')) {
+if (!function_exists('smarty_gfg_clear_cache_callback')) {
     /**
      * Render the checkbox for clearing the cache.
      *
@@ -1649,14 +1647,14 @@ if (!function_exists('smarty_clear_cache_callback')) {
      *
      * @return void
      */
-    function smarty_clear_cache_callback() {
+    function smarty_gfg_clear_cache_callback() {
         $option = get_option('smarty_clear_cache');
         echo '<input type="checkbox" name="smarty_clear_cache" value="1" ' . checked(1, $option, false) . ' />';
         echo '<p class="description">' . __('Check to clear the cache each time the feed is generated. <br><small><em><b>Important:</b> <span style="color: #c51244;">Remove this in production to utilize caching.</span></em></small>', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
-if (!function_exists('smarty_cache_duration_callback')) {
+if (!function_exists('smarty_gfg_cache_duration_callback')) {
     /**
      * Render the input field for cache duration.
      *
@@ -1665,14 +1663,14 @@ if (!function_exists('smarty_cache_duration_callback')) {
      *
      * @return void
      */
-    function smarty_cache_duration_callback() {
+    function smarty_gfg_cache_duration_callback() {
         $option = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
         echo '<input type="number" name="smarty_cache_duration" value="' . esc_attr($option) . '" />';
         echo '<p class="description">' . __('Set the cache duration in hours.', 'smarty-google-feed-generator') . '</p>';
     }
 }
 
-if (!function_exists('smarty_handle_ajax_convert_images')) {
+if (!function_exists('smarty_gfg_handle_ajax_convert_images')) {
     /**
      * Handle AJAX request for converting images.
      *
@@ -1681,21 +1679,21 @@ if (!function_exists('smarty_handle_ajax_convert_images')) {
      *
      * @return void
      */
-    function smarty_handle_ajax_convert_images() {
+    function smarty_gfg_handle_ajax_convert_images() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error('You do not have sufficient permissions to access this page.');
         }
 
-        smarty_convert_first_webp_image_to_png();
+        smarty_gfg_convert_first_webp_image_to_png();
 
         wp_send_json_success(__('The first WebP image of each product has been converted to PNG.', 'smarty-google-feed-generator'));
     }
-    add_action('wp_ajax_smarty_convert_images', 'smarty_handle_ajax_convert_images');
+    add_action('wp_ajax_smarty_convert_images', 'smarty_gfg_handle_ajax_convert_images');
 }
 
-if (!function_exists('smarty_convert_first_webp_image_to_png')) {
+if (!function_exists('smarty_gfg_convert_first_webp_image_to_png')) {
     /**
      * Convert the first WebP image of each product to PNG.
      *
@@ -1705,7 +1703,7 @@ if (!function_exists('smarty_convert_first_webp_image_to_png')) {
      *
      * @return void
      */
-    function smarty_convert_first_webp_image_to_png() {
+    function smarty_gfg_convert_first_webp_image_to_png() {
         $products = wc_get_products(array(
             'status' => 'publish',
             'limit'  => -1,
@@ -1718,7 +1716,7 @@ if (!function_exists('smarty_convert_first_webp_image_to_png')) {
             if ($file_path && preg_match('/\.webp$/', $file_path)) {
                 $new_file_path = preg_replace('/\.webp$/', '.png', $file_path);
 
-                if (smarty_convert_webp_to_png($file_path, $new_file_path)) {
+                if (smarty_gfg_convert_webp_to_png($file_path, $new_file_path)) {
                     // Update the attachment file type post meta
                     wp_update_attachment_metadata($image_id, wp_generate_attachment_metadata($image_id, $new_file_path));
                     update_post_meta($image_id, '_wp_attached_file', $new_file_path);
@@ -1736,7 +1734,7 @@ if (!function_exists('smarty_convert_first_webp_image_to_png')) {
     }
 }
 
-if (!function_exists('smarty_handle_ajax_generate_feed')) {
+if (!function_exists('smarty_gfg_handle_ajax_generate_feed')) {
     /**
      * Handle AJAX requests to generate feeds.
      *
@@ -1746,7 +1744,7 @@ if (!function_exists('smarty_handle_ajax_generate_feed')) {
      *
      * @return void
      */
-    function smarty_handle_ajax_generate_feed() {
+    function smarty_gfg_handle_ajax_generate_feed() {
         check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
@@ -1756,15 +1754,15 @@ if (!function_exists('smarty_handle_ajax_generate_feed')) {
         $action = sanitize_text_field($_POST['feed_action']);
         switch ($action) {
             case 'generate_product_feed':
-                smarty_generate_google_feed();
+                smarty_gfg_generate_google_feed();
                 wp_send_json_success('Product feed generated successfully.');
                 break;
             case 'generate_reviews_feed':
-                smarty_generate_google_reviews_feed();
+                smarty_gfg_generate_google_reviews_feed();
                 wp_send_json_success('Reviews feed generated successfully.');
                 break;
             case 'generate_csv_export':
-                smarty_generate_csv_export();
+                smarty_gfg_generate_csv_export();
                 wp_send_json_success('CSV export generated successfully.');
                 break;
             default:
@@ -1772,10 +1770,10 @@ if (!function_exists('smarty_handle_ajax_generate_feed')) {
                 break;
         }
     }
-    add_action('wp_ajax_smarty_generate_feed', 'smarty_handle_ajax_generate_feed');
+    add_action('wp_ajax_smarty_generate_feed', 'smarty_gfg_handle_ajax_generate_feed');
 }
 
-if (!function_exists('smarty_feed_generator_settings_page_html')) {
+if (!function_exists('smarty_gfg_feed_generator_settings_page_html')) {
     /**
      * Render the settings page HTML.
      *
@@ -1785,7 +1783,7 @@ if (!function_exists('smarty_feed_generator_settings_page_html')) {
      *
      * @return void
      */
-    function smarty_feed_generator_settings_page_html() {
+    function smarty_gfg_feed_generator_settings_page_html() {
         // Check user capabilities
         if (!current_user_can('manage_options')) {
             return;
@@ -1795,19 +1793,111 @@ if (!function_exists('smarty_feed_generator_settings_page_html')) {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Google Feed Generator | Settings', 'smarty-google-feed-generator'); ?></h1>
-            <form action="options.php" method="post">
-                <?php
-                settings_fields('smarty_feed_generator_settings');
-                do_settings_sections('smarty_feed_generator_settings');
-                submit_button(__('Save Settings', 'smarty-google-feed-generator'));
-                ?>
-            </form>
+            <div id="smarty-gfg-settings-container">
+                <div>
+                    <form action="options.php" method="post">
+                        <?php
+                        settings_fields('smarty_feed_generator_settings');
+                        do_settings_sections('smarty_feed_generator_settings');
+                        submit_button(__('Save Settings', 'smarty-google-feed-generator'));
+                        ?>
+                    </form>
+                </div>
+                <div id="smarty-gfg-tabs-container">
+                    <div>
+                        <h2 class="smarty-gfg-nav-tab-wrapper">
+                            <a href="#smarty-gfg-documentation" class="smarty-gfg-nav-tab smarty-gfg-nav-tab-active"><?php esc_html_e('Documentation', 'smarty-google-feed-generator'); ?></a>
+                            <a href="#smarty-gfg-changelog" class="smarty-gfg-nav-tab"><?php esc_html_e('Changelog', 'smarty-google-feed-generator'); ?></a>
+                        </h2>
+                        <div id="smarty-gfg-documentation" class="smarty-gfg-tab-content active">
+                            <div class="smarty-gfg-view-more-container">
+                                <p><?php esc_html_e('Click "View More" to load the plugin documentation.', 'smarty-google-feed-generator'); ?></p>
+                                <button id="smarty-gfg-load-readme-btn" class="button button-primary">
+                                    <?php esc_html_e('View More', 'smarty-google-feed-generator'); ?>
+                                </button>
+                            </div>
+                            <div id="smarty-gfg-readme-content" style="margin-top: 20px;"></div>
+                        </div>
+                        <div id="smarty-gfg-changelog" class="smarty-gfg-tab-content">
+                            <div class="smarty-gfg-view-more-container">
+                                <p><?php esc_html_e('Click "View More" to load the plugin changelog.', 'smarty-google-feed-generator'); ?></p>
+                                <button id="smarty-gfg-load-changelog-btn" class="button button-primary">
+                                    <?php esc_html_e('View More', 'smarty-google-feed-generator'); ?>
+                                </button>
+                            </div>
+                            <div id="smarty-gfg-changelog-content" style="margin-top: 20px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <?php
     }
 }
 
-if (!function_exists('smarty_get_cleaned_google_product_category')) {
+if (!function_exists('smarty_gfg_load_readme')) {
+    /**
+     * AJAX handler to load and parse the README.md content.
+     */
+    function smarty_gfg_load_readme() {
+        check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
+    
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('You do not have sufficient permissions.');
+        }
+    
+        $readme_path = plugin_dir_path(__FILE__) . 'README.md';
+        if (file_exists($readme_path)) {
+            // Include Parsedown library
+            if (!class_exists('Parsedown')) {
+                require_once plugin_dir_path(__FILE__) . 'libs/Parsedown.php';
+            }
+    
+            $parsedown = new Parsedown();
+            $markdown_content = file_get_contents($readme_path);
+            $html_content = $parsedown->text($markdown_content);
+    
+            // Remove <img> tags from the content
+            $html_content = preg_replace('/<img[^>]*>/', '', $html_content);
+    
+            wp_send_json_success($html_content);
+        } else {
+            wp_send_json_error('README.md file not found.');
+        }
+    }    
+    add_action('wp_ajax_smarty_gfg_load_readme', 'smarty_gfg_load_readme');
+}
+
+if (!function_exists('smarty_gfg_load_changelog')) {
+    /**
+     * AJAX handler to load and parse the CHANGELOG.md content.
+     */
+    function smarty_gfg_load_changelog() {
+        check_ajax_referer('smarty_feed_generator_nonce', 'nonce');
+    
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('You do not have sufficient permissions.');
+        }
+    
+        $changelog_path = plugin_dir_path(__FILE__) . 'CHANGELOG.md';
+        if (file_exists($changelog_path)) {
+            if (!class_exists('Parsedown')) {
+                require_once plugin_dir_path(__FILE__) . 'libs/Parsedown.php';
+            }
+    
+            $parsedown = new Parsedown();
+            $markdown_content = file_get_contents($changelog_path);
+            $html_content = $parsedown->text($markdown_content);
+    
+            wp_send_json_success($html_content);
+        } else {
+            wp_send_json_error('CHANGELOG.md file not found.');
+        }
+    }
+    add_action('wp_ajax_smarty_gfg_load_changelog', 'smarty_gfg_load_changelog');
+}
+
+if (!function_exists('smarty_gfg_cleaned_google_product_category')) {
 	/**
      * Retrieves the Google Product Category based on the plugin settings.
      *
@@ -1817,7 +1907,7 @@ if (!function_exists('smarty_get_cleaned_google_product_category')) {
      *
      * @return string The cleaned Google Product Category name or ID.
      */
-    function smarty_get_cleaned_google_product_category() {
+    function smarty_gfg_cleaned_google_product_category() {
         // Get the option value
         $category = get_option('smarty_google_product_category');
         $use_id = get_option('smarty_google_category_as_id', false);
@@ -1838,11 +1928,11 @@ if (!function_exists('smarty_get_cleaned_google_product_category')) {
     }
 }
 
-if (!function_exists('smarty_sanitize_category_values')) {
+if (!function_exists('smarty_gfg_sanitize_category_values')) {
     /**
      * Function to sanitize the plugin settings on save.
      */
-    function smarty_sanitize_category_values($input) {
+    function smarty_gfg_sanitize_category_values($input) {
         // Check if the input is an array
         if (is_array($input)) {
             return array_map('sanitize_text_field', array_map('trim', $input));
@@ -1855,11 +1945,11 @@ if (!function_exists('smarty_sanitize_category_values')) {
     }  
 }
 
-if (!function_exists('smarty_display_category_values_field')) {
+if (!function_exists('smarty_gfg_display_category_values_field')) {
     /**
      * Display the settings field with the values properly trimmed.
      */
-    function smarty_display_category_values_field() {
+    function smarty_gfg_display_category_values_field() {
         $category_values = get_option('smarty_custom_label_3_category_value', '');
         if (!is_array($category_values)) {
             $category_values = explode(',', $category_values);
@@ -1874,7 +1964,7 @@ if (!function_exists('smarty_display_category_values_field')) {
     // Add the display callback when registering the setting field
     add_action('admin_init', function() {
         register_setting('smarty_settings', 'smarty_custom_label_3_category_value', [
-            'sanitize_callback' => 'smarty_sanitize_category_values'
+            'sanitize_callback' => 'smarty_gfg_sanitize_category_values'
         ]);
 
         add_settings_field(
@@ -1887,11 +1977,11 @@ if (!function_exists('smarty_display_category_values_field')) {
     });
 }
 
-if (!function_exists('smarty_get_custom_label_0')) {
+if (!function_exists('smarty_gfg_get_custom_label_0')) {
     /**
      * Custom Label 0: Older Than X Days & Not Older Than Y Days
      */ 
-    function smarty_get_custom_label_0($product) {
+    function smarty_gfg_get_custom_label_0($product) {
         $date_created = $product->get_date_created();
         $now = new DateTime();
         
@@ -1913,11 +2003,11 @@ if (!function_exists('smarty_get_custom_label_0')) {
     }
 }
 
-if (!function_exists('smarty_get_custom_label_1')) {
+if (!function_exists('smarty_gfg_get_custom_label_1')) {
     /**
      * Custom Label 1: Most Ordered in Last Z Days 
      */ 
-    function smarty_get_custom_label_1($product) {
+    function smarty_gfg_get_custom_label_1($product) {
         $most_ordered_days = get_option('smarty_custom_label_1_most_ordered_days', 30);
         $most_ordered_value = get_option('smarty_custom_label_1_most_ordered_value', 'bestseller');
 
@@ -1945,11 +2035,11 @@ if (!function_exists('smarty_get_custom_label_1')) {
     }
 }
 
-if (!function_exists('smarty_get_custom_label_2')) {
+if (!function_exists('smarty_gfg_get_custom_label_2')) {
     /**
      * Custom Label 2: High Rating
      */
-    function smarty_get_custom_label_2($product) {
+    function smarty_gfg_get_custom_label_2($product) {
         $average_rating = $product->get_average_rating();
         $high_rating_value = get_option('smarty_custom_label_2_high_rating_value', 'high_rating');
         if ($average_rating >= 4) {
@@ -1959,11 +2049,11 @@ if (!function_exists('smarty_get_custom_label_2')) {
     }
 }
 
-if (!function_exists('smarty_get_custom_label_3')) {
+if (!function_exists('smarty_gfg_get_custom_label_3')) {
     /**
      * Custom Label 3: In Selected Category
      */
-    function smarty_get_custom_label_3($product) {
+    function smarty_gfg_get_custom_label_3($product) {
         // Retrieve selected categories and their values from options
         $selected_categories = get_option('smarty_custom_label_3_category', []);
         $selected_category_values = get_option('smarty_custom_label_3_category_value', 'category_selected');
@@ -2005,11 +2095,11 @@ if (!function_exists('smarty_get_custom_label_3')) {
     }
 }
 
-if (!function_exists('smarty_get_custom_label_4')) {
+if (!function_exists('smarty_gfg_get_custom_label_4')) {
     /**
      * Custom Label 4: Has Sale Price
      */
-    function smarty_get_custom_label_4($product) {
+    function smarty_gfg_get_custom_label_4($product) {
         $excluded_categories = get_option('smarty_excluded_categories', array()); // Get excluded categories from settings
         $product_categories = wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'ids'));
 
@@ -2063,7 +2153,7 @@ if (!function_exists('smarty_get_custom_label_4')) {
     }
 }
 
-if (!function_exists('smarty_evaluate_criteria')) {
+if (!function_exists('smarty_gfg_evaluate_criteria')) {
     /**
      * Evaluate product criteria and return the corresponding label.
      *
@@ -2084,7 +2174,7 @@ if (!function_exists('smarty_evaluate_criteria')) {
      * @param string $criteria JSON string containing the criteria to evaluate.
      * @return string The label of the matching criterion, or an empty string if no match is found.
      */
-    function smarty_evaluate_criteria($product, $criteria) {
+    function smarty_gfg_evaluate_criteria($product, $criteria) {
         if (empty($criteria)) {
             return '';
         }
