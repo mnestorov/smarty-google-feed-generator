@@ -1,11 +1,10 @@
-<p align="center"><a href="https://smartystudio.net" target="_blank"><img src="https://smartystudio.net/wp-content/uploads/2023/06/smarty-green-logo-small.png" width="100" alt="SmartyStudio Logo"></a></p>
-
-# Smarty Studio - Google Feed Generator for WooCommerce
+# SM - Google Feed Generator for WooCommerce
 
 [![Licence](https://img.shields.io/badge/LICENSE-GPL2.0+-blue)](./LICENSE)
 
-- Developed by: [Smarty Studio](https://smartystudio.net) | [Martin Nestorov](https://github.com/mnestorov)
-- Plugin URI: https://github.com/mnestorov/smarty-google-feed-generator
+- **Developed by:** Martin Nestorov 
+    - Founder and Lead Developer at [Smarty Studio](https://smartystudio.net) | Explore more at [nestorov.dev](https://github.com/mnestorov)
+- **Plugin URI:** https://github.com/mnestorov/smarty-google-feed-generator
 
 ## Overview
 

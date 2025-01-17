@@ -95,3 +95,40 @@ textarea[name="smarty_exclude_patterns"].large-text {
     border-radius: 5px;
     padding: 0 20px 20px;
 }
+
+#smarty-gfg-readme-content,
+#smarty-gfg-changelog-content {
+    font-size: 14px;
+}
+
+#smarty-gfg-readme-content pre,
+#smarty-gfg-changelog-content pre {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    overflow-x: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word; /* Allows word-breaking on small screens */
+}
+
+#smarty-gfg-readme-content h1, 
+#smarty-gfg-readme-content h2, 
+#smarty-gfg-readme-content h3,
+#smarty-gfg-changelog-content h1, 
+#smarty-gfg-changelog-content h2, 
+#smarty-gfg-changelog-content h3 {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+#smarty-gfg-readme-content ul, 
+#smarty-gfg-readme-content ol,
+#smarty-gfg-changelog-content ul,
+#smarty-gfg-changelog-content ol {
+    margin: 15px 0;
+    padding-left: 30px;
+    list-style: inherit;
+}
