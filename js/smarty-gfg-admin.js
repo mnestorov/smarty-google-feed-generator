@@ -80,7 +80,7 @@ jQuery(document).ready(function($) {
         width: 'resolve'
     });
 
-    /// Handle tab switching
+    // Handle tab switching
     $(".smarty-gfg-nav-tab").click(function (e) {
         e.preventDefault();
         $(".smarty-gfg-nav-tab").removeClass("smarty-gfg-nav-tab-active");

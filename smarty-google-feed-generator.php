@@ -21,15 +21,20 @@ if (!defined('WPINC')) {
 
 if (!function_exists('smarty_gfg_enqueue_admin_scripts')) {
     /**
-     * Enqueue admin scripts and styles for the plugin.
+     * Enqueues admin scripts and styles for the settings page.
      *
      * This function enqueues the necessary JavaScript and CSS files for the
      * admin settings pages of the Google Feed Generator plugin.
      * It also localizes the script to pass AJAX-related data to the JavaScript file.
      *
-     * @return void
+     * @param string $hook_suffix The current admin page hook suffix.
      */
-    function smarty_gfg_enqueue_admin_scripts() {
+    function smarty_gfg_enqueue_admin_scripts($hook_suffix) {
+        // Only add to the admin page of the plugin
+        if ('woocommerce_page_smarty-gfg-settings' !== $hook_suffix) {
+            return;
+        }
+        
         wp_enqueue_script('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13', true);
         wp_enqueue_style('select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
         wp_enqueue_script('smarty-gfg-admin-js', plugin_dir_url(__FILE__) . 'js/smarty-gfg-admin.js', array('jquery', 'select2'), '1.0.0', true);
@@ -984,20 +989,21 @@ if (!function_exists('smarty_gfg_get_google_product_categories')) {
     }
 }
 
-if (!function_exists('smarty_gfg_feed_generator_add_settings_page')) {
+if (!function_exists('smarty_gfg_register_settings_page')) {
     /**
      * Add settings page to the WordPress admin menu.
      */
-    function smarty_gfg_feed_generator_add_settings_page() {
-        add_options_page(
-            'Google Feed Generator | Settings',             // Page title
-            'Google Feed Generator',                        // Menu title
-            'manage_options',                               // Capability required to access this page
-            'smarty-gfg-settings',                          // Menu slug
-            'smarty_gfg_feed_generator_settings_page_html'  // Callback function to display the page content
+    function smarty_gfg_register_settings_page() {
+        add_submenu_page(
+            'woocommerce',
+            __('Google Feed Generator | | Settings', 'smarty-google-feed-generator'),
+            __('Google Feed Generator', 'smarty-google-feed-generator'),                // Menu title
+            'manage_options',                                                           // Capability required to access this page
+            'smarty-gfg-settings',                                                      // Menu slug
+            'smarty_gfg_settings_page_content'                                          // Callback function to display the page content
         );
     }
-    add_action('admin_menu', 'smarty_gfg_feed_generator_add_settings_page');
+    add_action('admin_menu', 'smarty_gfg_register_settings_page');
 }
 
 if (!function_exists('smarty_gfg_get_cleaned_google_product_category')) {
@@ -1773,7 +1779,7 @@ if (!function_exists('smarty_gfg_handle_ajax_generate_feed')) {
     add_action('wp_ajax_smarty_generate_feed', 'smarty_gfg_handle_ajax_generate_feed');
 }
 
-if (!function_exists('smarty_gfg_feed_generator_settings_page_html')) {
+if (!function_exists('smarty_gfg_settings_page_content')) {
     /**
      * Render the settings page HTML.
      *
@@ -1783,7 +1789,7 @@ if (!function_exists('smarty_gfg_feed_generator_settings_page_html')) {
      *
      * @return void
      */
-    function smarty_gfg_feed_generator_settings_page_html() {
+    function smarty_gfg_settings_page_content() {
         // Check user capabilities
         if (!current_user_can('manage_options')) {
             return;

@@ -97,7 +97,9 @@ textarea[name="smarty_exclude_patterns"].large-text {
 }
 
 #smarty-gfg-readme-content,
-#smarty-gfg-changelog-content {
+#smarty-gfg-readme-content p,
+#smarty-gfg-changelog-content, 
+#smarty-gfg-changelog-content p {
     font-size: 14px;
 }
 
