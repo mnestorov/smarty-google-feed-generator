@@ -32,7 +32,7 @@
 - **Image Conversion:** Convert WebP images to PNG for better compatibility with Google Merchant Center.
 - **Customizable Feeds:** Add attributes like `g:is_bundle`, `g:google_product_category`, `g:condition`, `g:brand`, and more.
 - **Google Product Category Cleaning:** Automatically cleans the Google product category string, removing any leading numbers and hyphens for better compatibility.
- **Easy Activation and Deactivation:** Ensures a smooth setup and cleanup process through activation and deactivation hooks, managing rewrite rules and scheduled events accordingly.
+- **Easy Activation and Deactivation:** Ensures a smooth setup and cleanup process through activation and deactivation hooks, managing rewrite rules and scheduled events accordingly.
 - **Error Logging and Debugging:** Logs errors during feed generation for troubleshooting.
 
 ## Installation
