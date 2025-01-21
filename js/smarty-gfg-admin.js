@@ -35,14 +35,17 @@ jQuery(document).ready(function($) {
         var redirectUrl = '';
 
         switch (action) {
-            case 'generate_product_feed':
+            case 'generate_google_feed':
                 redirectUrl = smartyGoogleFeedGenerator.siteUrl + '/smarty-google-feed/';
                 break;
-            case 'generate_reviews_feed':
+            case 'generate_google_reviews_feed':
                 redirectUrl = smartyGoogleFeedGenerator.siteUrl + '/smarty-google-reviews-feed/';
                 break;
             case 'generate_csv_export':
                 redirectUrl = smartyGoogleFeedGenerator.siteUrl + '/smarty-csv-export/';
+                break;
+            case 'generate_bing_feed':
+                redirectUrl = smartyGoogleFeedGenerator.siteUrl + '/smarty-bing-feed/';
                 break;
             default:
                 alert('Invalid action.');
@@ -50,7 +53,7 @@ jQuery(document).ready(function($) {
         }
 
         window.open(redirectUrl, '_blank');
-    });
+    });    
 
     $('.smarty-excluded-categories').select2({
         width: '100%' // need to override the changed default

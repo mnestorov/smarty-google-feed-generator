@@ -60,6 +60,7 @@ if (!function_exists('smarty_gfg_feed_generator_add_rewrite_rules')) {
         add_rewrite_rule('^smarty-google-feed/?', 'index.php?smarty_google_feed=1', 'top');                 // url: ?smarty-google-feed
         add_rewrite_rule('^smarty-google-reviews-feed/?', 'index.php?smarty_google_reviews_feed=1', 'top'); // url: ?smarty-google-reviews-feed
         add_rewrite_rule('^smarty-csv-export/?', 'index.php?smarty_csv_export=1', 'top');                   // url: ?smarty-csv-export
+        add_rewrite_rule('^smarty-bing-feed/?', 'index.php?smarty_bing_feed=1', 'top');                     // url: ?smarty-bing-feed
     }
     add_action('init', 'smarty_gfg_feed_generator_add_rewrite_rules');
 }
@@ -72,6 +73,7 @@ if (!function_exists('smarty_gfg_feed_generator_query_vars')) {
         $vars[] = 'smarty_google_feed';
         $vars[] = 'smarty_google_reviews_feed';
         $vars[] = 'smarty_csv_export';
+        $vars[] = 'smarty_bing_feed';
         return $vars;
     }
     add_filter('query_vars', 'smarty_gfg_feed_generator_query_vars');
@@ -95,6 +97,16 @@ if (!function_exists('smarty_gfg_feed_generator_template_redirect')) {
         if (get_query_var('smarty_csv_export')) {
             smarty_gfg_generate_csv_export();
             exit;
+        }
+
+        if (get_query_var('smarty_bing_feed')) {
+            smarty_gfg_generate_bing_feed();
+            exit;
+        }
+
+        // Output an error message for invalid endpoints
+        if (is_404()) {
+            wp_die(__('Invalid feed request.', 'smarty-google-feed-generator'));
         }
     }
     add_action('template_redirect', 'smarty_gfg_feed_generator_template_redirect');
@@ -609,6 +621,67 @@ if (!function_exists('smarty_gfg_generate_csv_export')) {
     }
 }
 
+if (!function_exists('smarty_gfg_generate_bing_feed')) {
+    /**
+     * Generate Bing feed.
+     */
+    function smarty_gfg_generate_bing_feed()
+    {
+        header('Content-Type: application/xml; charset=utf-8');
+
+        // Retrieve cached feed if available.
+        $cached_feed = get_transient('smarty_bing_feed');
+        if ($cached_feed !== false) {
+            echo $cached_feed;
+            exit;
+        }
+
+        if (class_exists('WooCommerce')) {
+            $products = wc_get_products(array(
+                'status' => 'publish',
+                'limit'  => -1,
+            ));
+
+            $dom = new DOMDocument('1.0', 'UTF-8');
+            $dom->formatOutput = true;
+
+            $feed = $dom->createElement('feed');
+            $dom->appendChild($feed);
+
+            foreach ($products as $product) {
+                $item = $dom->createElement('item');
+                $feed->appendChild($item);
+
+                $item->appendChild($dom->createElement('id', $product->get_id()));
+                $item->appendChild($dom->createElement('title', htmlspecialchars($product->get_name())));
+                $item->appendChild($dom->createElement('link', get_permalink($product->get_id())));
+
+                $description = $product->get_short_description() ?: $product->get_description();
+                $item->appendChild($dom->createElement('description', htmlspecialchars(strip_tags($description))));
+
+                $item->appendChild($dom->createElement('image_link', wp_get_attachment_url($product->get_image_id())));
+
+                $price = $product->get_price();
+                $item->appendChild($dom->createElement('price', $price . ' ' . get_woocommerce_currency()));
+
+                $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
+                $item->appendChild($dom->createElement('availability', $availability));
+
+                $item->appendChild($dom->createElement('brand', get_bloginfo('name')));
+            }
+
+            $feed_content = $dom->saveXML();
+            set_transient('smarty_bing_feed', $feed_content, 12 * HOUR_IN_SECONDS);
+
+            echo $feed_content;
+            exit;
+        } else {
+            echo '<error>WooCommerce is not active.</error>';
+            exit;
+        }
+    }
+}
+
 if (!function_exists('get_the_product_sku')) {
     /**
      * Helper function to get the product SKU.
@@ -851,7 +924,7 @@ if (!function_exists('smarty_gfg_feed_generator_activate')) {
             wp_schedule_event(time(), 'daily', 'smarty_gfg_generate_google_reviews_feed');
         }
     }
-    register_activation_hook(__FILE__, 'smarty_gfg_activate');
+    register_activation_hook(__FILE__, 'smarty_gfg_feed_generator_activate');
 }
 
 if (!function_exists('smarty_gfg_deactivate')) {
@@ -1265,7 +1338,7 @@ if (!function_exists('smarty_gfg_feed_generator_register_settings')) {
 
         add_settings_field(
             'smarty_generate_feed_now',                                     // ID of the field
-            __('Generate', 'smarty-google-feed-generator'),                 // Title of the field
+            null,                                                           // Title of the field
             'smarty_gfg_generate_feed_buttons_callback',                    // Callback function to display the field
             'smarty_feed_generator_settings',                               // Page on which to add the field
             'smarty_gfg_section_generate_feeds'                             // Section to which this field belongs
@@ -1601,14 +1674,35 @@ if (!function_exists('smarty_gfg_generate_feed_buttons_callback')) {
      * Render the buttons for manually generating feeds.
      *
      * This function outputs buttons for generating the product feed, reviews feed,
-     * and CSV export manually from the plugin settings page.
+     * CSV export, and Bing feed manually from the plugin settings page.
      *
      * @return void
      */
     function smarty_gfg_generate_feed_buttons_callback() {
-        echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_product_feed" style="display: inline-block;">' . __('Generate Product Feed', 'smarty-google-feed-generator') . '</button>';
-        echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_reviews_feed" style="display: inline-block; margin: 0 10px;">' . __('Generate Reviews Feed', 'smarty-google-feed-generator') . '</button>';
-        echo '<button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-block; margin-right: 10px;">' . __('Generate CSV Export', 'smarty-google-feed-generator') . '</button>';
+        echo '<table class="form-table" style="width: auto;">';
+        echo '<tr><th>' . __('Feed Type', 'smarty-google-feed-generator') . '</th><th>' . __('Action', 'smarty-google-feed-generator') . '</th></tr>';
+
+        echo '<tr>';
+        echo '<td>' . __('Google Product Feed', 'smarty-google-feed-generator') . '</td>';
+        echo '<td><button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_feed" style="display: inline-flex; align-items: center; gap: 5px;">' . __('Generate', 'smarty-google-feed-generator') . '<span class="dashicons dashicons-external"></span></button></td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td>' . __('Google Reviews Feed', 'smarty-google-feed-generator') . '</td>';
+        echo '<td><button class="button secondary smarty-generate-feed-button" data-feed-action="generate_google_reviews_feed" style="display: inline-flex; align-items: center; gap: 5px;">' . __('Generate', 'smarty-google-feed-generator') . '<span class="dashicons dashicons-external"></span></button></td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td>' . __('CSV Export', 'smarty-google-feed-generator') . '</td>';
+        echo '<td><button class="button secondary smarty-generate-feed-button" data-feed-action="generate_csv_export" style="display: inline-flex; align-items: center; gap: 5px;">' . __('Generate', 'smarty-google-feed-generator') . '<span class="dashicons dashicons-external"></span></button></td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td>' . __('Bing Product Feed', 'smarty-google-feed-generator') . '</td>';
+        echo '<td><button class="button secondary smarty-generate-feed-button" data-feed-action="generate_bing_feed" style="display: inline-flex; align-items: center; gap: 5px;">' . __('Generate', 'smarty-google-feed-generator') . '<span class="dashicons dashicons-external"></span></button></td>';
+        echo '</tr>';
+
+        echo '</table>';
     }
 }
 
@@ -1759,17 +1853,21 @@ if (!function_exists('smarty_gfg_handle_ajax_generate_feed')) {
 
         $action = sanitize_text_field($_POST['feed_action']);
         switch ($action) {
-            case 'generate_product_feed':
+            case 'generate_google_feed':
                 smarty_gfg_generate_google_feed();
                 wp_send_json_success('Product feed generated successfully.');
                 break;
-            case 'generate_reviews_feed':
+            case 'generate_google_reviews_feed':
                 smarty_gfg_generate_google_reviews_feed();
                 wp_send_json_success('Reviews feed generated successfully.');
                 break;
             case 'generate_csv_export':
                 smarty_gfg_generate_csv_export();
                 wp_send_json_success('CSV export generated successfully.');
+                break;
+            case 'generate_bing_feed':
+                smarty_gfg_generate_bing_feed();
+                wp_send_json_success('Bing feed generated successfully.');
                 break;
             default:
                 wp_send_json_error('Invalid action.');
