@@ -1,13 +1,18 @@
 # Changelog
 
 ### 1.0.0 (2024.02.13)
-- Initial release.
+- Initial release
 
 ### 1.0.1 (2025.01.16)
-- Added missing doc blocks for functions, updated README.md
+- Added missing doc blocks for functions
+- Updated README.md
 
 ### 1.0.2 (2025.01.16)
-- Code refactoring, removing of unused functions, added additional functionality for the plugin settings page, bug fixes.
+- Code refactoring
+- Removing of unused functions
+- Added additional functionality for the plugin settings page
+- Bug fixes
 
 ### 1.0.3 (2025.01.21)
-- Minor bug fixes, added a product feed generation functionality compatible with Bing Shopping.
+- Bug fixes
+- Added a product feed generation functionality compatible with Bing Shopping
