@@ -3,7 +3,7 @@
  * Plugin Name:             SM - Google Feed Generator for WooCommerce
  * Plugin URI:              https://github.com/mnestorov/smarty-google-feed-generator
  * Description:             Generates google product and product review feeds for Google Merchant Center.
- * Version:                 1.0.2
+ * Version:                 1.0.3
  * Author:                  Martin Nestorov
  * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
@@ -628,11 +628,17 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
     function smarty_gfg_generate_bing_feed()
     {
         header('Content-Type: application/xml; charset=utf-8');
+        
+        // Check if the clear cache option is enabled
+        if (get_option('smarty_clear_cache')) {
+            delete_transient('smarty_bing_feed');
+        }
 
-        // Retrieve cached feed if available.
+        // Attempt to retrieve the cached version of the feed
         $cached_feed = get_transient('smarty_bing_feed');
         if ($cached_feed !== false) {
-            echo $cached_feed;
+            echo $cached_feed; // Output the cached feed and stop processing if it exists
+            ob_end_flush();
             exit;
         }
 
@@ -646,35 +652,67 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
             $dom->formatOutput = true;
 
             $feed = $dom->createElement('feed');
+            $feed->setAttribute('xmlns:g', 'http://base.google.com/ns/1.0');
             $dom->appendChild($feed);
 
             foreach ($products as $product) {
                 $item = $dom->createElement('item');
                 $feed->appendChild($item);
 
+                // Product details
                 $item->appendChild($dom->createElement('id', $product->get_id()));
                 $item->appendChild($dom->createElement('title', htmlspecialchars($product->get_name())));
                 $item->appendChild($dom->createElement('link', get_permalink($product->get_id())));
 
+                // Description
                 $description = $product->get_short_description() ?: $product->get_description();
                 $item->appendChild($dom->createElement('description', htmlspecialchars(strip_tags($description))));
 
+                // Main image
                 $item->appendChild($dom->createElement('image_link', wp_get_attachment_url($product->get_image_id())));
 
+                // Additional images
+                $gallery_ids = $product->get_gallery_image_ids();
+                if (!empty($gallery_ids)) {
+                    foreach ($gallery_ids as $gallery_id) {
+                        $image_url = wp_get_attachment_url($gallery_id);
+                        if ($image_url) {
+                            $item->appendChild($dom->createElement('additional_image_link', $image_url));
+                        }
+                    }
+                }
+
+                // Price
                 $price = $product->get_price();
                 $item->appendChild($dom->createElement('price', $price . ' ' . get_woocommerce_currency()));
 
+                // Add Google-specific product category to Bing
+                $product_category = smarty_gfg_get_cleaned_google_product_category();
+                $item->appendChild($dom->createElement('product_category', htmlspecialchars($product_category)));
+
+                // Availability
                 $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
                 $item->appendChild($dom->createElement('availability', $availability));
 
-                $item->appendChild($dom->createElement('brand', get_bloginfo('name')));
+                // Brand
+                $brand = get_bloginfo('name');
+                $item->appendChild($dom->createElement('brand', htmlspecialchars($brand)));
             }
 
+            // Save and output the XML
             $feed_content = $dom->saveXML();
-            set_transient('smarty_bing_feed', $feed_content, 12 * HOUR_IN_SECONDS);
+            if ($feed_content) {
+                $cache_duration = get_option('smarty_cache_duration', 12); // Default to 12 hours if not set
+                set_transient('smarty_bing_feed', $feed_content, $cache_duration * HOUR_IN_SECONDS);
 
-            echo $feed_content;
-            exit;
+                echo $feed_content;
+                ob_end_flush();
+                exit; // Ensure the script stops here to prevent further output that could corrupt the feed
+            } else {
+                ob_end_clean();
+                echo '<error>Failed to generate feed content.</error>';
+                exit;
+            }
         } else {
             echo '<error>WooCommerce is not active.</error>';
             exit;

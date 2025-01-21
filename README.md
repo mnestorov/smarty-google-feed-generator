@@ -12,12 +12,13 @@
 
 ## Features
 
-- **Automatic Feed Generation:** Automatically generates Google product feeds, ensuring your WooCommerce store's products are readily available for Google Merchant Center.
-- **Product Review Feeds:** Generate feeds for product reviews to enhance product credibility and shopper confidence with user-generated content.
+- **Automatic Feed Generation:** Automatically generates Google product feeds and a product feed compatible with Bing Shopping, ensuring your WooCommerce store's products are readily available for Google and Bing Merchant Centers.
+- **Google Product Review Feeds:** Generate feeds for product reviews to enhance product credibility and shopper confidence with user-generated content.
 - **Custom Endpoints:** Provides easy access to feeds via dedicated URLs:
-    - **Product Feed:** `/smarty-google-feed`
-    - **Review Feed:** `/smarty-google-reviews-feed`
+    - **Google Product Feed:** `/smarty-google-feed`
+    - **Google Review Feed:** `/smarty-google-reviews-feed`
     - **CSV Export:** `/smarty-csv-export`
+    - **Bing Product Feed:** `/smarty-bing-feed`
 - **Real-time Updates:** Automatically updates feeds when products or reviews are added, modified, or removed.
 - **Custom Labels:** Supports custom labels based on various product criteria, including:
     - High ratings
@@ -45,9 +46,10 @@
 
 After activating the plugin, it automatically generates product and review feeds accessible through custom endpoints:
 
-- **Product Feed URL:** https://yourdomain.com/smarty-google-feed
-- **Review Feed URL:** https://yourdomain.com/smarty-google-reviews-feed
+- **Google Product Feed URL:** https://yourdomain.com/smarty-google-feed
+- **Google Review Feed URL:** https://yourdomain.com/smarty-google-reviews-feed
 - **CSV Feed Export:** https://yourdomain.com/smarty-csv-export
+- **Bing Product Feed URL:** https://yourdomain.com/smarty-bing-feed
 
 These URLs can be submitted to [Google Merchant Center](https://www.google.com/retail/solutions/merchant-center/) for product data and review integration.
 
@@ -100,6 +102,7 @@ The plugin hooks into various WooCommerce and WordPress actions to detect change
 
 - `smarty_gfg_generate_google_feed`: Triggered to generate the Google product feed.
 - `smarty_gfg_generate_google_reviews_feed`: Triggered to generate the Google reviews feed.
+- `smarty_gfg_generate_bing_feed`: Triggered to generate the Bing product feed.
 - `smarty_gfg_invalidate_feed_cache`: Invalidates the feed cache on product changes.
 
 ### Filters
