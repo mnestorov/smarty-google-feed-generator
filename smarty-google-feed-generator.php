@@ -1450,6 +1450,7 @@ if (!function_exists('smarty_gfg_google_product_category_callback')) {
             echo '<option value="' . esc_attr($option) . '" selected>' . esc_html($option) . '</option>';
         }
         echo '</select>';
+        echo '<p class="description">Select Google Product categories from the list. <br><small><em><b>Important:</b> <span style="color: #c51244;">This also works for Bing Products feed.</span></em></small></p>';
     }
 }
 
