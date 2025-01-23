@@ -386,7 +386,7 @@ if (!function_exists('smarty_gfg_generate_google_reviews_feed')) {
         echo $dom->saveXML();
         exit; // Ensure the script stops here to prevent further output that could corrupt the feed
     }
-    add_action('smarty_generate_google_reviews_feed', 'smarty_gfg_generate_google_reviews_feed'); // the first one is event
+    add_action('smarty_gfg_generate_google_reviews_feed', 'smarty_gfg_generate_google_reviews_feed'); // the first one is event
 }
 
 if (!function_exists('smarty_gfg_generate_csv_export')) {
