@@ -16,3 +16,6 @@
 ### 1.0.3 (2025.01.21)
 - Bug fixes
 - Added a product feed generation functionality compatible with Bing Shopping
+
+### 1.0.4 (2025.01.30)
+- Added [HPOS (High-Performance Order Storage)](https://woocommerce.com/document/high-performance-order-storage/) compatibility declaration. The HPOS replaces the old post-based order system with custom database tables. 
