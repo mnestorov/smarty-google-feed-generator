@@ -3,7 +3,7 @@
  * Plugin Name:             SM - Google Feed Generator for WooCommerce
  * Plugin URI:              https://github.com/mnestorov/smarty-google-feed-generator
  * Description:             Generates google product and product review feeds for Google Merchant Center.
- * Version:                 1.0.4
+ * Version:                 1.0.5
  * Author:                  Martin Nestorov
  * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
@@ -441,6 +441,7 @@ if (!function_exists('smarty_gfg_generate_csv_export')) {
             'Item Title',               // Title of the product
             'Item Description',         // Description of the product
             'Item Category',            // Categories the product belongs to
+            'Product Type',             // WooCommerce hierarchical category structure
             'Price',                    // Regular price of the product
             'Sale Price',               // Sale price if the product is on discount
             'Google Product Category',  // Google's product category if needed for feeds
@@ -553,6 +554,14 @@ if (!function_exists('smarty_gfg_generate_csv_export')) {
 
             $brand = get_bloginfo('name');
 
+            // Extract hierarchical category structure for Product Type
+            $product_categories = wp_get_post_terms($product->get_id(), 'product_cat');
+            $product_type = '';
+            if (!empty($product_categories) && !is_wp_error($product_categories)) {
+                $category_names = array_map(function($term) { return $term->name; }, $product_categories);
+                $product_type = join(' > ', $category_names);
+            }
+
             // Custom Labels
             $custom_label_0 = smarty_gfg_get_custom_label_0($product);
             $custom_label_1 = smarty_gfg_get_custom_label_1($product);
@@ -589,6 +598,7 @@ if (!function_exists('smarty_gfg_generate_csv_export')) {
                         'Item Title'              => $name,
                         'Item Description'        => $description,
                         'Item Category'           => $categories,
+                        'Product Type'            => $product_type,
                         'Price'                   => $variation_price,
                         'Sale Price'              => $variation_sale_price,
                         'Google Product Category' => $google_product_category,
@@ -616,6 +626,7 @@ if (!function_exists('smarty_gfg_generate_csv_export')) {
                     'Item Title'              => $name,
                     'Item Description'        => $description,
                     'Item Category'           => $categories,
+                    'Product Type'            => $product_type,
                     'Price'                   => $regular_price,
                     'Sale Price'              => $sale_price,
                     'Google Product Category' => $google_product_category,
@@ -708,6 +719,13 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
                 $price = $product->get_price();
                 $item->appendChild($dom->createElement('price', $price . ' ' . get_woocommerce_currency()));
 
+                // Product categories
+                $categories = wp_get_post_terms($product->get_id(), 'product_cat');
+                if (!empty($categories) && !is_wp_error($categories)) {
+                    $category_names = array_map(function($term) { return $term->name; }, $categories);
+                    $item->appendChild($dom->createElement('product_type', htmlspecialchars(join(' > ', $category_names))));
+                }
+
                 // Add Google-specific product category to Bing
                 $product_category = smarty_gfg_get_cleaned_google_product_category();
                 $item->appendChild($dom->createElement('product_category', htmlspecialchars($product_category)));
@@ -719,6 +737,12 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
                 // Brand
                 $brand = get_bloginfo('name');
                 $item->appendChild($dom->createElement('brand', htmlspecialchars($brand)));
+
+                // Add Shipping Attribute
+                $shipping_string = smarty_gfg_get_shipping_rates();
+                if (!empty($shipping_string)) {
+                    $item->appendChild($dom->createElement('shipping', smarty_gfg_get_shipping_rates()));
+                }
             }
 
             // Save and output the XML
@@ -739,6 +763,52 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
             echo '<error>WooCommerce is not active.</error>';
             exit;
         }
+    }
+}
+
+if (!function_exists('smarty_gfg_get_shipping_rates')) {
+    /**
+     * Get the shipping cost string for Bing feed in the format "country:service:price"
+     */
+    function smarty_gfg_get_shipping_rates() {
+        $shipping_rates = [];
+        $supported_countries = ['DE', 'AT']; // Bing requires shipping for Germany and Austria
+
+        // Get all shipping zones
+        $zones = WC_Shipping_Zones::get_zones();
+        $default_zone = new WC_Shipping_Zone(0); // Default zone for uncovered locations
+        $zones[0] = ['zone_id' => 0, 'zone' => $default_zone];
+
+        foreach ($zones as $zone) {
+            $zone_obj = new WC_Shipping_Zone($zone['zone_id']);
+            $zone_methods = $zone_obj->get_shipping_methods();
+
+            foreach ($zone_methods as $method) {
+                if ($method->enabled !== 'yes') {
+                    continue; // Skip disabled methods
+                }
+
+                foreach ($supported_countries as $country) {
+                    if ($method->id === 'flat_rate') {
+                        // Extract cost from the method instance
+                        $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
+                        $rate = number_format($rate, 2, '.', '');
+                        $shipping_rates[] = "{$country}:Standard:{$rate}";
+                    } elseif ($method->id === 'free_shipping') {
+                        // Free shipping is always 0.00
+                        $shipping_rates[] = "{$country}:Free Shipping:0.00";
+                    } elseif ($method->id === 'local_pickup') {
+                        // Add local pickup with a generic cost (adjust if needed)
+                        $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
+                        $rate = number_format($rate, 2, '.', '');
+                        $shipping_rates[] = "{$country}:Local Pickup:{$rate}";
+                    }
+                }
+            }
+        }
+
+        // Default to free shipping if no rates found
+        return !empty($shipping_rates) ? implode(', ', $shipping_rates) : 'DE:Standard:0.00, AT:Standard:0.00';
     }
 }
 
