@@ -1488,7 +1488,7 @@ if (!function_exists('smarty_gfg_load_google_categories')) {
         }
 
         $search = sanitize_text_field($_GET['q']);
-        $google_categories = smarty_get_google_product_categories();
+        $google_categories = smarty_gfg_get_google_product_categories();
 
         $results = array();
         foreach ($google_categories as $category) {
