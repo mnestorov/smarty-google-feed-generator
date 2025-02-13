@@ -3,7 +3,7 @@
  * Plugin Name:             SM - Google Feed Generator for WooCommerce
  * Plugin URI:              https://github.com/mnestorov/smarty-google-feed-generator
  * Description:             Generates google product and product review feeds for Google Merchant Center.
- * Version:                 1.0.5
+ * Version:                 1.0.6
  * Author:                  Martin Nestorov
  * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
@@ -339,12 +339,106 @@ if (!function_exists('smarty_gfg_add_google_product_details')) {
         $brand = get_bloginfo('name'); // Use the site name as the brand
         $item->appendChild($dom->createElementNS($gNamespace, 'g:brand', htmlspecialchars($brand)));
 
+        ////////////////////////////////////////
+        // Shipping Attribute //////////////////
+        ////////////////////////////////////////
+                
+        // Detect country based on the current request URL (better for multisite)
+        $request_uri = $_SERVER['REQUEST_URI']; // Get the requested URL path
+        $filter_country = null; // Default to null
+
+        // Detect country using regex match
+        if (preg_match('/\/cz\//i', $request_uri)) {
+            $filter_country = 'CZ';
+        } elseif (preg_match('/\/pl\//i', $request_uri)) {
+            $filter_country = 'PL';
+        } elseif (preg_match('/\/de\//i', $request_uri)) {
+            $filter_country = 'DE';
+        } elseif (preg_match('/\/at\//i', $request_uri)) {
+            $filter_country = 'AT';
+        } elseif (preg_match('/\/ch\//i', $request_uri)) {
+            $filter_country = 'CH';
+        } elseif (preg_match('/\/nl\//i', $request_uri)) {
+            $filter_country = 'NL';
+        } elseif (preg_match('/\/be\//i', $request_uri)) {
+            $filter_country = 'BE';
+        } elseif (preg_match('/\/it\//i', $request_uri)) {
+            $filter_country = 'IT';
+        } elseif (preg_match('/\/es\//i', $request_uri)) {
+            $filter_country = 'ES';
+        } elseif (preg_match('/\/ro\//i', $request_uri)) {
+            $filter_country = 'RO';
+        } elseif (preg_match('/\/fr\//i', $request_uri)) {
+            $filter_country = 'FR';
+        }
+
+        // Fetch shipping rates for detected country
+        if ($filter_country) {
+            $shipping_rates = smarty_gfg_get_shipping_rates_google($filter_country);
+            if (!empty($shipping_rates)) {
+                foreach ($shipping_rates as $shipping_rate) {
+                    $shipping_element = $dom->createElementNS($gNamespace, 'g:shipping');
+
+                    // Country
+                    $shipping_element->appendChild($dom->createElementNS($gNamespace, 'g:country', $shipping_rate['country']));
+
+                    // Service (if available)
+                    if (!empty($shipping_rate['service'])) {
+                        $shipping_element->appendChild($dom->createElementNS($gNamespace, 'g:service', $shipping_rate['service']));
+                    }
+
+                    // Price
+                    $shipping_element->appendChild($dom->createElementNS($gNamespace, 'g:price', $shipping_rate['price']));
+
+                    // Add to item
+                    $item->appendChild($shipping_element);
+                }
+            }
+        }
+
         // Custom Labels
         $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_0', smarty_gfg_get_custom_label_0($product)));
         $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_1', smarty_gfg_get_custom_label_1($product)));
         $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_2', smarty_gfg_get_custom_label_2($product)));
         $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_3', smarty_gfg_get_custom_label_3($product)));
         $item->appendChild($dom->createElementNS($gNamespace, 'g:custom_label_4', smarty_gfg_get_custom_label_4($product)));
+    }
+}
+
+if (!function_exists('smarty_gfg_get_shipping_rates_google')) {
+    function smarty_gfg_get_shipping_rates_google($filter_country = null) {
+        $shipping_rates = [];
+        $supported_countries = ['DE', 'AT', 'CZ', 'PL', 'CH', 'NL', 'BE', 'IT', 'ES', 'RO', 'FR'];
+
+        $zones = WC_Shipping_Zones::get_zones();
+        $default_zone = new WC_Shipping_Zone(0);
+        $zones[0] = ['zone_id' => 0, 'zone' => $default_zone];
+
+        foreach ($zones as $zone) {
+            $zone_obj = new WC_Shipping_Zone($zone['zone_id']);
+            $zone_methods = $zone_obj->get_shipping_methods();
+
+            foreach ($zone_methods as $method) {
+                if ($method->enabled !== 'yes') {
+                    continue;
+                }
+
+                foreach ($supported_countries as $country) {
+                    if ($filter_country && $filter_country !== $country) {
+                        continue;
+                    }
+
+                    if ($method->id === 'flat_rate') {
+                        $rate = number_format(floatval($method->cost), 2, '.', '') . ' ' . get_woocommerce_currency();
+                        $shipping_rates[] = ['country' => $country, 'service' => 'Standard', 'price' => $rate];
+                    } elseif ($method->id === 'free_shipping') {
+                        $shipping_rates[] = ['country' => $country, 'service' => 'Free Shipping', 'price' => '0.00 ' . get_woocommerce_currency()];
+                    }
+                }
+            }
+        }
+
+        return $shipping_rates;
     }
 }
 
@@ -756,7 +850,7 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
 
                 // Add Shipping Attribute
                 if ($filter_country) {
-                    $shipping_string = smarty_gfg_get_shipping_rates($filter_country);
+                    $shipping_string = smarty_gfg_get_shipping_rates_bing($filter_country);
 
                     // Log the retrieved shipping rates for debugging
                     //error_log("Bing Feed - Shipping Rates for $filter_country: " . $shipping_string);
@@ -788,12 +882,12 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
     }
 }
 
-if (!function_exists('smarty_gfg_get_shipping_rates')) {
+if (!function_exists('smarty_gfg_get_shipping_rates_bing')) {
     /**
      * Get the shipping cost string for Bing feed in the format "country:service:price"
      * Only returns shipping rates for the requested country.
      */
-    function smarty_gfg_get_shipping_rates($filter_country = null) {
+    function smarty_gfg_get_shipping_rates_bing($filter_country = null) {
         $shipping_rates = [];
         $supported_countries = ['DE', 'AT'];
 

@@ -23,8 +23,12 @@
 ### 1.0.5 (2025.02.12)
 - Added `post_type` attribute for Google and Bing product feeds
 - Added `shipping` attribute for the Bing product feeds based on WooCommerce shipping zones
-    - Extracted shipping costs dynamically for **Germany (DE) and Austria (AT)**.
-    - Included multiple shipping methods per country (e.g., **Standard and Free Shipping**).
-    - Ensured shipping prices match WooCommerce rates.
-    - Fixed formatting issues with XML output for better compatibility with Bing.
-    - Improved caching logic to refresh feed when WooCommerce settings are updated.
+    - Extracted shipping costs dynamically for **Germany (DE) and Austria (AT)**
+    - Included multiple shipping methods per country (e.g., **Standard and Free Shipping**)
+    - Ensured shipping prices match WooCommerce rates
+    - Fixed formatting issues with XML output for better compatibility with Bing
+    - Improved caching logic to refresh feed when WooCommerce settings are updated
+
+### 1.0.6 (2025.02.13)
+- Added `shipping` attribute for the Google product feeds based on WooCommerce shipping zones
+- Bug fix on `shipping` attribute display for the Bing product feeds
