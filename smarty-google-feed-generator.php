@@ -658,8 +658,7 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
     /**
      * Generate Bing feed.
      */
-    function smarty_gfg_generate_bing_feed()
-    {
+    function smarty_gfg_generate_bing_feed() {
         header('Content-Type: application/xml; charset=utf-8');
         
         // Check if the clear cache option is enabled
@@ -738,10 +737,33 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
                 $brand = get_bloginfo('name');
                 $item->appendChild($dom->createElement('brand', htmlspecialchars($brand)));
 
+                ////////////////////////////////////////
+                // Shipping Attribute //////////////////
+                ////////////////////////////////////////
+                
+                // Detect country based on the current request URL (better for multisite)
+                $request_uri = $_SERVER['REQUEST_URI']; // Get the requested URL path
+
+                // Ensure case-insensitive and trimmed matching
+                if (preg_match('/\/de\//i', $request_uri)) {
+                    $filter_country = 'DE';
+                } elseif (preg_match('/\/at\//i', $request_uri)) {
+                    $filter_country = 'AT';
+                }
+
+                // Log detection for debugging
+                //error_log("Bing Feed - Fixed Country Detection: " . ($filter_country ?: 'NOT DETECTED'));
+
                 // Add Shipping Attribute
-                $shipping_string = smarty_gfg_get_shipping_rates();
-                if (!empty($shipping_string)) {
-                    $item->appendChild($dom->createElement('shipping', smarty_gfg_get_shipping_rates()));
+                if ($filter_country) {
+                    $shipping_string = smarty_gfg_get_shipping_rates($filter_country);
+
+                    // Log the retrieved shipping rates for debugging
+                    //error_log("Bing Feed - Shipping Rates for $filter_country: " . $shipping_string);
+
+                    if (!empty($shipping_string)) {
+                        $item->appendChild($dom->createElement('shipping', $shipping_string));
+                    }
                 }
             }
 
@@ -769,10 +791,15 @@ if (!function_exists('smarty_gfg_generate_bing_feed')) {
 if (!function_exists('smarty_gfg_get_shipping_rates')) {
     /**
      * Get the shipping cost string for Bing feed in the format "country:service:price"
+     * Only returns shipping rates for the requested country.
      */
-    function smarty_gfg_get_shipping_rates() {
+    function smarty_gfg_get_shipping_rates($filter_country = null) {
         $shipping_rates = [];
-        $supported_countries = ['DE', 'AT']; // Bing requires shipping for Germany and Austria
+        $supported_countries = ['DE', 'AT'];
+
+        if (!$filter_country || !in_array($filter_country, $supported_countries)) {
+            return ''; // If the country is not supported, return an empty string
+        }
 
         // Get all shipping zones
         $zones = WC_Shipping_Zones::get_zones();
@@ -788,27 +815,23 @@ if (!function_exists('smarty_gfg_get_shipping_rates')) {
                     continue; // Skip disabled methods
                 }
 
-                foreach ($supported_countries as $country) {
-                    if ($method->id === 'flat_rate') {
-                        // Extract cost from the method instance
-                        $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
-                        $rate = number_format($rate, 2, '.', '');
-                        $shipping_rates[] = "{$country}:Standard:{$rate}";
-                    } elseif ($method->id === 'free_shipping') {
-                        // Free shipping is always 0.00
-                        $shipping_rates[] = "{$country}:Free Shipping:0.00";
-                    } elseif ($method->id === 'local_pickup') {
-                        // Add local pickup with a generic cost (adjust if needed)
-                        $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
-                        $rate = number_format($rate, 2, '.', '');
-                        $shipping_rates[] = "{$country}:Local Pickup:{$rate}";
-                    }
+                if ($method->id === 'flat_rate') {
+                    $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
+                    $rate = number_format($rate, 2, '.', '');
+                    $shipping_rates[] = "{$filter_country}:Standard:{$rate}";
+                } elseif ($method->id === 'free_shipping') {
+                    $shipping_rates[] = "{$filter_country}:Free Shipping:0.00";
+                } elseif ($method->id === 'local_pickup') {
+                    $rate = isset($method->cost) ? floatval($method->cost) : 0.00;
+                    $rate = number_format($rate, 2, '.', '');
+                    $shipping_rates[] = "{$filter_country}:Local Pickup:{$rate}";
                 }
             }
         }
 
-        // Default to free shipping if no rates found
-        return !empty($shipping_rates) ? implode(', ', $shipping_rates) : 'DE:Standard:0.00, AT:Standard:0.00';
+        error_log("Shipping Rates for {$filter_country}: " . implode(', ', $shipping_rates));
+
+        return !empty($shipping_rates) ? implode(', ', $shipping_rates) : '';
     }
 }
 
