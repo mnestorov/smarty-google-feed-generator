@@ -284,11 +284,17 @@ if (!function_exists('smarty_gfg_add_google_product_details')) {
 
         $item->appendChild($dom->createElementNS($gNamespace, 'g:id', $id));
         $item->appendChild($dom->createElementNS($gNamespace, 'g:sku', $sku));
-        $item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars($product->get_name())));
-        $item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
 
-        // Add description, using meta description if available or fallback to short description
-        $meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
+		// Add title, using meta title if available or fallback to product name
+		$meta_title = get_post_meta($product->get_id(), get_option('smarty_meta_title_field', 'meta-title'), true);
+		$title = !empty($meta_title) ? $meta_title : $product->get_name();
+		$item->appendChild($dom->createElementNS($gNamespace, 'title', htmlspecialchars(strip_tags($title))));
+			
+		// Add product link
+		$item->appendChild($dom->createElementNS($gNamespace, 'link', get_permalink($product->get_id())));
+
+		// Add description, using meta description if available or fallback to short description
+		$meta_description = get_post_meta($product->get_id(), get_option('smarty_meta_description_field', 'meta-description'), true);
         $description = !empty($meta_description) ? $meta_description : $product->get_short_description();
         $item->appendChild($dom->createElementNS($gNamespace, 'description', htmlspecialchars(strip_tags($description))));
 
