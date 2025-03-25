@@ -3,7 +3,7 @@
  * Plugin Name:             SM - Google Feed Generator for WooCommerce
  * Plugin URI:              https://github.com/mnestorov/smarty-google-feed-generator
  * Description:             Generates google product and product review feeds for Google Merchant Center.
- * Version:                 1.0.6
+ * Version:                 1.0.7
  * Author:                  Martin Nestorov
  * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
@@ -947,19 +947,31 @@ if (!function_exists('get_the_product_sku')) {
 
 if (!function_exists('smarty_gfg_invalidate_feed_cache')) {
     /**
-     * Invalidate cache or regenerate feed when a product is created, updated, or deleted.
+     * Invalidate cache when a product is created or updated, without immediate regeneration.
      */
     function smarty_gfg_invalidate_feed_cache($product_id) {
         // Check if the post is a 'product'
-        if (get_post_type($product_id) === 'product') {
-            // Invalidate cache
-			delete_transient('smarty_google_feed');
-			// Regenerate the feed
-			smarty_gfg_regenerate_feed();
+        if (get_post_type($product_id) !== 'product') {
+            return;
+        }
+
+        // Skip invalidation during cron or AJAX (mass updates)
+        if (wp_doing_cron() || defined('DOING_AJAX')) {
+            return;
+        }
+
+        // Invalidate cache only
+        delete_transient('smarty_google_feed');
+        // Optional: Schedule regeneration instead of doing it immediately
+        if (!wp_next_scheduled('smarty_gfg_regenerate_feed_event')) {
+            wp_schedule_single_event(time() + 60, 'smarty_gfg_regenerate_feed_event');
         }
     }
     add_action('woocommerce_new_product', 'smarty_gfg_invalidate_feed_cache');
     add_action('woocommerce_update_product', 'smarty_gfg_invalidate_feed_cache');
+
+    // Define the regeneration event
+    add_action('smarty_gfg_regenerate_feed_event', 'smarty_gfg_regenerate_feed');
 }
 
 if (!function_exists('smarty_gfg_invalidate_feed_cache_on_delete')) {

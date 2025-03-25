@@ -32,3 +32,7 @@
 ### 1.0.6 (2025.02.13)
 - Added `shipping` attribute for the Google product feeds based on WooCommerce shipping zones
 - Bug fix on `shipping` attribute display for the Bing product feeds
+
+### 1.0.7 (2025.03.25)
+- Optimized `smarty_gfg_invalidate_feed_cache` to prevent excessive feed regeneration during bulk product updates. Now invalidates cache without immediate regeneration and schedules a single feed update after 60 seconds, reducing server and Redis load.
+- Added checks for WP-Cron and AJAX to skip cache invalidation during mass operations, improving stability.
