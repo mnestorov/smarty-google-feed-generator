@@ -125,11 +125,6 @@ if (!function_exists('smarty_gfg_feed_generator_template_redirect')) {
             smarty_gfg_generate_bing_feed();
             exit;
         }
-
-        // Output an error message for invalid endpoints
-        if (is_404()) {
-            wp_die(__('Invalid feed request.', 'smarty-google-feed-generator'));
-        }
     }
     add_action('template_redirect', 'smarty_gfg_feed_generator_template_redirect');
 }
